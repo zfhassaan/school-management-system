@@ -1,6 +1,6 @@
 <template>
 	<div v-if="isOpen && application" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto animate-in fade-in duration-150 print:static print:bg-transparent print:p-0 print:overflow-visible print:block">
-		<div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 border border-slate-200 my-8 max-h-[95vh] overflow-y-auto print:max-h-none print:overflow-visible print:p-0 print:border-none print:shadow-none print:my-0 print:w-full print:max-w-none">
+		<div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-200 my-6 max-h-[95vh] overflow-y-auto print:max-h-none print:overflow-visible print:p-0 print:border-none print:shadow-none print:my-0 print:w-full print:max-w-none">
 			<!-- Top Control Bar (Hidden on print) -->
 			<div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 no-print">
 				<div class="flex items-center gap-2">
@@ -15,9 +15,17 @@
 				<div class="flex items-center gap-2">
 					<label class="py-1.5 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg text-xs transition shadow-2xs flex items-center gap-1.5 cursor-pointer">
 						<Upload class="w-3.5 h-3.5 text-slate-500" />
-						<span>{{ candidatePhoto ? 'Change Candidate Photo' : 'Upload Candidate Photo' }}</span>
+						<span>{{ candidatePhoto ? 'Change Photo' : 'Upload Candidate Photo' }}</span>
 						<input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onPhotoSelected" />
 					</label>
+					<button
+						v-if="candidatePhoto"
+						@click="removeCandidatePhoto"
+						type="button"
+						class="py-1.5 px-3 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-medium rounded-lg text-xs transition cursor-pointer"
+					>
+						Remove Photo
+					</button>
 					<button
 						@click="printForm"
 						class="py-1.5 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs transition shadow-xs flex items-center gap-1.5 cursor-pointer"
@@ -36,53 +44,51 @@
 			</div>
 
 			<!-- Printable Paper Form -->
-			<div class="admission-paper bg-white p-6 md:p-8 space-y-4 text-slate-900 border border-slate-300 rounded-xl print:border-none print:space-y-3 relative overflow-hidden">
-				<!-- Background Institutional Watermark (opacity 3%) -->
-				<div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] select-none">
-					<img v-if="authStore.schoolLogo" :src="authStore.schoolLogo" alt="watermark" class="w-96 h-96 object-contain" />
-					<div v-else class="text-9xl font-black text-slate-900 tracking-widest">{{ schoolInitials }}</div>
-				</div>
-
-				<!-- HEADER SECTION: Logo + Title + Candidate Photo -->
-				<div class="flex items-start justify-between gap-4 border-b-2 border-slate-900 pb-3 relative z-10">
-					<!-- Left: School Logo / Crest -->
-					<div class="w-20 h-20 rounded-full border-2 border-slate-800 bg-white flex items-center justify-center font-black text-2xl shrink-0 overflow-hidden shadow-2xs">
-						<img v-if="authStore.schoolLogo" :src="authStore.schoolLogo" alt="School Logo" class="w-full h-full object-contain p-1" />
-						<div v-else class="text-center">
-							<span class="text-indigo-950 font-black text-xl">{{ schoolInitials }}</span>
+			<div class="admission-paper bg-white text-slate-900 border-2 border-slate-900 p-6 md:p-8 space-y-3.5 relative">
+				
+				<!-- 1. FORMAL INSTITUTIONAL HEADER -->
+				<div class="flex items-center justify-between gap-4 border-b-2 border-slate-900 pb-3">
+					<!-- Left: School Crest / Logo -->
+					<div class="w-24 h-24 rounded-xl border border-slate-300 bg-white p-1.5 flex items-center justify-center shrink-0 shadow-2xs">
+						<img v-if="authStore.schoolLogo" :src="authStore.schoolLogo" alt="School Logo" class="max-w-full max-h-full object-contain" />
+						<div v-else class="w-full h-full bg-slate-900 text-white rounded-lg flex items-center justify-center font-black text-2xl tracking-widest font-serif">
+							{{ schoolInitials }}
 						</div>
 					</div>
 
-					<!-- Center: School Details & Document Title -->
+					<!-- Center: School Name & Document Title -->
 					<div class="flex-1 text-center px-2">
-						<h1 class="text-xl md:text-2xl font-black uppercase text-slate-900 tracking-tight leading-tight">
+						<h1 class="text-2xl md:text-3xl font-black uppercase text-slate-900 tracking-tight leading-none font-serif">
 							{{ currentSchoolName }}
 						</h1>
-						<p class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide mt-0.5">
-							{{ currentSchoolLegalName || 'Center of Academic Excellence & Holistic Learning' }}
+						<p v-if="currentSchoolLegalName" class="text-xs font-semibold text-slate-600 uppercase tracking-wider mt-1">
+							{{ currentSchoolLegalName }}
 						</p>
-						<p class="text-xs font-bold text-slate-800 uppercase tracking-widest mt-0.5">
-							{{ currentSchoolCampus }}
+						<p class="text-xs font-bold text-slate-700 tracking-wide mt-1">
+							{{ currentSchoolAddress }}
 						</p>
-						<div class="inline-block mt-1.5 border-b-2 border-slate-900 px-4 pb-0.5">
-							<h2 class="text-sm md:text-base font-black tracking-widest uppercase text-slate-900">
-								ADMISSION FORM
+						<p v-if="currentSchoolContact" class="text-[11px] text-slate-500 font-medium mt-0.5">
+							{{ currentSchoolContact }}
+						</p>
+						<div class="inline-block mt-2 px-6 py-1 bg-slate-900 text-white rounded shadow-2xs">
+							<h2 class="text-xs md:text-sm font-black tracking-widest uppercase">
+								OFFICIAL ADMISSION APPLICATION FORM
 							</h2>
 						</div>
 					</div>
 
-					<!-- Right: Candidate Passport Photo Box -->
-					<div class="w-24 h-28 border-2 border-slate-800 bg-slate-50 flex items-center justify-center shrink-0 relative overflow-hidden group shadow-2xs">
-						<img v-if="candidatePhoto" :src="candidatePhoto" alt="Candidate Photo" class="w-full h-full object-cover" />
-						<div v-else class="text-center p-1.5 text-slate-400">
-							<User class="w-6 h-6 mx-auto mb-1 text-slate-300" />
-							<p class="text-[8px] font-bold uppercase leading-tight text-slate-400">
-								Candidate Photo
-							</p>
-							<p class="text-[7px] text-slate-400">(Passport Size)</p>
+					<!-- Right: Candidate Passport Photo Frame -->
+					<div class="w-28 h-36 border-2 border-dashed border-slate-400 bg-slate-50 rounded flex flex-col items-center justify-center shrink-0 relative overflow-hidden group shadow-2xs">
+						<img v-if="candidatePhoto" :src="candidatePhoto" alt="Candidate" class="w-full h-full object-cover" />
+						<div v-else class="text-center p-2 flex flex-col items-center justify-center h-full">
+							<Camera class="w-7 h-7 mx-auto mb-1 text-slate-400" />
+							<span class="text-[9px] font-bold uppercase tracking-wider text-slate-700 leading-tight">
+								Affix Student Photo
+							</span>
+							<span class="text-[8px] text-slate-500 mt-1">Passport Size</span>
+							<span class="text-[7px] text-slate-400 italic mt-0.5">(Recent &amp; Attested)</span>
 						</div>
-
-						<!-- Hover trigger to upload photo (Hidden on print) -->
+						<!-- Non-printable hover to upload -->
 						<label class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold transition cursor-pointer no-print p-1 text-center">
 							<Camera class="w-4 h-4 mb-1" />
 							<span>{{ candidatePhoto ? 'Change' : 'Upload' }}</span>
@@ -91,184 +97,209 @@
 					</div>
 				</div>
 
-				<!-- SECTION 1: OFFICE USE & FINANCIALS -->
-				<div class="space-y-1 relative z-10">
-					<div class="bg-slate-900 text-white px-3 py-1 font-black text-[10px] uppercase tracking-wider flex items-center justify-between">
-						<span>SECTION 1: OFFICE USE &amp; ACADEMIC CLASSIFICATION</span>
-						<span class="font-mono text-[9px] font-bold text-slate-300">App No: {{ application.ApplicationNo }}</span>
+				<!-- 2. METADATA STAT STRIP -->
+				<div class="grid grid-cols-4 border-2 border-slate-900 bg-slate-100 divide-x-2 divide-slate-900 text-xs text-center font-medium">
+					<div class="p-1.5">
+						<span class="text-[9px] uppercase tracking-wider text-slate-600 block font-bold">Application No</span>
+						<span class="font-mono font-black text-slate-900 text-sm">{{ application.ApplicationNo }}</span>
 					</div>
-					<table class="w-full border-collapse border border-slate-400 text-xs">
-						<tbody>
-							<tr class="border-b border-slate-300">
-								<td class="w-1/4 p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Admission Date:</td>
-								<td class="w-1/4 p-1.5 font-medium border-r border-slate-300 text-[11px]">{{ formattedAdmissionDate }}</td>
-								<td class="w-1/4 p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Admission / Roll #:</td>
-								<td class="w-1/4 p-1.5 font-mono font-bold text-[11px]">{{ application.ApplicationNo }}</td>
-							</tr>
-							<tr class="border-b border-slate-300">
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Admission For Class:</td>
-								<td class="p-1.5 font-bold text-indigo-900 border-r border-slate-300 text-[11px]">{{ application.ClassName || 'Unassigned' }}</td>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Campus:</td>
-								<td class="p-1.5 font-semibold text-[11px]">{{ currentSchoolCampus }}</td>
-							</tr>
-							<tr>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[10px]">Academic Session:</td>
-								<td class="p-1.5 font-medium border-r border-slate-300 text-[11px]">{{ application.YearCode || '2026-2027' }}</td>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[10px]">Application Status:</td>
-								<td class="p-1.5 font-bold uppercase text-[10px]" :class="application.Status === 'enrolled' ? 'text-emerald-700' : 'text-slate-700'">
-									{{ application.Status.replace('_', ' ') }}
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="p-1.5">
+						<span class="text-[9px] uppercase tracking-wider text-slate-600 block font-bold">Admission Date</span>
+						<span class="font-bold text-slate-900 text-xs">{{ formattedAdmissionDate }}</span>
+					</div>
+					<div class="p-1.5">
+						<span class="text-[9px] uppercase tracking-wider text-slate-600 block font-bold">Enrolling Class</span>
+						<span class="font-black text-indigo-950 text-xs">{{ application.ClassName || 'Unassigned' }}</span>
+					</div>
+					<div class="p-1.5">
+						<span class="text-[9px] uppercase tracking-wider text-slate-600 block font-bold">Admission Status</span>
+						<span class="font-black uppercase text-xs" :class="application.Status === 'enrolled' ? 'text-emerald-700' : 'text-slate-900'">
+							{{ application.Status.replace('_', ' ') }}
+						</span>
+					</div>
 				</div>
 
-				<!-- SECTION 2: STUDENT PERSONAL INFO -->
-				<div class="space-y-1 relative z-10">
-					<div class="bg-slate-900 text-white px-3 py-1 font-black text-[10px] uppercase tracking-wider">
-						SECTION 2: STUDENT PERSONAL INFO
+				<!-- 3. SECTION 1: APPLICANT PERSONAL DETAILS -->
+				<div class="space-y-1">
+					<div class="bg-slate-900 text-white px-3 py-1 text-[11px] font-black uppercase tracking-wider flex items-center justify-between">
+						<span>SECTION 1: APPLICANT PERSONAL INFORMATION</span>
+						<span class="text-[9px] font-normal tracking-normal text-slate-300 font-mono">App No: {{ application.ApplicationNo }}</span>
 					</div>
-					<table class="w-full border-collapse border border-slate-400 text-xs">
+					<table class="w-full border-collapse border-2 border-slate-900 text-xs">
 						<tbody>
 							<tr class="border-b border-slate-300">
-								<td class="w-1/4 p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Student Full Name:</td>
-								<td colspan="3" class="p-1.5 font-black text-slate-900 text-sm tracking-wide">
+								<td class="w-[20%] p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Full Student Name:</td>
+								<td class="w-[30%] p-1.5 font-black text-slate-900 text-xs border-r border-slate-300">
 									{{ application.ApplicantFirstName }} {{ application.ApplicantLastName }}
+								</td>
+								<td class="w-[20%] p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">B-Form / CNIC No:</td>
+								<td class="w-[30%] p-1.5 font-mono font-bold text-slate-900 text-[11px]">
+									{{ application.Response?.bFormNo || application.Response?.cnic || '—' }}
 								</td>
 							</tr>
 							<tr class="border-b border-slate-300">
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Date of Birth:</td>
-								<td class="p-1.5 font-medium border-r border-slate-300 text-[11px]">{{ formattedDOB }}</td>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Gender:</td>
-								<td class="p-1.5 font-bold uppercase border-r border-slate-300 text-[11px]">{{ application.ApplicantGender || 'Unspecified' }}</td>
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Date of Birth:</td>
+								<td class="p-1.5 font-medium border-r border-slate-300 text-[11px]">
+									{{ formattedDOB }}
+								</td>
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Gender / Blood Group:</td>
+								<td class="p-1.5 font-bold uppercase text-[11px]">
+									{{ application.ApplicantGender || 'Not Specified' }} {{ application.Response?.bloodGroup ? `(${application.Response.bloodGroup})` : '' }}
+								</td>
 							</tr>
 							<tr class="border-b border-slate-300">
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Residential Address:</td>
-								<td colspan="3" class="p-1.5 font-medium text-[11px]">
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Residential Address:</td>
+								<td colspan="3" class="p-1.5 font-medium text-[11px] text-slate-800">
 									{{ application.Response?.address || application.Response?.homeAddress || 'As per guardian records' }}
 								</td>
 							</tr>
 							<tr>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Previous School:</td>
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Previous School Passed:</td>
 								<td class="p-1.5 font-medium border-r border-slate-300 text-[11px]">
-									{{ application.Response?.previousSchool || application.Response?.notes || '—' }}
+									{{ application.Response?.previousSchool || '— None / Fresh Admission —' }}
 								</td>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Medical Notes:</td>
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Medical / Special Notes:</td>
 								<td class="p-1.5 font-medium text-[11px]">
-									{{ application.Response?.medicalHistory || 'NO' }}
+									{{ application.Response?.medicalHistory || 'None Reported' }}
 								</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 
-				<!-- SECTION 3: PARENTS & GUARDIAN DETAILS -->
-				<div class="space-y-1 relative z-10">
-					<div class="bg-slate-900 text-white px-3 py-1 font-black text-[10px] uppercase tracking-wider">
-						SECTION 3: PARENTS &amp; GUARDIAN DETAILS
+				<!-- 4. SECTION 2: PARENTS & GUARDIAN DETAILS -->
+				<div class="space-y-1">
+					<div class="bg-slate-900 text-white px-3 py-1 text-[11px] font-black uppercase tracking-wider flex items-center justify-between">
+						<span>SECTION 2: PARENTS &amp; GUARDIAN DETAILS</span>
 					</div>
-					<table class="w-full border-collapse border border-slate-400 text-xs">
+					<table class="w-full border-collapse border-2 border-slate-900 text-xs">
 						<tbody>
 							<tr class="border-b border-slate-300">
-								<td class="w-1/4 p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Father / Guardian Name:</td>
-								<td class="w-1/4 p-1.5 font-bold text-slate-900 border-r border-slate-300 text-[11px]">
-									{{ application.Response?.guardianName || application.Response?.fatherName || 'Guardian' }}
+								<td class="w-[20%] p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Father / Guardian Name:</td>
+								<td class="w-[30%] p-1.5 font-bold text-slate-900 border-r border-slate-300 text-[11px]">
+									{{ application.Response?.guardianName || application.ApplicantLastName + ' Guardian' }}
 								</td>
-								<td class="w-1/4 p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Mobile (WhatsApp):</td>
-								<td class="w-1/4 p-1.5 font-mono font-bold text-[11px]">
-									{{ application.GuardianPhoneNormalized || application.Response?.guardianPhone || '—' }}
-								</td>
-							</tr>
-							<tr class="border-b border-slate-300">
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Guardian Email:</td>
-								<td class="p-1.5 font-medium border-r border-slate-300 text-[11px] text-slate-700 truncate">
-									{{ application.Response?.guardianEmail || '—' }}
-								</td>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Occupation / Business:</td>
-								<td class="p-1.5 font-medium text-[11px]">
-									{{ application.Response?.guardianOccupation || application.Response?.occupation || '—' }}
+								<td class="w-[20%] p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Father / Guardian CNIC:</td>
+								<td class="w-[30%] p-1.5 font-mono font-medium text-slate-900 text-[11px]">
+									{{ application.Response?.guardianCNIC || '—' }}
 								</td>
 							</tr>
 							<tr class="border-b border-slate-300">
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Mother's Name:</td>
-								<td class="p-1.5 font-semibold text-slate-800 border-r border-slate-300 text-[11px]">
-									{{ application.Response?.motherName || '—' }}
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Primary Mobile (WhatsApp):</td>
+								<td class="p-1.5 font-mono font-bold text-slate-900 border-r border-slate-300 text-[11px]">
+									{{ application.GuardianPhoneNormalized || '—' }}
 								</td>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Emergency Phone:</td>
-								<td class="p-1.5 font-mono text-[11px]">
-									{{ application.Response?.motherPhone || application.Response?.emergencyPhone || '—' }}
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
-				<!-- SECTION 4: SIBLINGS & EMERGENCY REFERENCE -->
-				<div class="space-y-1 relative z-10">
-					<div class="bg-slate-900 text-white px-3 py-1 font-black text-[10px] uppercase tracking-wider">
-						SECTION 4: SIBLINGS &amp; EMERGENCY REFERENCE
-					</div>
-					<table class="w-full border-collapse border border-slate-400 text-xs">
-						<tbody>
-							<tr class="border-b border-slate-300">
-								<td class="w-1/4 p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Reference Contact:</td>
-								<td class="w-1/4 p-1.5 font-medium border-r border-slate-300 text-[11px]">
-									{{ application.Response?.referenceName || 'Direct Admission' }}
-								</td>
-								<td class="w-1/4 p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Reference Phone:</td>
-								<td class="w-1/4 p-1.5 font-mono text-[11px]">
-									{{ application.Response?.referencePhone || '—' }}
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Occupation / Business:</td>
+								<td class="p-1.5 font-medium text-slate-800 text-[11px]">
+									{{ application.Response?.guardianOccupation || '—' }}
 								</td>
 							</tr>
 							<tr>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Sibling Enrolled in School:</td>
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Mother's Name:</td>
 								<td class="p-1.5 font-medium border-r border-slate-300 text-[11px]">
-									{{ application.Response?.siblingInSchool || 'NO' }}
+									{{ application.Response?.motherName || '—' }}
 								</td>
-								<td class="p-1.5 bg-slate-50 font-bold text-slate-700 border-r border-slate-300 text-[11px]">Sibling Class / Grade:</td>
-								<td class="p-1.5 font-medium text-[11px]">
-									{{ application.Response?.siblingClass || '—' }}
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Emergency Contact Phone:</td>
+								<td class="p-1.5 font-mono font-medium text-slate-900 text-[11px]">
+									{{ application.Response?.emergencyPhone || application.GuardianPhoneNormalized || '—' }}
 								</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 
-				<!-- FORMAL DECLARATION -->
-				<div class="pt-2 text-xs space-y-1 relative z-10">
-					<p class="font-bold uppercase tracking-wider text-[10px] text-slate-900">DECLARATION:</p>
-					<p class="text-[11px] leading-relaxed text-slate-700">
-						I wish to enroll my child at <strong class="text-slate-900">{{ currentSchoolName }}</strong>.
-						I have read all the rules carefully and agree to abide by the School Regulations and fee policies. All information provided above is correct to the best of my knowledge.
+				<!-- 5. SECTION 3: SIBLINGS & EMERGENCY REFERENCE -->
+				<div class="space-y-1">
+					<div class="bg-slate-900 text-white px-3 py-1 text-[11px] font-black uppercase tracking-wider flex items-center justify-between">
+						<span>SECTION 3: SIBLINGS &amp; EMERGENCY REFERENCE</span>
+					</div>
+					<table class="w-full border-collapse border-2 border-slate-900 text-xs">
+						<tbody>
+							<tr class="border-b border-slate-300">
+								<td class="w-[20%] p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Sibling Enrolled in School:</td>
+								<td class="w-[30%] p-1.5 font-medium border-r border-slate-300 text-[11px]">
+									{{ application.Response?.siblingInSchool || 'No' }}
+								</td>
+								<td class="w-[20%] p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Sibling Class / Roll No:</td>
+								<td class="w-[30%] p-1.5 font-medium text-[11px]">
+									{{ application.Response?.siblingClass || '—' }}
+								</td>
+							</tr>
+							<tr>
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Emergency Reference Person:</td>
+								<td class="p-1.5 font-medium border-r border-slate-300 text-[11px]">
+									{{ application.Response?.referenceContact || 'Family Guardian' }}
+								</td>
+								<td class="p-1.5 bg-slate-100 font-bold text-slate-800 border-r border-slate-300 text-[11px]">Contact Person Phone:</td>
+								<td class="p-1.5 font-mono font-medium text-[11px]">
+									{{ application.Response?.referencePhone || application.GuardianPhoneNormalized || '—' }}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- 6. FORMAL UNDERTAKING & DECLARATION -->
+				<div class="border border-slate-400 p-2.5 bg-slate-50 text-[10.5px] space-y-1 text-slate-700 leading-relaxed">
+					<p class="font-black uppercase tracking-wider text-[10px] text-slate-900">
+						OFFICIAL UNDERTAKING &amp; DECLARATION BY PARENT / GUARDIAN:
+					</p>
+					<p>
+						I/We hereby declare that all particulars entered in this admission application are authentic and true to the best of my knowledge. I understand that admission of my child/ward is subject to credential verification and approval by the school authority. I agree to abide by all the rules, regulations, fee schedule, and discipline policies of <strong>{{ currentSchoolName }}</strong> in force now or hereafter.
 					</p>
 				</div>
 
-				<!-- SIGNATURES -->
-				<div class="pt-8 flex justify-between items-end text-xs text-slate-700 relative z-10">
-					<div class="text-center w-56">
-						<div class="border-b-2 border-slate-900 pb-1 mb-1 font-medium text-slate-800 text-[11px]">
+				<!-- 7. FORMAL SIGNATURES -->
+				<div class="grid grid-cols-3 gap-6 pt-5 pb-2 text-center text-xs">
+					<div>
+						<div class="border-b-2 border-slate-900 pb-1 mb-1 font-bold text-slate-800 text-[11px] min-h-[20px]">
 							{{ application.Response?.guardianName || application.ApplicantLastName + ' Guardian' }}
 						</div>
-						<div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">
-							Parent / Guardian Signature
-						</div>
+						<p class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Parent / Guardian Signature</p>
+						<p class="text-[9px] text-slate-400">Date: {{ formattedAdmissionDate }}</p>
 					</div>
-
-					<div class="text-center w-60">
-						<div class="border-b-2 border-slate-900 pb-1 mb-1 font-bold text-slate-900 text-[11px]">
-							Office of Admissions
+					<div>
+						<div class="border-b-2 border-slate-900 pb-1 mb-1 font-bold text-slate-800 text-[11px] min-h-[20px]">
+							Admissions Committee
 						</div>
-						<div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">
-							Chairman / Principal Signature
+						<p class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Verified &amp; Checked By</p>
+						<p class="text-[9px] text-slate-400">Credential Verification</p>
+					</div>
+					<div>
+						<div class="border-b-2 border-slate-900 pb-1 mb-1 font-bold text-slate-900 text-[11px] min-h-[20px]">
+							Principal / Director
+						</div>
+						<p class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Principal / Head Seal</p>
+						<p class="text-[9px] text-slate-400">Official Sanction</p>
+					</div>
+				</div>
+
+				<!-- 8. OFFICIAL TEAR-OFF OFFICE RECORD SLIP -->
+				<div class="border-t-2 border-dashed border-slate-400 pt-2.5 space-y-2">
+					<div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-600">
+						<span>✂ ADMISSION ACKNOWLEDGEMENT SLIP (OFFICE / PARENT COPY)</span>
+						<span class="font-mono">{{ application.ApplicationNo }}</span>
+					</div>
+					<div class="border border-slate-300 p-2 rounded bg-slate-50 grid grid-cols-4 gap-2 text-[10.5px]">
+						<div>
+							<span class="text-[9px] text-slate-500 block uppercase font-bold">Candidate Name</span>
+							<span class="font-bold text-slate-900">{{ application.ApplicantFirstName }} {{ application.ApplicantLastName }}</span>
+						</div>
+						<div>
+							<span class="text-[9px] text-slate-500 block uppercase font-bold">Enrolled Class</span>
+							<span class="font-bold text-slate-900">{{ application.ClassName || 'Grade 1' }}</span>
+						</div>
+						<div>
+							<span class="text-[9px] text-slate-500 block uppercase font-bold">Roll / Form No</span>
+							<span class="font-bold text-slate-900 font-mono">{{ application.ApplicationNo }}</span>
+						</div>
+						<div>
+							<span class="text-[9px] text-slate-500 block uppercase font-bold">Admission Status</span>
+							<span class="font-bold uppercase text-emerald-700">{{ application.Status.replace('_', ' ') }}</span>
 						</div>
 					</div>
 				</div>
 
-				<!-- FOOTER -->
-				<div class="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-500 space-y-0.5 relative z-10">
-					<p class="font-semibold text-slate-700">{{ currentSchoolAddress }}</p>
-					<p v-if="currentSchoolContact">Contact: {{ currentSchoolContact }}</p>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -279,7 +310,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import type { ApplicationDTO } from '@/types/common'
 import { formatCivilDate } from '@/utils/format'
-import { Printer, Upload, X, User, Camera } from 'lucide-vue-next'
+import { Printer, Upload, X, Camera } from 'lucide-vue-next'
 
 const props = defineProps<{
 	application: ApplicationDTO | null
@@ -299,18 +330,35 @@ const currentSchoolName = computed(() => {
 })
 
 const currentSchoolLegalName = computed(() => {
-	return authStore.school?.legalName || ''
+	const legal = authStore.school?.legalName || ''
+	if (legal && legal.trim().toLowerCase() === currentSchoolName.value.trim().toLowerCase()) {
+		return ''
+	}
+	return legal
 })
 
 const currentSchoolCode = computed(() => {
 	return authStore.school?.code || ''
 })
 
-const currentSchoolCampus = computed(() => {
-	if (authStore.school?.code) {
-		return `${authStore.school.code} CAMPUS`
+const currentSchoolAddress = computed(() => {
+	const addr = authStore.school?.address
+	if (addr) {
+		const parts = [addr.line1, addr.city, addr.country].filter(Boolean)
+		if (parts.length > 0) return parts.join(', ')
 	}
-	return 'MAIN CAMPUS'
+	if (authStore.school?.code) {
+		return `${authStore.school.code} Campus`
+	}
+	return 'Academic Campus & Central Office'
+})
+
+const currentSchoolContact = computed(() => {
+	const s = authStore.school
+	const parts = []
+	if (s?.phone) parts.push(`Mob / Tel: ${s.phone}`)
+	if (s?.email) parts.push(`Email: ${s.email}`)
+	return parts.join(' • ')
 })
 
 const schoolInitials = computed(() => {
@@ -324,23 +372,6 @@ const schoolInitials = computed(() => {
 		return (words[0][0] + words[1][0]).toUpperCase()
 	}
 	return name.substring(0, 2).toUpperCase()
-})
-
-const currentSchoolAddress = computed(() => {
-	const addr = authStore.school?.address
-	if (addr) {
-		const parts = [addr.line1, addr.city, addr.country].filter(Boolean)
-		if (parts.length > 0) return parts.join(', ')
-	}
-	return 'Academic Campus & Central Office'
-})
-
-const currentSchoolContact = computed(() => {
-	const s = authStore.school
-	const parts = []
-	if (s?.phone) parts.push(`Mob / Tel: ${s.phone}`)
-	if (s?.email) parts.push(`Email: ${s.email}`)
-	return parts.join(' • ')
 })
 
 const formattedAdmissionDate = computed(() => {
@@ -392,6 +423,17 @@ function onPhotoSelected(e: Event) {
 	reader.readAsDataURL(file)
 }
 
+function removeCandidatePhoto() {
+	candidatePhoto.value = null
+	if (props.application) {
+		localStorage.removeItem(`candidate_photo_${props.application.ID}`)
+		if (props.application.Response) {
+			delete props.application.Response.candidatePhoto
+		}
+		emit('photoUpdated', '')
+	}
+}
+
 function printForm() {
 	const originalTitle = document.title
 	document.title = ''
@@ -413,9 +455,14 @@ onMounted(async () => {
 
 <style scoped>
 @media print {
+	* {
+		-webkit-print-color-adjust: exact !important;
+		print-color-adjust: exact !important;
+	}
+
 	@page {
 		margin: 0 !important;
-		size: auto;
+		size: A4 portrait;
 	}
 
 	.no-print {
@@ -423,15 +470,15 @@ onMounted(async () => {
 	}
 
 	.admission-paper {
-		border: none !important;
+		border: 2px solid #0f172a !important;
 		box-shadow: none !important;
-		padding: 10mm 12mm !important;
+		padding: 8mm 10mm !important;
 		margin: 0 auto !important;
 		max-width: 100% !important;
 		width: 100% !important;
 		box-sizing: border-box !important;
 		page-break-after: avoid;
+		page-break-inside: avoid;
 	}
 }
 </style>
-
