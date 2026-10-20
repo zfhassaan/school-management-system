@@ -52,6 +52,7 @@ type UpdateApplicationStatusInput struct {
 
 type EnrollApplicationInput struct {
 	ApplicationID shared.ID   `json:"applicationId"`
+	ClassID       *shared.ID  `json:"classId,omitempty"`
 	SectionID     *shared.ID  `json:"sectionId,omitempty"`
 	RollNo        *string     `json:"rollNo,omitempty"`
 	AdmissionNo   string      `json:"admissionNo"`
@@ -379,10 +380,23 @@ func (h *AdmissionCommandsHandler) EnrollApplication(ctx context.Context, in Enr
 			gender = students.GenderUnspecified
 		}
 
+		targetClassID := app.AppliedClassID
+		if in.ClassID != nil && !in.ClassID.IsZero() {
+			targetClassID = *in.ClassID
+		}
+
+		admNo := strings.TrimSpace(in.AdmissionNo)
+		if admNo == "" {
+			admNo = strings.Replace(app.ApplicationNo, "APP-", "ADM-", 1)
+			if admNo == app.ApplicationNo {
+				admNo = "ADM-" + app.ApplicationNo
+			}
+		}
+
 		student := &students.Student{
 			ID:            studentID,
 			SchoolID:      app.SchoolID,
-			AdmissionNo:   strings.TrimSpace(in.AdmissionNo),
+			AdmissionNo:   admNo,
 			FirstName:     app.ApplicantFirstName,
 			LastName:      app.ApplicantLastName,
 			DateOfBirth:   dob,
@@ -405,7 +419,7 @@ func (h *AdmissionCommandsHandler) EnrollApplication(ctx context.Context, in Enr
 			ID:                     enrollmentID,
 			StudentID:              studentID,
 			AcademicYearID:         app.AcademicYearID,
-			ClassID:                app.AppliedClassID,
+			ClassID:                targetClassID,
 			SectionID:              in.SectionID,
 			RollNo:                 in.RollNo,
 			Status:                 students.EnrollmentActive,
@@ -421,6 +435,7 @@ func (h *AdmissionCommandsHandler) EnrollApplication(ctx context.Context, in Enr
 		// Update application to enrolled
 		app.Status = admissions.AppEnrolled
 		app.StudentID = &studentID
+		app.AppliedClassID = targetClassID
 		if err := r.Admissions.UpdateStatus(ctx, app, "Enrolled as student", actor.UserID, now); err != nil {
 			return err
 		}

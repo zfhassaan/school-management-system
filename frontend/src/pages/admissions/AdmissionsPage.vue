@@ -303,30 +303,130 @@
 		</div>
 
 		<!-- Enroll Student Modal -->
-		<div v-if="showEnrollModal && selectedApp" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-			<div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 border border-slate-200">
-				<h3 class="text-sm font-bold text-slate-900 mb-1">Enroll Student</h3>
-				<p class="text-xs text-slate-500 mb-3">Converts {{ selectedApp.ApplicantFirstName }} {{ selectedApp.ApplicantLastName }} into an active student.</p>
-
-				<form @submit.prevent="submitEnroll" class="space-y-3 text-xs">
+		<div v-if="showEnrollModal && selectedApp" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+			<div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 transform transition-all animate-in zoom-in-95 duration-150 relative">
+				<div class="flex items-start justify-between mb-4">
 					<div>
-						<label class="block font-medium text-slate-700 mb-1">Admission Date *</label>
-						<input v-model="enrollAdmissionDate" type="date" required class="w-full border border-slate-300 rounded-lg p-2" />
+						<h3 class="text-base font-bold text-slate-900">Enroll Student</h3>
+						<p class="text-xs text-slate-500 mt-0.5">Convert applicant into an active enrolled student.</p>
 					</div>
+					<button
+						type="button"
+						@click="showEnrollModal = false"
+						class="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition cursor-pointer"
+						title="Close"
+					>
+						<X class="w-4 h-4" />
+					</button>
+				</div>
+
+				<!-- Applicant Summary Pill -->
+				<div class="mb-4 p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl flex items-center justify-between text-xs">
 					<div>
-						<label class="block font-medium text-slate-700 mb-1">Section</label>
-						<select v-model="enrollSectionId" class="w-full border border-slate-300 rounded-lg p-2 bg-white">
-							<option value="">No Section</option>
-							<option v-for="s in availableSections" :key="s.ID" :value="s.ID">{{ s.Name }}</option>
+						<p class="font-bold text-slate-900">
+							{{ selectedApp.ApplicantFirstName }} {{ selectedApp.ApplicantLastName }}
+						</p>
+						<p class="text-[11px] text-slate-500">
+							Application: <span class="font-mono font-semibold text-indigo-700">{{ selectedApp.ApplicationNo }}</span>
+						</p>
+					</div>
+					<div class="text-right">
+						<span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Applied Class</span>
+						<span class="font-semibold text-slate-800">{{ selectedApp.ClassName || getClassName(selectedApp.AppliedClassID) }}</span>
+					</div>
+				</div>
+
+				<form @submit.prevent="submitEnroll" class="space-y-3.5 text-xs">
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Admission Date *</label>
+							<input
+								v-model="enrollAdmissionDate"
+								type="date"
+								required
+								class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+							/>
+						</div>
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Admission / Student ID</label>
+							<input
+								v-model="enrollAdmissionNo"
+								type="text"
+								:placeholder="defaultAdmissionNo"
+								class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+							/>
+						</div>
+					</div>
+
+					<!-- Class Selector -->
+					<div>
+						<div class="flex items-center justify-between mb-1">
+							<label class="block font-medium text-slate-700">Enrolling Class *</label>
+							<span class="text-[10px] text-slate-400 font-medium">{{ classes.length }} classes available</span>
+						</div>
+						<select
+							v-model="enrollClassId"
+							@change="onEnrollClassChange"
+							required
+							class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+						>
+							<option value="" disabled>Select Class...</option>
+							<option v-for="c in classes" :key="c.ID" :value="c.ID">
+								{{ c.Name }}
+							</option>
 						</select>
 					</div>
+
+					<!-- Section Selector -->
 					<div>
-						<label class="block font-medium text-slate-700 mb-1">Roll Number</label>
-						<input v-model="enrollRollNo" placeholder="e.g. 01" class="w-full border border-slate-300 rounded-lg p-2" />
+						<div class="flex items-center justify-between mb-1">
+							<label class="block font-medium text-slate-700">Class Section</label>
+							<span v-if="availableSections.length > 0" class="text-[10px] text-emerald-600 font-medium">
+								{{ availableSections.length }} section(s) available
+							</span>
+							<span v-else class="text-[10px] text-amber-600 font-medium">
+								No sections configured
+							</span>
+						</div>
+						<select
+							v-model="enrollSectionId"
+							class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+						>
+							<option value="">No Section / General</option>
+							<option v-for="s in availableSections" :key="s.ID" :value="s.ID">
+								{{ s.Name }}
+							</option>
+						</select>
 					</div>
-					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" @click="showEnrollModal = false" class="px-3 py-1.5 border border-slate-300 rounded-lg cursor-pointer">Cancel</button>
-						<button type="submit" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-medium cursor-pointer">Confirm Enrollment</button>
+
+					<!-- Roll Number -->
+					<div>
+						<label class="block font-medium text-slate-700 mb-1">Roll Number (Optional)</label>
+						<input
+							v-model="enrollRollNo"
+							placeholder="e.g. 01"
+							class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+						/>
+					</div>
+
+					<!-- Action buttons -->
+					<div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+						<button
+							type="button"
+							@click="showEnrollModal = false"
+							class="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg text-xs transition cursor-pointer"
+							:disabled="enrollingStudent"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-xs transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+							:disabled="enrollingStudent || !enrollClassId"
+						>
+							<span v-if="enrollingStudent" class="animate-spin mr-1">⏳</span>
+							<span>{{ enrollingStudent ? 'Enrolling...' : 'Confirm Enrollment' }}</span>
+						</button>
 					</div>
 				</form>
 			</div>
@@ -361,9 +461,36 @@ const reviewStatus = ref('under_review')
 const reviewNotes = ref('')
 
 const enrollAdmissionDate = ref(new Date().toISOString().split('T')[0])
+const enrollClassId = ref('')
 const enrollSectionId = ref('')
 const enrollRollNo = ref('')
+const enrollAdmissionNo = ref('')
+const defaultAdmissionNo = ref('')
+const enrollingStudent = ref(false)
+const allSections = ref<SectionDTO[]>([])
 const availableSections = ref<SectionDTO[]>([])
+
+function getClassName(classId?: string) {
+	if (!classId) return ''
+	const c = classes.value.find(cl => cl.ID === classId)
+	return c ? c.Name : classId
+}
+
+function onEnrollClassChange() {
+	enrollSectionId.value = ''
+	filterSectionsForClass()
+}
+
+function filterSectionsForClass() {
+	if (!enrollClassId.value) {
+		availableSections.value = []
+		return
+	}
+	availableSections.value = allSections.value.filter(s => s.ClassID === enrollClassId.value)
+	if (availableSections.value.length === 1) {
+		enrollSectionId.value = availableSections.value[0].ID
+	}
+}
 
 // Direct Application Form Data
 const academicYears = ref<AcademicYearDTO[]>([])
@@ -527,23 +654,47 @@ async function submitReview() {
 
 async function openEnrollModal(app: ApplicationDTO) {
 	selectedApp.value = app
+	if (classes.value.length === 0) {
+		await loadFormMetadata()
+	}
+
+	enrollClassId.value = app.AppliedClassID || (classes.value.length > 0 ? classes.value[0].ID : '')
 	enrollSectionId.value = ''
 	enrollRollNo.value = ''
-	const secRes = await services.academics.listSectionsByYear(app.AcademicYearID)
-	if (secRes.success && secRes.data) {
-		availableSections.value = secRes.data.filter(s => s.ClassID === app.AppliedClassID)
+	defaultAdmissionNo.value = app.ApplicationNo ? app.ApplicationNo.replace('APP-', 'ADM-') : 'ADM-2026-0001'
+	enrollAdmissionNo.value = defaultAdmissionNo.value
+	enrollAdmissionDate.value = new Date().toISOString().split('T')[0]
+
+	try {
+		const secRes = await services.academics.listSectionsByYear(app.AcademicYearID)
+		if (secRes.success && secRes.data) {
+			allSections.value = secRes.data
+		} else {
+			allSections.value = []
+		}
+	} catch (e) {
+		allSections.value = []
 	}
+
+	filterSectionsForClass()
 	showEnrollModal.value = true
 }
 
 async function submitEnroll() {
 	if (!selectedApp.value) return
+	if (!enrollClassId.value) {
+		toast.error('Please select an Enrolling Class')
+		return
+	}
+	enrollingStudent.value = true
 	try {
 		const [y, m, d] = enrollAdmissionDate.value.split('-').map(Number)
 		const res = await services.admissions.enrollApplication({
 			applicationId: selectedApp.value.ID,
+			classId: enrollClassId.value,
 			sectionId: enrollSectionId.value || undefined,
-			rollNo: enrollRollNo.value || undefined,
+			rollNo: enrollRollNo.value.trim() || undefined,
+			admissionNo: enrollAdmissionNo.value.trim() || defaultAdmissionNo.value,
 			admissionDate: { Year: y, Month: m, Day: d }
 		})
 		if (res.success && res.data) {
@@ -555,6 +706,8 @@ async function submitEnroll() {
 		}
 	} catch (e: any) {
 		toast.error(e.message || 'An error occurred during enrollment')
+	} finally {
+		enrollingStudent.value = false
 	}
 }
 

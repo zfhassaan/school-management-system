@@ -745,6 +745,7 @@ export namespace admissions {
 	}
 	export class EnrollApplicationInput {
 	    applicationId: string;
+	    classId?: string;
 	    sectionId?: string;
 	    rollNo?: string;
 	    admissionNo: string;
@@ -757,6 +758,7 @@ export namespace admissions {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.applicationId = source["applicationId"];
+	        this.classId = source["classId"];
 	        this.sectionId = source["sectionId"];
 	        this.rollNo = source["rollNo"];
 	        this.admissionNo = source["admissionNo"];
