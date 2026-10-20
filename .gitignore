@@ -1,0 +1,32 @@
+# Binaries and executables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+tools/bin/
+
+# Test artifacts and databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.log
+
+# Go dependencies and cache
+vendor/
+
+# Node & Frontend
+node_modules/
+frontend/dist/
+.vite/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+

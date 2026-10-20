@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@layer base {
+	:root {
+		--font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+	}
+
+	body {
+		font-family: var(--font-sans);
+		user-select: none;
+	}
+
+	input, textarea {
+		user-select: text;
+	}
+}
+

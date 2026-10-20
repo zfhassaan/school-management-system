@@ -1,0 +1,108 @@
+import { createRouter, createWebHashHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+import LoginPage from '@/pages/auth/LoginPage.vue'
+import SetupPage from '@/pages/auth/SetupPage.vue'
+import AppShell from '@/layouts/AppShell.vue'
+import DashboardPage from '@/pages/dashboard/DashboardPage.vue'
+import SchoolSettingsPage from '@/pages/settings/SchoolSettingsPage.vue'
+import UsersPage from '@/pages/users/UsersPage.vue'
+import RolesPage from '@/pages/roles/RolesPage.vue'
+import AuditPage from '@/pages/audit/AuditPage.vue'
+
+const router = createRouter({
+	history: createWebHashHistory(),
+	routes: [
+		{
+			path: '/login',
+			name: 'login',
+			component: LoginPage,
+			meta: { public: true, title: 'Sign In' }
+		},
+		{
+			path: '/setup',
+			name: 'setup',
+			component: SetupPage,
+			meta: { public: true, title: 'First-Run Setup' }
+		},
+		{
+			path: '/',
+			component: AppShell,
+			children: [
+				{
+					path: '',
+					name: 'dashboard',
+					component: DashboardPage,
+					meta: { title: 'Dashboard' }
+				},
+				{
+					path: 'settings/school',
+					name: 'settings-school',
+					component: SchoolSettingsPage,
+					meta: { title: 'School Settings', permission: 'settings.manage' }
+				},
+				{
+					path: 'settings/users',
+					name: 'settings-users',
+					component: UsersPage,
+					meta: { title: 'User Accounts', permission: 'users.view' }
+				},
+				{
+					path: 'settings/roles',
+					name: 'settings-roles',
+					component: RolesPage,
+					meta: { title: 'Roles & Permissions', permission: 'roles.manage' }
+				},
+				{
+					path: 'audit',
+					name: 'audit',
+					component: AuditPage,
+					meta: { title: 'Audit Trail', permission: 'audit.view' }
+				}
+			]
+		}
+	]
+})
+
+router.beforeEach(async (to, _from, next) => {
+	const authStore = useAuthStore()
+
+	// 1. Ensure setup status is known
+	if (authStore.isInitialized === null) {
+		await authStore.checkSetup()
+	}
+
+	// 2. If system is not initialized, only /setup is accessible
+	if (!authStore.isInitialized) {
+		if (to.path !== '/setup') {
+			return next('/setup')
+		}
+		return next()
+	}
+
+	// 3. If system is initialized, /setup cannot be accessed again
+	if (to.path === '/setup') {
+		return next('/login')
+	}
+
+	// 4. Check Authentication
+	if (!to.meta.public && !authStore.isAuthenticated) {
+		return next('/login')
+	}
+
+	// 5. If already authenticated and visiting /login, redirect to /
+	if (to.path === '/login' && authStore.isAuthenticated) {
+		return next('/')
+	}
+
+	// 6. Check specific permission
+	const requiredPerm = to.meta.permission as string | undefined
+	if (requiredPerm && !authStore.hasPermission(requiredPerm)) {
+		return next('/')
+	}
+
+	next()
+})
+
+export default router
+
