@@ -1,6 +1,6 @@
-export function formatMinor(minor: number, currency = 'USD'): string {
+export function formatMinor(minor: number, currency = 'PKR'): string {
 	const amount = (minor || 0) / 100
-	return new Intl.NumberFormat('en-US', {
+	return new Intl.NumberFormat('en-PK', {
 		style: 'currency',
 		currency: currency,
 		minimumFractionDigits: 2,

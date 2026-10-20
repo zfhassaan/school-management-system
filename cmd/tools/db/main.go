@@ -52,13 +52,39 @@ func main() {
 	dbPath := cfg.Database.Path
 	ctx := context.Background()
 
-	// 1. Fresh: Remove existing database files
+	// 1. Fresh: Remove existing database files or drop all tables
 	if *freshFlag {
 		fmt.Printf("🗑️  Performing fresh migration on: %s\n", dbPath)
-		_ = os.Remove(dbPath)
+		err1 := os.Remove(dbPath)
 		_ = os.Remove(dbPath + "-wal")
 		_ = os.Remove(dbPath + "-shm")
-		fmt.Println("✅ Existing database files cleared.")
+
+		if err1 != nil && !os.IsNotExist(err1) {
+			fmt.Println("⚠️  Database file is currently open by running app. Resetting tables via SQL connection...")
+			cleanCfg := cfg
+			logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+			rawDB, openErr := sqlite.Open(ctx, cleanCfg, logger)
+			if openErr == nil {
+				_, _ = rawDB.WriterDB().ExecContext(ctx, "PRAGMA foreign_keys = OFF;")
+				rows, qErr := rawDB.WriterDB().QueryContext(ctx, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+				if qErr == nil {
+					var tables []string
+					for rows.Next() {
+						var tbl string
+						if err := rows.Scan(&tbl); err == nil {
+							tables = append(tables, tbl)
+						}
+					}
+					rows.Close()
+					for _, tbl := range tables {
+						_, _ = rawDB.WriterDB().ExecContext(ctx, fmt.Sprintf("DROP TABLE IF EXISTS %s;", tbl))
+					}
+				}
+				_, _ = rawDB.WriterDB().ExecContext(ctx, "PRAGMA foreign_keys = ON;")
+				rawDB.Close()
+			}
+		}
+		fmt.Println("✅ Existing database cleared.")
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -107,8 +133,8 @@ func seedDatabase(ctx context.Context, db *sqlite.DB) error {
 	setupRes, err := setupHandler.Execute(ctx, authCmd.FirstRunSetupInput{
 		SchoolName:         "Oakridge International Academy",
 		SchoolCode:         "OAK-01",
-		Timezone:           "America/New_York",
-		CurrencyCode:       "USD",
+		Timezone:           "Asia/Karachi",
+		CurrencyCode:       "PKR",
 		CurrencyMinorUnits: 2,
 		AdminUsername:      "admin",
 		AdminDisplayName:   "Principal Admin",
@@ -427,7 +453,7 @@ func seedDatabase(ctx context.Context, db *sqlite.DB) error {
 		StudentID:     aliceID,
 		PaymentDate:   "2026-09-05",
 		PaymentMethod: payments.MethodBankTransfer,
-		AmountMinor:   30000, // $300.00
+		AmountMinor:   30000, // Rs 300.00
 		ReferenceNo:   "WIRE-889900",
 		PayerName:     "Arthur Wonderland",
 		Notes:         "First term tuition instalment",
@@ -435,22 +461,22 @@ func seedDatabase(ctx context.Context, db *sqlite.DB) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("     -> Receipt %s issued for Alice ($300.00 allocated)\n", payRes1.ReceiptNo)
+	fmt.Printf("     -> Receipt %s issued for Alice (Rs 300.00 allocated)\n", payRes1.ReceiptNo)
 
-	// Bob pays $600.00 (Bob's bill is $560.00 due to 20% discount on tuition: $480 + $50 + $30 = $560.00)
-	// Excess $40.00 goes to Bob's credit balance advance!
+	// Bob pays Rs 600.00 (Bob's bill is Rs 560.00 due to 20% discount on tuition: Rs 480 + Rs 50 + Rs 30 = Rs 560.00)
+	// Excess Rs 40.00 goes to Bob's credit balance advance!
 	payRes2, err := paymentCmdHandler.RecordPayment(authCtx, paymentCmd.RecordPaymentInput{
 		StudentID:     bobID,
 		PaymentDate:   "2026-09-08",
 		PaymentMethod: payments.MethodCash,
-		AmountMinor:   60000, // $600.00
+		AmountMinor:   60000, // Rs 600.00
 		PayerName:     "Bob Parent",
 		Notes:         "Cash payment at bursar counter",
 	})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("     -> Receipt %s issued for Bob (Fully paid + $40.00 credit advance stored)\n", payRes2.ReceiptNo)
+	fmt.Printf("     -> Receipt %s issued for Bob (Fully paid + Rs 40.00 credit advance stored)\n", payRes2.ReceiptNo)
 
 	fmt.Println("\n==================================================================")
 	fmt.Println("🏫  SCHOOL DEMO ENVIRONMENT READY!")
