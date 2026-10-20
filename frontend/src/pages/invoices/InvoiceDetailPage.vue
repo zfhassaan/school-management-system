@@ -282,7 +282,15 @@ async function loadSchoolProfile() {
 }
 
 function printInvoice() {
+	const originalTitle = document.title
+	document.title = ''
 	window.print()
+	window.addEventListener('afterprint', () => {
+		document.title = originalTitle
+	}, { once: true })
+	setTimeout(() => {
+		document.title = originalTitle
+	}, 1500)
 }
 
 async function submitVoid() {
@@ -326,6 +334,11 @@ function getStatusBadgeClass(status: string) {
 
 <style scoped>
 @media print {
+	@page {
+		margin: 0 !important;
+		size: auto;
+	}
+
 	.no-print {
 		display: none !important;
 	}
@@ -333,10 +346,11 @@ function getStatusBadgeClass(status: string) {
 	.invoice-paper {
 		border: none !important;
 		box-shadow: none !important;
-		padding: 0 !important;
-		margin: 0 !important;
+		padding: 12mm 14mm !important;
+		margin: 0 auto !important;
 		max-width: 100% !important;
 		width: 100% !important;
+		box-sizing: border-box !important;
 	}
 }
 </style>

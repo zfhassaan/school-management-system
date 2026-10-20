@@ -1,6 +1,6 @@
 <template>
-	<div v-if="isOpen && application" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto animate-in fade-in duration-150">
-		<div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 border border-slate-200 my-8 max-h-[95vh] overflow-y-auto print:max-h-none print:overflow-visible print:p-0 print:border-none print:shadow-none print:my-0">
+	<div v-if="isOpen && application" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto animate-in fade-in duration-150 print:static print:bg-transparent print:p-0 print:overflow-visible print:block">
+		<div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 border border-slate-200 my-8 max-h-[95vh] overflow-y-auto print:max-h-none print:overflow-visible print:p-0 print:border-none print:shadow-none print:my-0 print:w-full print:max-w-none">
 			<!-- Top Control Bar (Hidden on print) -->
 			<div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 no-print">
 				<div class="flex items-center gap-2">
@@ -36,7 +36,7 @@
 			</div>
 
 			<!-- Printable Paper Form -->
-			<div class="admission-paper bg-white p-6 md:p-8 space-y-4 text-slate-900 border border-slate-300 rounded-xl print:border-none print:p-0 print:space-y-3 relative overflow-hidden">
+			<div class="admission-paper bg-white p-6 md:p-8 space-y-4 text-slate-900 border border-slate-300 rounded-xl print:border-none print:space-y-3 relative overflow-hidden">
 				<!-- Background Institutional Watermark (opacity 3%) -->
 				<div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] select-none">
 					<img v-if="authStore.schoolLogo" :src="authStore.schoolLogo" alt="watermark" class="w-96 h-96 object-contain" />
@@ -393,7 +393,15 @@ function onPhotoSelected(e: Event) {
 }
 
 function printForm() {
+	const originalTitle = document.title
+	document.title = ''
 	window.print()
+	window.addEventListener('afterprint', () => {
+		document.title = originalTitle
+	}, { once: true })
+	setTimeout(() => {
+		document.title = originalTitle
+	}, 1500)
 }
 
 onMounted(async () => {
@@ -405,6 +413,11 @@ onMounted(async () => {
 
 <style scoped>
 @media print {
+	@page {
+		margin: 0 !important;
+		size: auto;
+	}
+
 	.no-print {
 		display: none !important;
 	}
@@ -412,10 +425,13 @@ onMounted(async () => {
 	.admission-paper {
 		border: none !important;
 		box-shadow: none !important;
-		padding: 0 !important;
-		margin: 0 !important;
+		padding: 10mm 12mm !important;
+		margin: 0 auto !important;
 		max-width: 100% !important;
 		width: 100% !important;
+		box-sizing: border-box !important;
+		page-break-after: avoid;
 	}
 }
 </style>
+
