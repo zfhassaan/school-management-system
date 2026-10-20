@@ -551,3 +551,4 @@ function getAdjustmentBadgeClass(type: string) {
 	}
 }
 </script>
+

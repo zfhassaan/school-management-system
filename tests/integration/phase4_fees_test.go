@@ -374,3 +374,4 @@ func TestFeeEngineAndInvoicingLifecycle(t *testing.T) {
 	t.Logf("Phase 4 fee engine integration test passed! Alice Total=%d, Bob Total=%d (Discount=%d), Invoices=%d",
 		aliceInvoice.Invoice.TotalAmountMinor, bobInvoice.Invoice.TotalAmountMinor, bobInvoice.Invoice.DiscountAmountMinor, len(invoiceIDs))
 }
+

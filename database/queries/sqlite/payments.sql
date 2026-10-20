@@ -139,3 +139,4 @@ LIMIT ?;
 SELECT * FROM invoices
 WHERE school_id = ? AND student_id = ? AND status IN ('issued', 'partially_paid')
 ORDER BY issue_date ASC, created_at ASC;
+

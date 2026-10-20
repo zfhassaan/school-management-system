@@ -289,3 +289,4 @@ type Repository interface {
 	InsertInvoiceItem(ctx context.Context, item *InvoiceItem) error
 	CountInvoicesInPeriod(ctx context.Context, schoolID shared.ID, billingPeriod string) (int64, error)
 }
+

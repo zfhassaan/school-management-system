@@ -257,3 +257,4 @@ type Repository interface {
 
 	GetUnpaidInvoicesForStudent(ctx context.Context, schoolID, studentID shared.ID) ([]*fees.Invoice, error)
 }
+

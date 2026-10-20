@@ -203,3 +203,4 @@ DROP TABLE IF EXISTS fee_structure_versions;
 DROP TABLE IF EXISTS fee_structures;
 DROP TABLE IF EXISTS fee_heads;
 -- +goose StatementEnd
+

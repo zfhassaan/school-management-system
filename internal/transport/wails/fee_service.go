@@ -184,3 +184,4 @@ func (s *FeeService) DecideStudentDiscount(ctx context.Context, in feeCmd.Decide
 	}
 	return dto.Ok(true)
 }
+

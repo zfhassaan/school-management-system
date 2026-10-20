@@ -911,3 +911,4 @@ function calculateVersionTotal(items: FeeStructureItemDTO[]): number {
 		.reduce((acc, it) => acc + (it.AmountMinor || 0), 0)
 }
 </script>
+

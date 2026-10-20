@@ -191,3 +191,4 @@ INSERT INTO invoice_items (
 -- name: CountInvoicesInPeriod :one
 SELECT COUNT(*) FROM invoices
 WHERE school_id = ? AND billing_period = ?;
+

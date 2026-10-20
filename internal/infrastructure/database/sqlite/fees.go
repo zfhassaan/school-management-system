@@ -1015,3 +1015,4 @@ func (r *FeesRepository) CountInvoicesInPeriod(ctx context.Context, schoolID sha
 	}
 	return count, nil
 }
+

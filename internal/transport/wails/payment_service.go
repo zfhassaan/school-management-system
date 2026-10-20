@@ -118,3 +118,4 @@ func (s *PaymentService) GetFinancialAdjustment(ctx context.Context, id shared.I
 	}
 	return dto.Ok(res)
 }
+

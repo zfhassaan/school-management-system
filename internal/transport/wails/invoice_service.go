@@ -68,3 +68,4 @@ func (s *InvoiceService) VoidInvoice(ctx context.Context, in feeCmd.VoidInvoiceI
 	}
 	return dto.Ok(true)
 }
+

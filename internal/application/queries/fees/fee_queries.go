@@ -246,3 +246,4 @@ func (h *FeeQueriesHandler) GetInvoice(ctx context.Context, id shared.ID) (*Invo
 	})
 	return res, err
 }
+

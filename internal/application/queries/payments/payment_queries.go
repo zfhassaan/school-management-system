@@ -178,3 +178,4 @@ func (h *PaymentQueriesHandler) GetFinancialAdjustment(ctx context.Context, id s
 	}
 	return adj, nil
 }
+

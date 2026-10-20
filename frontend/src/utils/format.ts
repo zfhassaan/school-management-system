@@ -26,3 +26,4 @@ export function formatCivilDate(dateVal: any): string {
 	}
 	return String(dateVal)
 }
+
