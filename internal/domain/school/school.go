@@ -12,15 +12,8 @@ import (
 	"school-management/internal/domain/shared"
 )
 
-// Address is a postal address.
-type Address struct {
-	Line1      string
-	Line2      string
-	City       string
-	Region     string
-	PostalCode string
-	Country    string
-}
+// Address is a postal address alias for shared.Address.
+type Address = shared.Address
 
 // School is the tenant root. The system manages exactly one school.
 type School struct {

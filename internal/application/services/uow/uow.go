@@ -1,15 +1,17 @@
-// Package uow defines the unit-of-work port. All write use cases run inside
-// UnitOfWork.Write so business rows, audit entries and outbox events commit
-// atomically.
 package uow
 
 import (
 	"context"
 
 	"school-management/internal/application/services/outbox"
+	"school-management/internal/domain/academics"
+	"school-management/internal/domain/admissions"
 	"school-management/internal/domain/audit"
+	"school-management/internal/domain/documents"
+	"school-management/internal/domain/guardians"
 	"school-management/internal/domain/identity"
 	"school-management/internal/domain/school"
+	"school-management/internal/domain/students"
 )
 
 // Repos exposes transaction-bound repositories.
@@ -18,6 +20,12 @@ type Repos struct {
 	Roles         identity.RoleRepository
 	RecoveryCodes identity.RecoveryCodeRepository
 	School        school.Repository
+	Academics     academics.Repository
+	Students      students.Repository
+	Enrollments   students.EnrollmentRepository
+	Guardians     guardians.Repository
+	Admissions    admissions.Repository
+	Documents     documents.Repository
 	Audit         audit.Writer
 	AuditReader   AuditReader
 	Outbox        outbox.Writer
@@ -30,9 +38,6 @@ type AuditReader interface {
 
 // UnitOfWork runs functions in database transactions.
 type UnitOfWork interface {
-	// Write runs fn in a serialized write transaction. Returning an error rolls back.
 	Write(ctx context.Context, fn func(ctx context.Context, r Repos) error) error
-	// Read runs fn against a consistent read snapshot.
 	Read(ctx context.Context, fn func(ctx context.Context, r Repos) error) error
 }
-

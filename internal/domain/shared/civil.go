@@ -29,6 +29,11 @@ func DateOf(t time.Time) Date {
 	return Date{Year: y, Month: m, Day: d}
 }
 
+// CivilDate constructs a Date from year, month, and day components.
+func CivilDate(year int, month time.Month, day int) Date {
+	return Date{Year: year, Month: month, Day: day}
+}
+
 // TodayIn returns the civil date of instant now in the given location.
 func TodayIn(now time.Time, loc *time.Location) Date {
 	return DateOf(now.In(loc))

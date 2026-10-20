@@ -55,6 +55,50 @@
 				</router-link>
 
 				<div v-if="!isCollapsed" class="pt-2 pb-1 px-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+					Students & Academics
+				</div>
+
+				<router-link
+					v-if="authStore.hasPermission('students.view')"
+					to="/students"
+					class="flex items-center gap-3 px-2.5 py-2 rounded-lg text-xs font-medium transition"
+					:class="$route.path.startsWith('/students') ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+				>
+					<GraduationCap class="w-4 h-4 shrink-0" />
+					<span v-if="!isCollapsed" class="truncate">Students</span>
+				</router-link>
+
+				<router-link
+					v-if="authStore.hasPermission('admissions.view')"
+					to="/admissions"
+					class="flex items-center gap-3 px-2.5 py-2 rounded-lg text-xs font-medium transition"
+					:class="$route.path.startsWith('/admissions') ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+				>
+					<FileText class="w-4 h-4 shrink-0" />
+					<span v-if="!isCollapsed" class="truncate">Admissions</span>
+				</router-link>
+
+				<router-link
+					v-if="authStore.hasPermission('academics.view')"
+					to="/academics"
+					class="flex items-center gap-3 px-2.5 py-2 rounded-lg text-xs font-medium transition"
+					:class="$route.path.startsWith('/academics') ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+				>
+					<BookOpen class="w-4 h-4 shrink-0" />
+					<span v-if="!isCollapsed" class="truncate">Academics</span>
+				</router-link>
+
+				<router-link
+					v-if="authStore.hasPermission('academics.promote')"
+					to="/promotions"
+					class="flex items-center gap-3 px-2.5 py-2 rounded-lg text-xs font-medium transition"
+					:class="$route.path.startsWith('/promotions') ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+				>
+					<ArrowRightLeft class="w-4 h-4 shrink-0" />
+					<span v-if="!isCollapsed" class="truncate">Promotions</span>
+				</router-link>
+
+				<div v-if="!isCollapsed" class="pt-2 pb-1 px-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
 					Administration
 				</div>
 
@@ -162,6 +206,10 @@ import { useAuthStore } from '@/stores/auth'
 import ChangePasswordModal from '@/components/ChangePasswordModal.vue'
 import {
 	LayoutDashboard,
+	GraduationCap,
+	FileText,
+	BookOpen,
+	ArrowRightLeft,
 	Building2,
 	Users,
 	ShieldCheck,

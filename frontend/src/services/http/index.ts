@@ -4,6 +4,12 @@ import type {
 	IRoleService,
 	ISchoolService,
 	IAuditService,
+	IAcademicService,
+	IStudentService,
+	IGuardianService,
+	IEnrollmentService,
+	IAdmissionService,
+	IDocumentService,
 	AppServices
 } from '@/services/contracts'
 
@@ -92,13 +98,89 @@ export class HttpAuditService implements IAuditService {
 	}
 }
 
+export class HttpAcademicService implements IAcademicService {
+	async listAcademicYears() { return fetch('/api/v1/academics/years').then(r => r.json()) }
+	async getActiveAcademicYear() { return fetch('/api/v1/academics/years/active').then(r => r.json()) }
+	async createAcademicYear(input: any) { return fetch('/api/v1/academics/years', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async updateAcademicYear(input: any) { return fetch(`/api/v1/academics/years/${input.id}`, { method: 'PUT', body: JSON.stringify(input) }).then(r => r.json()) }
+	async setTerms(input: any) { return fetch('/api/v1/academics/terms', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listTerms(yearId: string) { return fetch(`/api/v1/academics/years/${yearId}/terms`).then(r => r.json()) }
+	async listCampuses() { return fetch('/api/v1/academics/campuses').then(r => r.json()) }
+	async createCampus(input: any) { return fetch('/api/v1/academics/campuses', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listClasses() { return fetch('/api/v1/academics/classes').then(r => r.json()) }
+	async createClass(input: any) { return fetch('/api/v1/academics/classes', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async updateClass(input: any) { return fetch(`/api/v1/academics/classes/${input.id}`, { method: 'PUT', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listSectionsByYear(yearId: string) { return fetch(`/api/v1/academics/years/${yearId}/sections`).then(r => r.json()) }
+	async createSection(input: any) { return fetch('/api/v1/academics/sections', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async updateSection(input: any) { return fetch(`/api/v1/academics/sections/${input.id}`, { method: 'PUT', body: JSON.stringify(input) }).then(r => r.json()) }
+}
+
+export class HttpStudentService implements IStudentService {
+	async getStudent(id: string) { return fetch(`/api/v1/students/${id}`).then(r => r.json()) }
+	async listStudents(filter: any) {
+		const params = new URLSearchParams(filter)
+		return fetch(`/api/v1/students?${params.toString()}`).then(r => r.json())
+	}
+	async registerStudent(input: any) { return fetch('/api/v1/students', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async updateStudent(input: any) { return fetch(`/api/v1/students/${input.id}`, { method: 'PUT', body: JSON.stringify(input) }).then(r => r.json()) }
+	async changeStatus(input: any) { return fetch(`/api/v1/students/${input.studentId}/status`, { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listStatusHistory(studentId: string) { return fetch(`/api/v1/students/${studentId}/history`).then(r => r.json()) }
+}
+
+export class HttpGuardianService implements IGuardianService {
+	async getGuardian(id: string) { return fetch(`/api/v1/guardians/${id}`).then(r => r.json()) }
+	async createGuardian(input: any) { return fetch('/api/v1/guardians', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async updateGuardian(input: any) { return fetch(`/api/v1/guardians/${input.id}`, { method: 'PUT', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listForStudent(studentId: string) { return fetch(`/api/v1/students/${studentId}/guardians`).then(r => r.json()) }
+	async setStudentGuardians(input: any) { return fetch(`/api/v1/students/${input.studentId}/guardians`, { method: 'PUT', body: JSON.stringify(input) }).then(r => r.json()) }
+	async findSiblings(studentId: string) { return fetch(`/api/v1/students/${studentId}/siblings`).then(r => r.json()) }
+}
+
+export class HttpEnrollmentService implements IEnrollmentService {
+	async enrollStudent(input: any) { return fetch('/api/v1/enrollments', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async getActive(studentId: string) { return fetch(`/api/v1/students/${studentId}/enrollment`).then(r => r.json()) }
+	async listHistory(studentId: string) { return fetch(`/api/v1/students/${studentId}/enrollments`).then(r => r.json()) }
+	async listSectionRoster(sectionId: string) { return fetch(`/api/v1/sections/${sectionId}/roster`).then(r => r.json()) }
+	async executePromotionBatch(input: any) { return fetch('/api/v1/promotions/execute', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async getPromotionBatch(id: string) { return fetch(`/api/v1/promotions/${id}`).then(r => r.json()) }
+}
+
+export class HttpAdmissionService implements IAdmissionService {
+	async listFormDefinitions() { return fetch('/api/v1/admissions/forms').then(r => r.json()) }
+	async createFormDefinition(input: any) { return fetch('/api/v1/admissions/forms', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listFormVersions(formDefId: string) { return fetch(`/api/v1/admissions/forms/${formDefId}/versions`).then(r => r.json()) }
+	async getPublishedFormVersion(formDefId: string) { return fetch(`/api/v1/admissions/forms/${formDefId}/published`).then(r => r.json()) }
+	async createFormVersion(input: any) { return fetch('/api/v1/admissions/versions', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async publishFormVersion(input: any) { return fetch(`/api/v1/admissions/versions/${input.versionId}/publish`, { method: 'POST' }).then(r => r.json()) }
+	async listApplications(status: string, yearId: string, limit: number) {
+		const params = new URLSearchParams({ status, yearId, limit: String(limit) })
+		return fetch(`/api/v1/admissions/applications?${params.toString()}`).then(r => r.json())
+	}
+	async getApplication(id: string) { return fetch(`/api/v1/admissions/applications/${id}`).then(r => r.json()) }
+	async submitApplication(input: any) { return fetch('/api/v1/admissions/applications', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async updateStatus(input: any) { return fetch(`/api/v1/admissions/applications/${input.applicationId}/status`, { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async enrollApplication(input: any) { return fetch(`/api/v1/admissions/applications/${input.applicationId}/enroll`, { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+}
+
+export class HttpDocumentService implements IDocumentService {
+	async uploadDocument(input: any) { return fetch('/api/v1/documents', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listForStudent(studentId: string) { return fetch(`/api/v1/students/${studentId}/documents`).then(r => r.json()) }
+	async listForApplication(applicationId: string) { return fetch(`/api/v1/admissions/applications/${applicationId}/documents`).then(r => r.json()) }
+	async getContent(id: string) { return fetch(`/api/v1/documents/${id}/content`).then(r => r.json()) }
+}
+
 export function createHttpServices(): AppServices {
 	return {
 		auth: new HttpAuthService(),
 		users: new HttpUserService(),
 		roles: new HttpRoleService(),
 		school: new HttpSchoolService(),
-		audit: new HttpAuditService()
+		audit: new HttpAuditService(),
+		academics: new HttpAcademicService(),
+		students: new HttpStudentService(),
+		guardians: new HttpGuardianService(),
+		enrollments: new HttpEnrollmentService(),
+		admissions: new HttpAdmissionService(),
+		documents: new HttpDocumentService()
 	}
 }
-

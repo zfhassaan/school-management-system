@@ -33,6 +33,78 @@ type AcademicYear struct {
 	RowVersion int64  `json:"row_version"`
 }
 
+type AdmissionApplication struct {
+	ID                      string         `json:"id"`
+	SchoolID                string         `json:"school_id"`
+	ApplicationNo           string         `json:"application_no"`
+	FormVersionID           string         `json:"form_version_id"`
+	AcademicYearID          string         `json:"academic_year_id"`
+	AppliedClassID          string         `json:"applied_class_id"`
+	Status                  string         `json:"status"`
+	ApplicantFirstName      string         `json:"applicant_first_name"`
+	ApplicantLastName       string         `json:"applicant_last_name"`
+	ApplicantDob            sql.NullString `json:"applicant_dob"`
+	ApplicantGender         sql.NullString `json:"applicant_gender"`
+	GuardianPhoneNormalized sql.NullString `json:"guardian_phone_normalized"`
+	StudentID               sql.NullString `json:"student_id"`
+	SubmittedAt             sql.NullString `json:"submitted_at"`
+	DecidedAt               sql.NullString `json:"decided_at"`
+	DecidedBy               sql.NullString `json:"decided_by"`
+	DecisionReason          sql.NullString `json:"decision_reason"`
+	CreatedBy               string         `json:"created_by"`
+	CreatedAt               string         `json:"created_at"`
+	UpdatedAt               string         `json:"updated_at"`
+	RowVersion              int64          `json:"row_version"`
+}
+
+type AdmissionFormDefinition struct {
+	ID          string         `json:"id"`
+	SchoolID    string         `json:"school_id"`
+	Code        string         `json:"code"`
+	Name        string         `json:"name"`
+	Description sql.NullString `json:"description"`
+	IsActive    int64          `json:"is_active"`
+	CreatedAt   string         `json:"created_at"`
+	UpdatedAt   string         `json:"updated_at"`
+	RowVersion  int64          `json:"row_version"`
+}
+
+type AdmissionFormResponse struct {
+	ID            string `json:"id"`
+	ApplicationID string `json:"application_id"`
+	FormVersionID string `json:"form_version_id"`
+	ResponseJson  string `json:"response_json"`
+	ResponseHash  string `json:"response_hash"`
+	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
+	RowVersion    int64  `json:"row_version"`
+}
+
+type AdmissionFormVersion struct {
+	ID                  string         `json:"id"`
+	FormDefinitionID    string         `json:"form_definition_id"`
+	VersionNo           int64          `json:"version_no"`
+	Status              string         `json:"status"`
+	SchemaJson          string         `json:"schema_json"`
+	SchemaFormatVersion int64          `json:"schema_format_version"`
+	SchemaHash          string         `json:"schema_hash"`
+	PublishedAt         sql.NullString `json:"published_at"`
+	PublishedBy         sql.NullString `json:"published_by"`
+	CreatedAt           string         `json:"created_at"`
+	UpdatedAt           string         `json:"updated_at"`
+	RowVersion          int64          `json:"row_version"`
+}
+
+type AdmissionStatusHistory struct {
+	ID            string         `json:"id"`
+	ApplicationID string         `json:"application_id"`
+	FromStatus    sql.NullString `json:"from_status"`
+	ToStatus      string         `json:"to_status"`
+	Reason        sql.NullString `json:"reason"`
+	ChangedBy     string         `json:"changed_by"`
+	ChangedAt     string         `json:"changed_at"`
+}
+
 type ApplicationSetting struct {
 	Key       string         `json:"key"`
 	ValueJson string         `json:"value_json"`
@@ -107,11 +179,65 @@ type Device struct {
 	LastSeenAt   sql.NullString `json:"last_seen_at"`
 }
 
+type Enrollment struct {
+	ID                     string         `json:"id"`
+	StudentID              string         `json:"student_id"`
+	AcademicYearID         string         `json:"academic_year_id"`
+	ClassID                string         `json:"class_id"`
+	SectionID              sql.NullString `json:"section_id"`
+	RollNo                 sql.NullString `json:"roll_no"`
+	Status                 string         `json:"status"`
+	EnrolledOn             string         `json:"enrolled_on"`
+	EndedOn                sql.NullString `json:"ended_on"`
+	PreviousEnrollmentID   sql.NullString `json:"previous_enrollment_id"`
+	PromotionBatchID       sql.NullString `json:"promotion_batch_id"`
+	AdmissionApplicationID sql.NullString `json:"admission_application_id"`
+	CreatedAt              string         `json:"created_at"`
+	UpdatedAt              string         `json:"updated_at"`
+	RowVersion             int64          `json:"row_version"`
+}
+
+type Guardian struct {
+	ID                     string         `json:"id"`
+	SchoolID               string         `json:"school_id"`
+	FirstName              string         `json:"first_name"`
+	LastName               sql.NullString `json:"last_name"`
+	PhonePrimary           string         `json:"phone_primary"`
+	PhonePrimaryNormalized string         `json:"phone_primary_normalized"`
+	PhoneSecondary         sql.NullString `json:"phone_secondary"`
+	Email                  sql.NullString `json:"email"`
+	Occupation             sql.NullString `json:"occupation"`
+	NationalID             sql.NullString `json:"national_id"`
+	AddressLine1           sql.NullString `json:"address_line1"`
+	AddressLine2           sql.NullString `json:"address_line2"`
+	City                   sql.NullString `json:"city"`
+	Region                 sql.NullString `json:"region"`
+	PostalCode             sql.NullString `json:"postal_code"`
+	Country                sql.NullString `json:"country"`
+	DeletedAt              sql.NullString `json:"deleted_at"`
+	CreatedAt              string         `json:"created_at"`
+	UpdatedAt              string         `json:"updated_at"`
+	RowVersion             int64          `json:"row_version"`
+}
+
 type Permission struct {
 	Code        string `json:"code"`
 	Module      string `json:"module"`
 	Description string `json:"description"`
 	IsSensitive int64  `json:"is_sensitive"`
+}
+
+type PromotionBatch struct {
+	ID                 string         `json:"id"`
+	FromAcademicYearID string         `json:"from_academic_year_id"`
+	ToAcademicYearID   string         `json:"to_academic_year_id"`
+	Status             string         `json:"status"`
+	SummaryJson        string         `json:"summary_json"`
+	ExecutedBy         sql.NullString `json:"executed_by"`
+	ExecutedAt         sql.NullString `json:"executed_at"`
+	CreatedAt          string         `json:"created_at"`
+	UpdatedAt          string         `json:"updated_at"`
+	RowVersion         int64          `json:"row_version"`
 }
 
 type RecoveryCode struct {
@@ -177,6 +303,95 @@ type SchoolSetting struct {
 	CreatedAt             string `json:"created_at"`
 	UpdatedAt             string `json:"updated_at"`
 	RowVersion            int64  `json:"row_version"`
+}
+
+type Section struct {
+	ID                 string         `json:"id"`
+	ClassID            string         `json:"class_id"`
+	AcademicYearID     string         `json:"academic_year_id"`
+	CampusID           sql.NullString `json:"campus_id"`
+	Name               string         `json:"name"`
+	Capacity           sql.NullInt64  `json:"capacity"`
+	ClassTeacherUserID sql.NullString `json:"class_teacher_user_id"`
+	IsActive           int64          `json:"is_active"`
+	CreatedAt          string         `json:"created_at"`
+	UpdatedAt          string         `json:"updated_at"`
+	RowVersion         int64          `json:"row_version"`
+}
+
+type Student struct {
+	ID              string         `json:"id"`
+	SchoolID        string         `json:"school_id"`
+	AdmissionNo     string         `json:"admission_no"`
+	FirstName       string         `json:"first_name"`
+	MiddleName      sql.NullString `json:"middle_name"`
+	LastName        string         `json:"last_name"`
+	SearchName      string         `json:"search_name"`
+	DateOfBirth     string         `json:"date_of_birth"`
+	Gender          string         `json:"gender"`
+	NationalID      sql.NullString `json:"national_id"`
+	AddressLine1    sql.NullString `json:"address_line1"`
+	AddressLine2    sql.NullString `json:"address_line2"`
+	City            sql.NullString `json:"city"`
+	Region          sql.NullString `json:"region"`
+	PostalCode      sql.NullString `json:"postal_code"`
+	Country         sql.NullString `json:"country"`
+	PhotoDocumentID sql.NullString `json:"photo_document_id"`
+	AdmissionDate   string         `json:"admission_date"`
+	Status          string         `json:"status"`
+	Notes           sql.NullString `json:"notes"`
+	DeletedAt       sql.NullString `json:"deleted_at"`
+	CreatedAt       string         `json:"created_at"`
+	UpdatedAt       string         `json:"updated_at"`
+	RowVersion      int64          `json:"row_version"`
+}
+
+type StudentDocument struct {
+	ID               string         `json:"id"`
+	StudentID        sql.NullString `json:"student_id"`
+	ApplicationID    sql.NullString `json:"application_id"`
+	DocumentTypeCode string         `json:"document_type_code"`
+	FileName         string         `json:"file_name"`
+	MimeType         string         `json:"mime_type"`
+	SizeBytes        int64          `json:"size_bytes"`
+	Sha256           string         `json:"sha256"`
+	StorageKey       string         `json:"storage_key"`
+	VersionNo        int64          `json:"version_no"`
+	UploadedBy       string         `json:"uploaded_by"`
+	DeletedAt        sql.NullString `json:"deleted_at"`
+	CreatedAt        string         `json:"created_at"`
+	UpdatedAt        string         `json:"updated_at"`
+	RowVersion       int64          `json:"row_version"`
+}
+
+type StudentGuardian struct {
+	StudentID          string `json:"student_id"`
+	GuardianID         string `json:"guardian_id"`
+	Relationship       string `json:"relationship"`
+	IsPrimary          int64  `json:"is_primary"`
+	IsEmergencyContact int64  `json:"is_emergency_contact"`
+	ReceivesBilling    int64  `json:"receives_billing"`
+	CanPickup          int64  `json:"can_pickup"`
+	Priority           int64  `json:"priority"`
+	CreatedAt          string `json:"created_at"`
+	UpdatedAt          string `json:"updated_at"`
+	RowVersion         int64  `json:"row_version"`
+}
+
+type StudentStatusHistory struct {
+	ID          string         `json:"id"`
+	StudentID   string         `json:"student_id"`
+	FromStatus  sql.NullString `json:"from_status"`
+	ToStatus    string         `json:"to_status"`
+	EffectiveOn string         `json:"effective_on"`
+	Reason      string         `json:"reason"`
+	ChangedBy   string         `json:"changed_by"`
+	ChangedAt   string         `json:"changed_at"`
+}
+
+type StudentsFt struct {
+	SearchName  string `json:"search_name"`
+	AdmissionNo string `json:"admission_no"`
 }
 
 type SyncCheckpoint struct {

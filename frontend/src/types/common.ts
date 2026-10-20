@@ -139,3 +139,228 @@ export interface AuditLogDTO {
 	source: string
 }
 
+// Phase 3: Academics, Students, Admissions, Documents
+
+export interface AcademicYearDTO {
+	ID: string
+	SchoolID: string
+	Code: string
+	Name: string
+	StartsOn: { Year: number; Month: number; Day: number } | string
+	EndsOn: { Year: number; Month: number; Day: number } | string
+	Status: 'planned' | 'active' | 'closed'
+}
+
+export interface AcademicTermDTO {
+	ID: string
+	AcademicYearID: string
+	Sequence: number
+	Name: string
+	StartsOn: { Year: number; Month: number; Day: number } | string
+	EndsOn: { Year: number; Month: number; Day: number } | string
+}
+
+export interface CampusDTO {
+	ID: string
+	SchoolID: string
+	Code: string
+	Name: string
+	Address?: string
+	IsActive: boolean
+}
+
+export interface ClassDTO {
+	ID: string
+	SchoolID: string
+	Code: string
+	Name: string
+	LevelOrder: number
+	NextClassID?: string
+	IsActive: boolean
+}
+
+export interface SectionDTO {
+	ID: string
+	ClassID: string
+	AcademicYearID: string
+	CampusID?: string
+	Name: string
+	Capacity?: number
+	ClassTeacherUserID?: string
+	IsActive: boolean
+}
+
+export interface StudentDTO {
+	ID: string
+	SchoolID: string
+	AdmissionNo: string
+	FirstName: string
+	MiddleName?: string
+	LastName: string
+	DateOfBirth: { Year: number; Month: number; Day: number } | string
+	Gender: 'male' | 'female' | 'other' | 'unspecified'
+	NationalID?: string
+	Address?: any
+	PhotoDocID?: string
+	AdmissionDate: { Year: number; Month: number; Day: number } | string
+	Status: 'active' | 'inactive' | 'graduated' | 'withdrawn' | 'alumni'
+	Notes?: string
+	CreatedAt: string
+	UpdatedAt: string
+}
+
+export interface StudentFilterDTO {
+	schoolId?: string
+	status?: string
+	classId?: string
+	sectionId?: string
+	searchQuery?: string
+	cursorName?: string
+	cursorId?: string
+	limit?: number
+}
+
+export interface StatusHistoryDTO {
+	ID: string
+	StudentID: string
+	FromStatus: string
+	ToStatus: string
+	EffectiveOn: any
+	Reason: string
+	ChangedBy: string
+	ChangedAt: string
+}
+
+export interface GuardianDTO {
+	ID: string
+	SchoolID: string
+	FirstName: string
+	LastName: string
+	PhonePrimary: string
+	PhoneSecondary?: string
+	Email?: string
+	Occupation?: string
+	NationalID?: string
+	Address?: any
+}
+
+export interface StudentGuardianLinkDTO {
+	StudentID: string
+	GuardianID: string
+	Relationship: string
+	IsPrimary: boolean
+	IsEmergencyContact: boolean
+	ReceivesBilling: boolean
+	CanPickup: boolean
+	Priority: number
+	FirstName?: string
+	LastName?: string
+	PhonePrimary?: string
+	Email?: string
+}
+
+export interface EnrollmentDTO {
+	ID: string
+	StudentID: string
+	AcademicYearID: string
+	ClassID: string
+	SectionID?: string
+	RollNo?: string
+	Status: string
+	EnrolledOn: any
+	EndedOn?: any
+	ClassName?: string
+	SectionName?: string
+	YearCode?: string
+}
+
+export interface PromotionBatchDTO {
+	ID: string
+	FromAcademicYearID: string
+	ToAcademicYearID: string
+	Status: string
+	SummaryJSON: string
+	ExecutedAt?: string
+}
+
+export interface FormFieldDTO {
+	id: string
+	label: string
+	type: 'text' | 'number' | 'date' | 'dropdown' | 'radio' | 'checkbox' | 'phone' | 'email' | 'address' | 'file_upload' | 'textarea'
+	placeholder?: string
+	required: boolean
+	options?: string[]
+	dependsOn?: {
+		fieldId: string
+		equals: string
+	}
+}
+
+export interface FormSectionDTO {
+	id: string
+	title: string
+	description?: string
+	fields: FormFieldDTO[]
+}
+
+export interface FormSchemaDTO {
+	title: string
+	description?: string
+	sections: FormSectionDTO[]
+	requiredDocuments?: string[]
+}
+
+export interface FormDefinitionDTO {
+	ID: string
+	SchoolID: string
+	Code: string
+	Name: string
+	Description: string
+	IsActive: boolean
+}
+
+export interface FormVersionDTO {
+	ID: string
+	FormDefinitionID: string
+	VersionNo: number
+	Status: 'draft' | 'published' | 'retired'
+	Schema: FormSchemaDTO
+	SchemaHash: string
+	PublishedAt?: string
+}
+
+export interface ApplicationDTO {
+	ID: string
+	SchoolID: string
+	ApplicationNo: string
+	FormVersionID: string
+	AcademicYearID: string
+	AppliedClassID: string
+	Status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'enrolled' | 'withdrawn'
+	ApplicantFirstName: string
+	ApplicantLastName: string
+	ApplicantDOB?: any
+	ApplicantGender: string
+	GuardianPhoneNormalized: string
+	StudentID?: string
+	Response: Record<string, any>
+	SubmittedAt?: string
+	DecidedAt?: string
+	DecisionReason?: string
+	ClassName?: string
+	YearCode?: string
+}
+
+export interface DocumentDTO {
+	ID: string
+	StudentID?: string
+	ApplicationID?: string
+	DocumentTypeCode: string
+	FileName: string
+	MimeType: string
+	SizeBytes: number
+	SHA256: string
+	CreatedAt: string
+}
+
+

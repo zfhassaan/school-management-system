@@ -6,50 +6,113 @@ package sqlite
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
+	AppendAdmissionStatusHistory(ctx context.Context, arg AppendAdmissionStatusHistoryParams) error
 	AppendAuditLog(ctx context.Context, arg AppendAuditLogParams) error
 	AppendOutboxEvent(ctx context.Context, arg AppendOutboxEventParams) error
+	AppendStudentStatusHistory(ctx context.Context, arg AppendStudentStatusHistoryParams) error
 	ClearRolePermissions(ctx context.Context, roleID string) error
 	ClearUserRoles(ctx context.Context, userID string) error
+	CloseEnrollment(ctx context.Context, arg CloseEnrollmentParams) error
 	CountActiveWithRole(ctx context.Context, code string) (int64, error)
+	CountStudents(ctx context.Context, schoolID string) (int64, error)
 	CountUsers(ctx context.Context) (int64, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
+	DeleteAcademicTermsByYear(ctx context.Context, academicYearID string) error
 	DeleteRole(ctx context.Context, id string) error
+	DeleteStudentGuardians(ctx context.Context, studentID string) error
+	FindSiblingsByGuardian(ctx context.Context, arg FindSiblingsByGuardianParams) ([]FindSiblingsByGuardianRow, error)
+	GetAcademicYear(ctx context.Context, id string) (AcademicYear, error)
+	GetActiveAcademicYear(ctx context.Context, schoolID string) (AcademicYear, error)
+	GetActiveEnrollment(ctx context.Context, studentID string) (GetActiveEnrollmentRow, error)
+	GetAdmissionApplication(ctx context.Context, id string) (GetAdmissionApplicationRow, error)
+	GetAdmissionFormDefinition(ctx context.Context, id string) (AdmissionFormDefinition, error)
+	GetAdmissionFormVersion(ctx context.Context, id string) (AdmissionFormVersion, error)
+	GetClass(ctx context.Context, id string) (Class, error)
+	GetDocument(ctx context.Context, id string) (StudentDocument, error)
 	GetEffectivePermissions(ctx context.Context, userID string) ([]string, error)
+	GetGuardian(ctx context.Context, id string) (Guardian, error)
+	GetGuardianByPhone(ctx context.Context, arg GetGuardianByPhoneParams) (Guardian, error)
 	GetLocalDevice(ctx context.Context) (Device, error)
+	GetPromotionBatch(ctx context.Context, id string) (PromotionBatch, error)
+	GetPublishedFormVersion(ctx context.Context, formDefinitionID string) (AdmissionFormVersion, error)
 	GetRole(ctx context.Context, id string) (Role, error)
 	GetRoleByCode(ctx context.Context, code string) (Role, error)
 	GetRolePermissions(ctx context.Context, roleID string) ([]string, error)
 	GetSchool(ctx context.Context) (School, error)
 	GetSchoolSettings(ctx context.Context, schoolID string) (SchoolSetting, error)
+	GetSection(ctx context.Context, id string) (GetSectionRow, error)
 	GetSession(ctx context.Context, id string) (UserSession, error)
+	GetStudent(ctx context.Context, id string) (Student, error)
+	GetStudentByAdmissionNo(ctx context.Context, arg GetStudentByAdmissionNoParams) (Student, error)
 	GetUser(ctx context.Context, id string) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
 	GetUserRoleCodes(ctx context.Context, userID string) ([]string, error)
 	GetUserRoles(ctx context.Context, userID string) ([]Role, error)
+	InsertAcademicTerm(ctx context.Context, arg InsertAcademicTermParams) error
+	InsertAcademicYear(ctx context.Context, arg InsertAcademicYearParams) error
+	InsertAdmissionApplication(ctx context.Context, arg InsertAdmissionApplicationParams) error
+	InsertAdmissionFormDefinition(ctx context.Context, arg InsertAdmissionFormDefinitionParams) error
+	InsertAdmissionFormResponse(ctx context.Context, arg InsertAdmissionFormResponseParams) error
+	InsertAdmissionFormVersion(ctx context.Context, arg InsertAdmissionFormVersionParams) error
+	InsertCampus(ctx context.Context, arg InsertCampusParams) error
+	InsertClass(ctx context.Context, arg InsertClassParams) error
+	InsertEnrollment(ctx context.Context, arg InsertEnrollmentParams) error
+	InsertGuardian(ctx context.Context, arg InsertGuardianParams) error
 	InsertLocalDevice(ctx context.Context, arg InsertLocalDeviceParams) error
+	InsertPromotionBatch(ctx context.Context, arg InsertPromotionBatchParams) error
 	InsertRecoveryCode(ctx context.Context, arg InsertRecoveryCodeParams) error
 	InsertRole(ctx context.Context, arg InsertRoleParams) error
 	InsertRolePermission(ctx context.Context, arg InsertRolePermissionParams) error
 	InsertSchool(ctx context.Context, arg InsertSchoolParams) error
 	InsertSchoolSettings(ctx context.Context, arg InsertSchoolSettingsParams) error
+	InsertSection(ctx context.Context, arg InsertSectionParams) error
+	InsertStudent(ctx context.Context, arg InsertStudentParams) error
+	InsertStudentDocument(ctx context.Context, arg InsertStudentDocumentParams) error
+	InsertStudentGuardian(ctx context.Context, arg InsertStudentGuardianParams) error
 	InsertUser(ctx context.Context, arg InsertUserParams) error
 	InsertUserRole(ctx context.Context, arg InsertUserRoleParams) error
+	ListAcademicTerms(ctx context.Context, academicYearID string) ([]AcademicTerm, error)
+	ListAcademicYears(ctx context.Context, schoolID string) ([]AcademicYear, error)
+	ListAdmissionApplications(ctx context.Context, arg ListAdmissionApplicationsParams) ([]ListAdmissionApplicationsRow, error)
+	ListAdmissionFormDefinitions(ctx context.Context, schoolID string) ([]AdmissionFormDefinition, error)
+	ListAdmissionFormVersions(ctx context.Context, formDefinitionID string) ([]AdmissionFormVersion, error)
+	ListAdmissionStatusHistory(ctx context.Context, applicationID string) ([]AdmissionStatusHistory, error)
+	ListApplicationDocuments(ctx context.Context, applicationID sql.NullString) ([]StudentDocument, error)
 	ListAuditLogs(ctx context.Context, arg ListAuditLogsParams) ([]AuditLog, error)
+	ListCampuses(ctx context.Context, schoolID string) ([]Campuse, error)
+	ListClasses(ctx context.Context, schoolID string) ([]Class, error)
+	ListEnrollmentHistory(ctx context.Context, studentID string) ([]ListEnrollmentHistoryRow, error)
 	ListPermissions(ctx context.Context) ([]Permission, error)
 	ListRolesWithUserCount(ctx context.Context) ([]ListRolesWithUserCountRow, error)
+	ListSectionRoster(ctx context.Context, sectionID sql.NullString) ([]ListSectionRosterRow, error)
+	ListSectionsByYear(ctx context.Context, academicYearID string) ([]ListSectionsByYearRow, error)
+	ListStudentDocuments(ctx context.Context, studentID sql.NullString) ([]StudentDocument, error)
+	ListStudentGuardians(ctx context.Context, studentID string) ([]ListStudentGuardiansRow, error)
+	ListStudentStatusHistory(ctx context.Context, studentID string) ([]StudentStatusHistory, error)
+	ListStudentsCursor(ctx context.Context, arg ListStudentsCursorParams) ([]ListStudentsCursorRow, error)
 	ListUnusedRecoveryCodes(ctx context.Context, userID string) ([]RecoveryCode, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	MarkRecoveryCodeUsed(ctx context.Context, arg MarkRecoveryCodeUsedParams) error
+	PublishAdmissionFormVersion(ctx context.Context, arg PublishAdmissionFormVersionParams) error
 	ReplaceUserRecoveryCodes(ctx context.Context, userID string) error
+	RetireAdmissionFormVersion(ctx context.Context, arg RetireAdmissionFormVersionParams) error
 	RevokeAllUserSessions(ctx context.Context, arg RevokeAllUserSessionsParams) error
 	RevokeSession(ctx context.Context, arg RevokeSessionParams) error
+	SearchStudentsFTS(ctx context.Context, arg SearchStudentsFTSParams) ([]SearchStudentsFTSRow, error)
 	TouchSession(ctx context.Context, arg TouchSessionParams) error
+	UpdateAcademicYear(ctx context.Context, arg UpdateAcademicYearParams) error
+	UpdateAdmissionApplicationStatus(ctx context.Context, arg UpdateAdmissionApplicationStatusParams) error
+	UpdateClass(ctx context.Context, arg UpdateClassParams) error
+	UpdateGuardian(ctx context.Context, arg UpdateGuardianParams) error
 	UpdateRole(ctx context.Context, arg UpdateRoleParams) error
 	UpdateSchool(ctx context.Context, arg UpdateSchoolParams) error
 	UpdateSchoolSettings(ctx context.Context, arg UpdateSchoolSettingsParams) error
+	UpdateSection(ctx context.Context, arg UpdateSectionParams) error
+	UpdateStudent(ctx context.Context, arg UpdateStudentParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpsertPermission(ctx context.Context, arg UpsertPermissionParams) error
 }

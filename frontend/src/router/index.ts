@@ -9,6 +9,12 @@ import SchoolSettingsPage from '@/pages/settings/SchoolSettingsPage.vue'
 import UsersPage from '@/pages/users/UsersPage.vue'
 import RolesPage from '@/pages/roles/RolesPage.vue'
 import AuditPage from '@/pages/audit/AuditPage.vue'
+import StudentsListPage from '@/pages/students/StudentsListPage.vue'
+import StudentProfilePage from '@/pages/students/StudentProfilePage.vue'
+import AcademicsPage from '@/pages/academics/AcademicsPage.vue'
+import AdmissionsPage from '@/pages/admissions/AdmissionsPage.vue'
+import AdmissionFormBuilderPage from '@/pages/admissions/AdmissionFormBuilderPage.vue'
+import PromotionsPage from '@/pages/promotions/PromotionsPage.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(),
@@ -34,6 +40,42 @@ const router = createRouter({
 					name: 'dashboard',
 					component: DashboardPage,
 					meta: { title: 'Dashboard' }
+				},
+				{
+					path: 'students',
+					name: 'students',
+					component: StudentsListPage,
+					meta: { title: 'Students Directory', permission: 'students.view' }
+				},
+				{
+					path: 'students/:id',
+					name: 'student-profile',
+					component: StudentProfilePage,
+					meta: { title: 'Student Profile', permission: 'students.view' }
+				},
+				{
+					path: 'academics',
+					name: 'academics',
+					component: AcademicsPage,
+					meta: { title: 'Academic Structure', permission: 'academics.view' }
+				},
+				{
+					path: 'admissions',
+					name: 'admissions',
+					component: AdmissionsPage,
+					meta: { title: 'Admissions', permission: 'admissions.view' }
+				},
+				{
+					path: 'admissions/builder',
+					name: 'admission-builder',
+					component: AdmissionFormBuilderPage,
+					meta: { title: 'Form Builder', permission: 'admissions.forms.manage' }
+				},
+				{
+					path: 'promotions',
+					name: 'promotions',
+					component: PromotionsPage,
+					meta: { title: 'Class Promotions', permission: 'academics.promote' }
 				},
 				{
 					path: 'settings/school',

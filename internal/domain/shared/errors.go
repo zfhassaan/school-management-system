@@ -98,6 +98,10 @@ func Unauthenticated(msg string) error {
 
 func Invariant(msg string) error { return &Error{Code: CodeInvariant, Message: msg} }
 
+func Validation(msg string, fields map[string]string) error {
+	return &Error{Code: CodeValidation, Message: msg, Fields: fields}
+}
+
 // Internal wraps an unexpected infrastructure error.
 func Internal(err error) error {
 	return &Error{Code: CodeInternal, Message: "internal error", Err: err}
