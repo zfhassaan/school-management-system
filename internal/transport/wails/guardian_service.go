@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	guardCmd "school-management/internal/application/commands/guardians"
 	guardQuery "school-management/internal/application/queries/guardians"
 	"school-management/internal/application/services/reqctx"
@@ -30,8 +28,8 @@ func NewGuardianService(
 	}
 }
 
-func (s *GuardianService) GetGuardian(ctx context.Context, id shared.ID) dto.Response[*guardians.Guardian] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *GuardianService) GetGuardian(id shared.ID) dto.Response[*guardians.Guardian] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetGuardian(ctx, id)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -40,8 +38,8 @@ func (s *GuardianService) GetGuardian(ctx context.Context, id shared.ID) dto.Res
 	return dto.Ok(res)
 }
 
-func (s *GuardianService) CreateGuardian(ctx context.Context, in guardCmd.CreateGuardianInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *GuardianService) CreateGuardian(in guardCmd.CreateGuardianInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateGuardian(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -50,8 +48,8 @@ func (s *GuardianService) CreateGuardian(ctx context.Context, in guardCmd.Create
 	return dto.Ok(id)
 }
 
-func (s *GuardianService) UpdateGuardian(ctx context.Context, in guardCmd.UpdateGuardianInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *GuardianService) UpdateGuardian(in guardCmd.UpdateGuardianInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateGuardian(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -60,8 +58,8 @@ func (s *GuardianService) UpdateGuardian(ctx context.Context, in guardCmd.Update
 	return dto.Ok(true)
 }
 
-func (s *GuardianService) ListForStudent(ctx context.Context, studentID shared.ID) dto.Response[[]guardians.StudentGuardianLink] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *GuardianService) ListForStudent(studentID shared.ID) dto.Response[[]guardians.StudentGuardianLink] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListGuardiansForStudent(ctx, studentID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -70,8 +68,8 @@ func (s *GuardianService) ListForStudent(ctx context.Context, studentID shared.I
 	return dto.Ok(res)
 }
 
-func (s *GuardianService) SetStudentGuardians(ctx context.Context, in guardCmd.SetStudentGuardiansInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *GuardianService) SetStudentGuardians(in guardCmd.SetStudentGuardiansInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.SetStudentGuardians(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -80,8 +78,8 @@ func (s *GuardianService) SetStudentGuardians(ctx context.Context, in guardCmd.S
 	return dto.Ok(true)
 }
 
-func (s *GuardianService) FindSiblings(ctx context.Context, studentID shared.ID) dto.Response[[]students.Student] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *GuardianService) FindSiblings(studentID shared.ID) dto.Response[[]students.Student] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.FindSiblings(ctx, studentID)
 	if err != nil {
 		code, msg, fields := MapError(err)

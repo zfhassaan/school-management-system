@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	feeCmd "school-management/internal/application/commands/fees"
 	feeQuery "school-management/internal/application/queries/fees"
 	"school-management/internal/application/services/reqctx"
@@ -29,8 +27,8 @@ func NewInvoiceService(
 	}
 }
 
-func (s *InvoiceService) ListInvoices(ctx context.Context, filter fees.InvoiceFilter) dto.Response[[]fees.Invoice] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *InvoiceService) ListInvoices(filter fees.InvoiceFilter) dto.Response[[]fees.Invoice] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListInvoices(ctx, filter)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -39,8 +37,8 @@ func (s *InvoiceService) ListInvoices(ctx context.Context, filter fees.InvoiceFi
 	return dto.Ok(res)
 }
 
-func (s *InvoiceService) GetInvoice(ctx context.Context, id shared.ID) dto.Response[*feeQuery.InvoiceDetail] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *InvoiceService) GetInvoice(id shared.ID) dto.Response[*feeQuery.InvoiceDetail] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetInvoice(ctx, id)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -49,8 +47,8 @@ func (s *InvoiceService) GetInvoice(ctx context.Context, id shared.ID) dto.Respo
 	return dto.Ok(res)
 }
 
-func (s *InvoiceService) GenerateInvoicesBatch(ctx context.Context, in feeCmd.GenerateInvoicesBatchInput) dto.Response[[]shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *InvoiceService) GenerateInvoicesBatch(in feeCmd.GenerateInvoicesBatchInput) dto.Response[[]shared.ID] {
+	ctx := s.sessions.Context()
 	ids, err := s.cmdHandler.GenerateInvoicesBatch(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -59,8 +57,8 @@ func (s *InvoiceService) GenerateInvoicesBatch(ctx context.Context, in feeCmd.Ge
 	return dto.Ok(ids)
 }
 
-func (s *InvoiceService) VoidInvoice(ctx context.Context, in feeCmd.VoidInvoiceInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *InvoiceService) VoidInvoice(in feeCmd.VoidInvoiceInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.VoidInvoice(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)

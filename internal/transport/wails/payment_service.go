@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	paymentCmd "school-management/internal/application/commands/payments"
 	paymentQuery "school-management/internal/application/queries/payments"
 	"school-management/internal/application/services/reqctx"
@@ -29,8 +27,8 @@ func NewPaymentService(
 	}
 }
 
-func (s *PaymentService) RecordPayment(ctx context.Context, in paymentCmd.RecordPaymentInput) dto.Response[*paymentCmd.RecordPaymentResult] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) RecordPayment(in paymentCmd.RecordPaymentInput) dto.Response[*paymentCmd.RecordPaymentResult] {
+	ctx := s.sessions.Context()
 	res, err := s.cmdHandler.RecordPayment(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -39,8 +37,8 @@ func (s *PaymentService) RecordPayment(ctx context.Context, in paymentCmd.Record
 	return dto.Ok(res)
 }
 
-func (s *PaymentService) ReversePayment(ctx context.Context, in paymentCmd.ReversePaymentInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) ReversePayment(in paymentCmd.ReversePaymentInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.ReversePayment(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -49,8 +47,8 @@ func (s *PaymentService) ReversePayment(ctx context.Context, in paymentCmd.Rever
 	return dto.Ok(true)
 }
 
-func (s *PaymentService) GetPayment(ctx context.Context, id shared.ID) dto.Response[*paymentQuery.PaymentDetail] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) GetPayment(id shared.ID) dto.Response[*paymentQuery.PaymentDetail] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetPayment(ctx, id)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -59,8 +57,8 @@ func (s *PaymentService) GetPayment(ctx context.Context, id shared.ID) dto.Respo
 	return dto.Ok(res)
 }
 
-func (s *PaymentService) ListPayments(ctx context.Context, filter payments.PaymentFilter) dto.Response[[]*payments.PaymentWithDetails] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) ListPayments(filter payments.PaymentFilter) dto.Response[[]*payments.PaymentWithDetails] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListPayments(ctx, filter)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -69,8 +67,8 @@ func (s *PaymentService) ListPayments(ctx context.Context, filter payments.Payme
 	return dto.Ok(res)
 }
 
-func (s *PaymentService) GetStudentCreditBalance(ctx context.Context, studentID shared.ID) dto.Response[*paymentQuery.StudentCreditBalanceInfo] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) GetStudentCreditBalance(studentID shared.ID) dto.Response[*paymentQuery.StudentCreditBalanceInfo] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetStudentCreditBalance(ctx, studentID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -79,8 +77,8 @@ func (s *PaymentService) GetStudentCreditBalance(ctx context.Context, studentID 
 	return dto.Ok(res)
 }
 
-func (s *PaymentService) RequestFinancialAdjustment(ctx context.Context, in paymentCmd.RequestFinancialAdjustmentInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) RequestFinancialAdjustment(in paymentCmd.RequestFinancialAdjustmentInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.RequestFinancialAdjustment(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -89,8 +87,8 @@ func (s *PaymentService) RequestFinancialAdjustment(ctx context.Context, in paym
 	return dto.Ok(id)
 }
 
-func (s *PaymentService) DecideFinancialAdjustment(ctx context.Context, in paymentCmd.DecideFinancialAdjustmentInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) DecideFinancialAdjustment(in paymentCmd.DecideFinancialAdjustmentInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.DecideFinancialAdjustment(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -99,8 +97,8 @@ func (s *PaymentService) DecideFinancialAdjustment(ctx context.Context, in payme
 	return dto.Ok(true)
 }
 
-func (s *PaymentService) ListFinancialAdjustments(ctx context.Context, filter payments.AdjustmentFilter) dto.Response[[]*payments.FinancialAdjustment] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) ListFinancialAdjustments(filter payments.AdjustmentFilter) dto.Response[[]*payments.FinancialAdjustment] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListFinancialAdjustments(ctx, filter)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -109,8 +107,8 @@ func (s *PaymentService) ListFinancialAdjustments(ctx context.Context, filter pa
 	return dto.Ok(res)
 }
 
-func (s *PaymentService) GetFinancialAdjustment(ctx context.Context, id shared.ID) dto.Response[*payments.FinancialAdjustment] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *PaymentService) GetFinancialAdjustment(id shared.ID) dto.Response[*payments.FinancialAdjustment] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetFinancialAdjustment(ctx, id)
 	if err != nil {
 		code, msg, fields := MapError(err)

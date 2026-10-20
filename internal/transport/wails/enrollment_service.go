@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	enrCmd "school-management/internal/application/commands/enrollments"
 	enrQuery "school-management/internal/application/queries/enrollments"
 	"school-management/internal/application/services/reqctx"
@@ -29,8 +27,8 @@ func NewEnrollmentService(
 	}
 }
 
-func (s *EnrollmentService) EnrollStudent(ctx context.Context, in enrCmd.EnrollStudentInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *EnrollmentService) EnrollStudent(in enrCmd.EnrollStudentInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.EnrollStudent(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -39,8 +37,8 @@ func (s *EnrollmentService) EnrollStudent(ctx context.Context, in enrCmd.EnrollS
 	return dto.Ok(id)
 }
 
-func (s *EnrollmentService) GetActive(ctx context.Context, studentID shared.ID) dto.Response[*students.Enrollment] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *EnrollmentService) GetActive(studentID shared.ID) dto.Response[*students.Enrollment] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetActiveEnrollment(ctx, studentID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -49,8 +47,8 @@ func (s *EnrollmentService) GetActive(ctx context.Context, studentID shared.ID) 
 	return dto.Ok(res)
 }
 
-func (s *EnrollmentService) ListHistory(ctx context.Context, studentID shared.ID) dto.Response[[]students.Enrollment] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *EnrollmentService) ListHistory(studentID shared.ID) dto.Response[[]students.Enrollment] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListEnrollmentHistory(ctx, studentID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -59,8 +57,8 @@ func (s *EnrollmentService) ListHistory(ctx context.Context, studentID shared.ID
 	return dto.Ok(res)
 }
 
-func (s *EnrollmentService) ListSectionRoster(ctx context.Context, sectionID shared.ID) dto.Response[[]students.Enrollment] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *EnrollmentService) ListSectionRoster(sectionID shared.ID) dto.Response[[]students.Enrollment] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListSectionRoster(ctx, sectionID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -69,8 +67,8 @@ func (s *EnrollmentService) ListSectionRoster(ctx context.Context, sectionID sha
 	return dto.Ok(res)
 }
 
-func (s *EnrollmentService) ExecutePromotionBatch(ctx context.Context, in enrCmd.ExecutePromotionBatchInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *EnrollmentService) ExecutePromotionBatch(in enrCmd.ExecutePromotionBatchInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.ExecutePromotionBatch(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -79,8 +77,8 @@ func (s *EnrollmentService) ExecutePromotionBatch(ctx context.Context, in enrCmd
 	return dto.Ok(id)
 }
 
-func (s *EnrollmentService) GetPromotionBatch(ctx context.Context, id shared.ID) dto.Response[*students.PromotionBatch] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *EnrollmentService) GetPromotionBatch(id shared.ID) dto.Response[*students.PromotionBatch] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetPromotionBatch(ctx, id)
 	if err != nil {
 		code, msg, fields := MapError(err)

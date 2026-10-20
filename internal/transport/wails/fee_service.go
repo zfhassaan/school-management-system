@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	feeCmd "school-management/internal/application/commands/fees"
 	feeQuery "school-management/internal/application/queries/fees"
 	"school-management/internal/application/services/reqctx"
@@ -31,8 +29,8 @@ func NewFeeService(
 
 // --- Fee Heads ---
 
-func (s *FeeService) ListFeeHeads(ctx context.Context) dto.Response[[]fees.FeeHead] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) ListFeeHeads() dto.Response[[]fees.FeeHead] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListFeeHeads(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -41,8 +39,8 @@ func (s *FeeService) ListFeeHeads(ctx context.Context) dto.Response[[]fees.FeeHe
 	return dto.Ok(res)
 }
 
-func (s *FeeService) CreateFeeHead(ctx context.Context, in feeCmd.CreateFeeHeadInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) CreateFeeHead(in feeCmd.CreateFeeHeadInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateFeeHead(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -51,8 +49,8 @@ func (s *FeeService) CreateFeeHead(ctx context.Context, in feeCmd.CreateFeeHeadI
 	return dto.Ok(id)
 }
 
-func (s *FeeService) UpdateFeeHead(ctx context.Context, in feeCmd.UpdateFeeHeadInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) UpdateFeeHead(in feeCmd.UpdateFeeHeadInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateFeeHead(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -63,8 +61,8 @@ func (s *FeeService) UpdateFeeHead(ctx context.Context, in feeCmd.UpdateFeeHeadI
 
 // --- Fee Structures & Versions ---
 
-func (s *FeeService) ListFeeStructures(ctx context.Context, academicYearID shared.ID) dto.Response[[]fees.FeeStructure] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) ListFeeStructures(academicYearID shared.ID) dto.Response[[]fees.FeeStructure] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListFeeStructures(ctx, academicYearID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -73,8 +71,8 @@ func (s *FeeService) ListFeeStructures(ctx context.Context, academicYearID share
 	return dto.Ok(res)
 }
 
-func (s *FeeService) CreateFeeStructure(ctx context.Context, in feeCmd.CreateFeeStructureInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) CreateFeeStructure(in feeCmd.CreateFeeStructureInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateFeeStructure(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -83,8 +81,8 @@ func (s *FeeService) CreateFeeStructure(ctx context.Context, in feeCmd.CreateFee
 	return dto.Ok(id)
 }
 
-func (s *FeeService) ListFeeStructureVersions(ctx context.Context, feeStructureID shared.ID) dto.Response[[]fees.FeeStructureVersion] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) ListFeeStructureVersions(feeStructureID shared.ID) dto.Response[[]fees.FeeStructureVersion] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListFeeStructureVersions(ctx, feeStructureID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -93,8 +91,8 @@ func (s *FeeService) ListFeeStructureVersions(ctx context.Context, feeStructureI
 	return dto.Ok(res)
 }
 
-func (s *FeeService) GetFeeStructureVersionDetail(ctx context.Context, versionID shared.ID) dto.Response[*feeQuery.FeeStructureVersionDetail] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) GetFeeStructureVersionDetail(versionID shared.ID) dto.Response[*feeQuery.FeeStructureVersionDetail] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetFeeStructureVersionDetail(ctx, versionID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -103,8 +101,8 @@ func (s *FeeService) GetFeeStructureVersionDetail(ctx context.Context, versionID
 	return dto.Ok(res)
 }
 
-func (s *FeeService) CreateFeeStructureVersion(ctx context.Context, in feeCmd.CreateFeeStructureVersionInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) CreateFeeStructureVersion(in feeCmd.CreateFeeStructureVersionInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateFeeStructureVersion(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -113,8 +111,8 @@ func (s *FeeService) CreateFeeStructureVersion(ctx context.Context, in feeCmd.Cr
 	return dto.Ok(id)
 }
 
-func (s *FeeService) PublishFeeStructureVersion(ctx context.Context, versionID shared.ID) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) PublishFeeStructureVersion(versionID shared.ID) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.PublishFeeStructureVersion(ctx, versionID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -125,8 +123,8 @@ func (s *FeeService) PublishFeeStructureVersion(ctx context.Context, versionID s
 
 // --- Discount Policies & Student Discounts ---
 
-func (s *FeeService) ListDiscountPolicies(ctx context.Context) dto.Response[[]fees.DiscountPolicy] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) ListDiscountPolicies() dto.Response[[]fees.DiscountPolicy] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListDiscountPolicies(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -135,8 +133,8 @@ func (s *FeeService) ListDiscountPolicies(ctx context.Context) dto.Response[[]fe
 	return dto.Ok(res)
 }
 
-func (s *FeeService) CreateDiscountPolicy(ctx context.Context, in feeCmd.CreateDiscountPolicyInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) CreateDiscountPolicy(in feeCmd.CreateDiscountPolicyInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateDiscountPolicy(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -145,8 +143,8 @@ func (s *FeeService) CreateDiscountPolicy(ctx context.Context, in feeCmd.CreateD
 	return dto.Ok(id)
 }
 
-func (s *FeeService) ListStudentDiscounts(ctx context.Context, studentID shared.ID, academicYearID shared.ID) dto.Response[[]fees.StudentDiscount] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) ListStudentDiscounts(studentID shared.ID, academicYearID shared.ID) dto.Response[[]fees.StudentDiscount] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListStudentDiscounts(ctx, studentID, academicYearID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -155,8 +153,8 @@ func (s *FeeService) ListStudentDiscounts(ctx context.Context, studentID shared.
 	return dto.Ok(res)
 }
 
-func (s *FeeService) ListPendingDiscounts(ctx context.Context) dto.Response[[]fees.StudentDiscount] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) ListPendingDiscounts() dto.Response[[]fees.StudentDiscount] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListPendingDiscounts(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -165,8 +163,8 @@ func (s *FeeService) ListPendingDiscounts(ctx context.Context) dto.Response[[]fe
 	return dto.Ok(res)
 }
 
-func (s *FeeService) ApplyStudentDiscount(ctx context.Context, in feeCmd.ApplyStudentDiscountInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) ApplyStudentDiscount(in feeCmd.ApplyStudentDiscountInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.ApplyStudentDiscount(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -175,8 +173,8 @@ func (s *FeeService) ApplyStudentDiscount(ctx context.Context, in feeCmd.ApplySt
 	return dto.Ok(id)
 }
 
-func (s *FeeService) DecideStudentDiscount(ctx context.Context, in feeCmd.DecideStudentDiscountInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *FeeService) DecideStudentDiscount(in feeCmd.DecideStudentDiscountInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.DecideStudentDiscount(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)

@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	acadCmd "school-management/internal/application/commands/academics"
 	acadQuery "school-management/internal/application/queries/academics"
 	"school-management/internal/application/services/reqctx"
@@ -29,8 +27,8 @@ func NewAcademicService(
 	}
 }
 
-func (s *AcademicService) ListAcademicYears(ctx context.Context) dto.Response[[]academics.AcademicYear] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) ListAcademicYears() dto.Response[[]academics.AcademicYear] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListAcademicYears(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -39,8 +37,8 @@ func (s *AcademicService) ListAcademicYears(ctx context.Context) dto.Response[[]
 	return dto.Ok(res)
 }
 
-func (s *AcademicService) GetActiveAcademicYear(ctx context.Context) dto.Response[*academics.AcademicYear] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) GetActiveAcademicYear() dto.Response[*academics.AcademicYear] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetActiveAcademicYear(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -49,8 +47,8 @@ func (s *AcademicService) GetActiveAcademicYear(ctx context.Context) dto.Respons
 	return dto.Ok(res)
 }
 
-func (s *AcademicService) CreateAcademicYear(ctx context.Context, in acadCmd.CreateAcademicYearInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) CreateAcademicYear(in acadCmd.CreateAcademicYearInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateAcademicYear(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -59,8 +57,8 @@ func (s *AcademicService) CreateAcademicYear(ctx context.Context, in acadCmd.Cre
 	return dto.Ok(id)
 }
 
-func (s *AcademicService) UpdateAcademicYear(ctx context.Context, in acadCmd.UpdateAcademicYearInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) UpdateAcademicYear(in acadCmd.UpdateAcademicYearInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateAcademicYear(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -69,8 +67,8 @@ func (s *AcademicService) UpdateAcademicYear(ctx context.Context, in acadCmd.Upd
 	return dto.Ok(true)
 }
 
-func (s *AcademicService) SetTerms(ctx context.Context, in acadCmd.SetTermsInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) SetTerms(in acadCmd.SetTermsInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.SetTerms(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -79,8 +77,8 @@ func (s *AcademicService) SetTerms(ctx context.Context, in acadCmd.SetTermsInput
 	return dto.Ok(true)
 }
 
-func (s *AcademicService) ListTerms(ctx context.Context, yearID shared.ID) dto.Response[[]academics.AcademicTerm] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) ListTerms(yearID shared.ID) dto.Response[[]academics.AcademicTerm] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListTerms(ctx, yearID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -89,8 +87,8 @@ func (s *AcademicService) ListTerms(ctx context.Context, yearID shared.ID) dto.R
 	return dto.Ok(res)
 }
 
-func (s *AcademicService) ListCampuses(ctx context.Context) dto.Response[[]academics.Campus] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) ListCampuses() dto.Response[[]academics.Campus] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListCampuses(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -99,8 +97,8 @@ func (s *AcademicService) ListCampuses(ctx context.Context) dto.Response[[]acade
 	return dto.Ok(res)
 }
 
-func (s *AcademicService) CreateCampus(ctx context.Context, in acadCmd.CreateCampusInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) CreateCampus(in acadCmd.CreateCampusInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateCampus(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -109,8 +107,8 @@ func (s *AcademicService) CreateCampus(ctx context.Context, in acadCmd.CreateCam
 	return dto.Ok(id)
 }
 
-func (s *AcademicService) ListClasses(ctx context.Context) dto.Response[[]academics.Class] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) ListClasses() dto.Response[[]academics.Class] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListClasses(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -119,8 +117,8 @@ func (s *AcademicService) ListClasses(ctx context.Context) dto.Response[[]academ
 	return dto.Ok(res)
 }
 
-func (s *AcademicService) CreateClass(ctx context.Context, in acadCmd.CreateClassInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) CreateClass(in acadCmd.CreateClassInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateClass(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -129,8 +127,8 @@ func (s *AcademicService) CreateClass(ctx context.Context, in acadCmd.CreateClas
 	return dto.Ok(id)
 }
 
-func (s *AcademicService) UpdateClass(ctx context.Context, in acadCmd.UpdateClassInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) UpdateClass(in acadCmd.UpdateClassInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateClass(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -139,8 +137,8 @@ func (s *AcademicService) UpdateClass(ctx context.Context, in acadCmd.UpdateClas
 	return dto.Ok(true)
 }
 
-func (s *AcademicService) ListSectionsByYear(ctx context.Context, yearID shared.ID) dto.Response[[]academics.Section] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) ListSectionsByYear(yearID shared.ID) dto.Response[[]academics.Section] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListSectionsByYear(ctx, yearID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -149,8 +147,8 @@ func (s *AcademicService) ListSectionsByYear(ctx context.Context, yearID shared.
 	return dto.Ok(res)
 }
 
-func (s *AcademicService) CreateSection(ctx context.Context, in acadCmd.CreateSectionInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) CreateSection(in acadCmd.CreateSectionInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateSection(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -159,8 +157,8 @@ func (s *AcademicService) CreateSection(ctx context.Context, in acadCmd.CreateSe
 	return dto.Ok(id)
 }
 
-func (s *AcademicService) UpdateSection(ctx context.Context, in acadCmd.UpdateSectionInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AcademicService) UpdateSection(in acadCmd.UpdateSectionInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateSection(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)

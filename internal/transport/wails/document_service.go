@@ -1,7 +1,6 @@
 package wails
 
 import (
-	"context"
 	"encoding/base64"
 
 	docCmd "school-management/internal/application/commands/documents"
@@ -44,8 +43,8 @@ type DocumentContentResponse struct {
 	DataBase64 string              `json:"dataBase64"`
 }
 
-func (s *DocumentService) UploadDocument(ctx context.Context, in UploadDocumentRequest) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *DocumentService) UploadDocument(in UploadDocumentRequest) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	data, err := base64.StdEncoding.DecodeString(in.DataBase64)
 	if err != nil {
 		code, msg, fields := MapError(shared.Validation("invalid base64 document content", nil))
@@ -67,8 +66,8 @@ func (s *DocumentService) UploadDocument(ctx context.Context, in UploadDocumentR
 	return dto.Ok(id)
 }
 
-func (s *DocumentService) ListForStudent(ctx context.Context, studentID shared.ID) dto.Response[[]documents.Document] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *DocumentService) ListForStudent(studentID shared.ID) dto.Response[[]documents.Document] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListDocumentsForStudent(ctx, studentID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -77,8 +76,8 @@ func (s *DocumentService) ListForStudent(ctx context.Context, studentID shared.I
 	return dto.Ok(res)
 }
 
-func (s *DocumentService) ListForApplication(ctx context.Context, applicationID shared.ID) dto.Response[[]documents.Document] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *DocumentService) ListForApplication(applicationID shared.ID) dto.Response[[]documents.Document] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListDocumentsForApplication(ctx, applicationID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -87,8 +86,8 @@ func (s *DocumentService) ListForApplication(ctx context.Context, applicationID 
 	return dto.Ok(res)
 }
 
-func (s *DocumentService) GetContent(ctx context.Context, id shared.ID) dto.Response[*DocumentContentResponse] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *DocumentService) GetContent(id shared.ID) dto.Response[*DocumentContentResponse] {
+	ctx := s.sessions.Context()
 	data, doc, err := s.queryHandle.GetDocumentContent(ctx, id)
 	if err != nil {
 		code, msg, fields := MapError(err)

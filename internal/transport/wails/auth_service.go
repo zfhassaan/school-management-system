@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	authCmd "school-management/internal/application/commands/auth"
 	authQuery "school-management/internal/application/queries/auth"
 	"school-management/internal/application/services/authz"
@@ -42,8 +40,8 @@ func NewAuthService(
 	}
 }
 
-func (s *AuthService) CheckSetupStatus(ctx context.Context) dto.Response[*authQuery.SetupStatusDTO] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AuthService) CheckSetupStatus() dto.Response[*authQuery.SetupStatusDTO] {
+	ctx := s.sessions.Context()
 	res, err := s.authQueries.CheckSetupStatus(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -52,8 +50,8 @@ func (s *AuthService) CheckSetupStatus(ctx context.Context) dto.Response[*authQu
 	return dto.Ok(res)
 }
 
-func (s *AuthService) FirstRunSetup(ctx context.Context, in authCmd.FirstRunSetupInput) dto.Response[*authCmd.FirstRunSetupResult] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AuthService) FirstRunSetup(in authCmd.FirstRunSetupInput) dto.Response[*authCmd.FirstRunSetupResult] {
+	ctx := s.sessions.Context()
 	res, err := s.setupHandler.Execute(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -62,8 +60,8 @@ func (s *AuthService) FirstRunSetup(ctx context.Context, in authCmd.FirstRunSetu
 	return dto.Ok(res)
 }
 
-func (s *AuthService) Login(ctx context.Context, in authCmd.LoginInput) dto.Response[*authCmd.LoginResult] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AuthService) Login(in authCmd.LoginInput) dto.Response[*authCmd.LoginResult] {
+	ctx := s.sessions.Context()
 	res, err := s.loginHandler.Execute(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -92,7 +90,8 @@ func (s *AuthService) Login(ctx context.Context, in authCmd.LoginInput) dto.Resp
 	return dto.Ok(res)
 }
 
-func (s *AuthService) Logout(ctx context.Context) dto.Response[bool] {
+func (s *AuthService) Logout() dto.Response[bool] {
+	ctx := s.sessions.Context()
 	actor := s.sessions.CurrentActor()
 	if actor != nil {
 		_ = s.logoutHandler.Execute(ctx, actor.SessionID)
@@ -101,8 +100,8 @@ func (s *AuthService) Logout(ctx context.Context) dto.Response[bool] {
 	return dto.Ok(true)
 }
 
-func (s *AuthService) ChangePassword(ctx context.Context, in authCmd.ChangePasswordInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AuthService) ChangePassword(in authCmd.ChangePasswordInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.changePwHandler.Execute(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -119,8 +118,8 @@ func (s *AuthService) ChangePassword(ctx context.Context, in authCmd.ChangePassw
 	return dto.Ok(true)
 }
 
-func (s *AuthService) GetCurrentUser(ctx context.Context) dto.Response[*authCmd.LoginResult] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AuthService) GetCurrentUser() dto.Response[*authCmd.LoginResult] {
+	ctx := s.sessions.Context()
 	res, err := s.authQueries.GetCurrentUser(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)

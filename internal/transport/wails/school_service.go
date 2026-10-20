@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	schoolCmd "school-management/internal/application/commands/school"
 	schoolQuery "school-management/internal/application/queries/school"
 	"school-management/internal/application/services/reqctx"
@@ -28,8 +26,8 @@ func NewSchoolService(
 	}
 }
 
-func (s *SchoolService) GetSchool(ctx context.Context) dto.Response[*school.School] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *SchoolService) GetSchool() dto.Response[*school.School] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetSchool(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -38,8 +36,8 @@ func (s *SchoolService) GetSchool(ctx context.Context) dto.Response[*school.Scho
 	return dto.Ok(res)
 }
 
-func (s *SchoolService) UpdateSchoolProfile(ctx context.Context, in schoolCmd.UpdateSchoolProfileInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *SchoolService) UpdateSchoolProfile(in schoolCmd.UpdateSchoolProfileInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateProfile(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -48,8 +46,8 @@ func (s *SchoolService) UpdateSchoolProfile(ctx context.Context, in schoolCmd.Up
 	return dto.Ok(true)
 }
 
-func (s *SchoolService) GetSettings(ctx context.Context) dto.Response[*school.Settings] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *SchoolService) GetSettings() dto.Response[*school.Settings] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetSettings(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -58,8 +56,8 @@ func (s *SchoolService) GetSettings(ctx context.Context) dto.Response[*school.Se
 	return dto.Ok(res)
 }
 
-func (s *SchoolService) UpdateSettings(ctx context.Context, in schoolCmd.UpdateSchoolSettingsInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *SchoolService) UpdateSettings(in schoolCmd.UpdateSchoolSettingsInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateSettings(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)

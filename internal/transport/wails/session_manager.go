@@ -39,6 +39,18 @@ func (m *SessionManager) CurrentActor() *authz.Actor {
 	return m.currentActor
 }
 
+// Context returns a new context decorated with current desktop Actor, correlation ID, and desktop audit source.
+func (m *SessionManager) Context() context.Context {
+	ctx := reqctx.New(context.Background(), m.ids, audit.SourceDesktop)
+	m.mu.RLock()
+	actor := m.currentActor
+	m.mu.RUnlock()
+	if actor != nil {
+		ctx = authz.WithActor(ctx, *actor)
+	}
+	return ctx
+}
+
 // WithContext decorates ctx with the current desktop Actor, correlation ID, and desktop audit source.
 func (m *SessionManager) WithContext(ctx context.Context) context.Context {
 	ctx = reqctx.New(ctx, m.ids, audit.SourceDesktop)

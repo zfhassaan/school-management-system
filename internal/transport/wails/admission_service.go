@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	admCmd "school-management/internal/application/commands/admissions"
 	admQuery "school-management/internal/application/queries/admissions"
 	"school-management/internal/application/services/reqctx"
@@ -29,8 +27,8 @@ func NewAdmissionService(
 	}
 }
 
-func (s *AdmissionService) ListFormDefinitions(ctx context.Context) dto.Response[[]admissions.FormDefinition] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) ListFormDefinitions() dto.Response[[]admissions.FormDefinition] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListFormDefinitions(ctx)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -39,8 +37,8 @@ func (s *AdmissionService) ListFormDefinitions(ctx context.Context) dto.Response
 	return dto.Ok(res)
 }
 
-func (s *AdmissionService) CreateFormDefinition(ctx context.Context, in admCmd.CreateFormDefInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) CreateFormDefinition(in admCmd.CreateFormDefInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateFormDefinition(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -49,8 +47,8 @@ func (s *AdmissionService) CreateFormDefinition(ctx context.Context, in admCmd.C
 	return dto.Ok(id)
 }
 
-func (s *AdmissionService) ListFormVersions(ctx context.Context, formDefID shared.ID) dto.Response[[]admissions.FormVersion] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) ListFormVersions(formDefID shared.ID) dto.Response[[]admissions.FormVersion] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListFormVersions(ctx, formDefID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -59,8 +57,8 @@ func (s *AdmissionService) ListFormVersions(ctx context.Context, formDefID share
 	return dto.Ok(res)
 }
 
-func (s *AdmissionService) GetPublishedFormVersion(ctx context.Context, formDefID shared.ID) dto.Response[*admissions.FormVersion] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) GetPublishedFormVersion(formDefID shared.ID) dto.Response[*admissions.FormVersion] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetPublishedFormVersion(ctx, formDefID)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -69,8 +67,8 @@ func (s *AdmissionService) GetPublishedFormVersion(ctx context.Context, formDefI
 	return dto.Ok(res)
 }
 
-func (s *AdmissionService) CreateFormVersion(ctx context.Context, in admCmd.CreateFormVersionInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) CreateFormVersion(in admCmd.CreateFormVersionInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateFormVersion(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -79,8 +77,8 @@ func (s *AdmissionService) CreateFormVersion(ctx context.Context, in admCmd.Crea
 	return dto.Ok(id)
 }
 
-func (s *AdmissionService) PublishFormVersion(ctx context.Context, in admCmd.PublishFormVersionInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) PublishFormVersion(in admCmd.PublishFormVersionInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.PublishFormVersion(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -89,8 +87,8 @@ func (s *AdmissionService) PublishFormVersion(ctx context.Context, in admCmd.Pub
 	return dto.Ok(true)
 }
 
-func (s *AdmissionService) ListApplications(ctx context.Context, status string, yearID string, limit int) dto.Response[[]admissions.Application] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) ListApplications(status string, yearID string, limit int) dto.Response[[]admissions.Application] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListApplications(ctx, status, yearID, limit)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -99,8 +97,8 @@ func (s *AdmissionService) ListApplications(ctx context.Context, status string, 
 	return dto.Ok(res)
 }
 
-func (s *AdmissionService) GetApplication(ctx context.Context, id shared.ID) dto.Response[*admissions.Application] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) GetApplication(id shared.ID) dto.Response[*admissions.Application] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetApplication(ctx, id)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -109,8 +107,8 @@ func (s *AdmissionService) GetApplication(ctx context.Context, id shared.ID) dto
 	return dto.Ok(res)
 }
 
-func (s *AdmissionService) SubmitApplication(ctx context.Context, in admCmd.SubmitApplicationInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) SubmitApplication(in admCmd.SubmitApplicationInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.SubmitApplication(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -119,8 +117,8 @@ func (s *AdmissionService) SubmitApplication(ctx context.Context, in admCmd.Subm
 	return dto.Ok(id)
 }
 
-func (s *AdmissionService) UpdateStatus(ctx context.Context, in admCmd.UpdateApplicationStatusInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) UpdateStatus(in admCmd.UpdateApplicationStatusInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateStatus(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -129,8 +127,8 @@ func (s *AdmissionService) UpdateStatus(ctx context.Context, in admCmd.UpdateApp
 	return dto.Ok(true)
 }
 
-func (s *AdmissionService) EnrollApplication(ctx context.Context, in admCmd.EnrollApplicationInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AdmissionService) EnrollApplication(in admCmd.EnrollApplicationInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.EnrollApplication(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)

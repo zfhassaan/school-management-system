@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	studCmd "school-management/internal/application/commands/students"
 	studQuery "school-management/internal/application/queries/students"
 	"school-management/internal/application/services/reqctx"
@@ -29,8 +27,8 @@ func NewStudentService(
 	}
 }
 
-func (s *StudentService) GetStudent(ctx context.Context, id shared.ID) dto.Response[*students.Student] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *StudentService) GetStudent(id shared.ID) dto.Response[*students.Student] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.GetStudent(ctx, id)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -39,8 +37,8 @@ func (s *StudentService) GetStudent(ctx context.Context, id shared.ID) dto.Respo
 	return dto.Ok(res)
 }
 
-func (s *StudentService) ListStudents(ctx context.Context, filter students.StudentFilter) dto.Response[[]students.Student] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *StudentService) ListStudents(filter students.StudentFilter) dto.Response[[]students.Student] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListStudents(ctx, filter)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -49,8 +47,8 @@ func (s *StudentService) ListStudents(ctx context.Context, filter students.Stude
 	return dto.Ok(res)
 }
 
-func (s *StudentService) RegisterStudent(ctx context.Context, in studCmd.RegisterStudentInput) dto.Response[shared.ID] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *StudentService) RegisterStudent(in studCmd.RegisterStudentInput) dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.RegisterStudent(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -59,8 +57,8 @@ func (s *StudentService) RegisterStudent(ctx context.Context, in studCmd.Registe
 	return dto.Ok(id)
 }
 
-func (s *StudentService) UpdateStudent(ctx context.Context, in studCmd.UpdateStudentInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *StudentService) UpdateStudent(in studCmd.UpdateStudentInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.UpdateStudent(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -69,8 +67,8 @@ func (s *StudentService) UpdateStudent(ctx context.Context, in studCmd.UpdateStu
 	return dto.Ok(true)
 }
 
-func (s *StudentService) ChangeStatus(ctx context.Context, in studCmd.ChangeStudentStatusInput) dto.Response[bool] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *StudentService) ChangeStatus(in studCmd.ChangeStudentStatusInput) dto.Response[bool] {
+	ctx := s.sessions.Context()
 	err := s.cmdHandler.ChangeStudentStatus(ctx, in)
 	if err != nil {
 		code, msg, fields := MapError(err)
@@ -79,8 +77,8 @@ func (s *StudentService) ChangeStatus(ctx context.Context, in studCmd.ChangeStud
 	return dto.Ok(true)
 }
 
-func (s *StudentService) ListStatusHistory(ctx context.Context, studentID shared.ID) dto.Response[[]students.StatusHistoryEntry] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *StudentService) ListStatusHistory(studentID shared.ID) dto.Response[[]students.StatusHistoryEntry] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListStatusHistory(ctx, studentID)
 	if err != nil {
 		code, msg, fields := MapError(err)

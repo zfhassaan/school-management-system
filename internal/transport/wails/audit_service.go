@@ -1,8 +1,6 @@
 package wails
 
 import (
-	"context"
-
 	auditQuery "school-management/internal/application/queries/audit"
 	"school-management/internal/application/services/reqctx"
 	"school-management/internal/domain/audit"
@@ -24,8 +22,8 @@ func NewAuditService(
 	}
 }
 
-func (s *AuditService) ListLogs(ctx context.Context, f audit.Filter) dto.Response[[]auditQuery.AuditLogDTO] {
-	ctx = s.sessions.WithContext(ctx)
+func (s *AuditService) ListLogs(f audit.Filter) dto.Response[[]auditQuery.AuditLogDTO] {
+	ctx := s.sessions.Context()
 	res, err := s.queryHandle.ListLogs(ctx, f)
 	if err != nil {
 		code, msg, fields := MapError(err)
