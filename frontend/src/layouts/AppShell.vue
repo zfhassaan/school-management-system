@@ -8,17 +8,19 @@
 			<!-- School Brand Header -->
 			<div class="flex h-14 items-center justify-between px-3 border-b border-slate-100">
 				<div v-if="!isCollapsed" class="flex items-center gap-2 overflow-hidden">
-					<div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
-						{{ schoolInitials }}
+					<div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs overflow-hidden">
+						<img v-if="authStore.schoolLogo" :src="authStore.schoolLogo" alt="Logo" class="w-full h-full object-contain p-0.5 bg-white" />
+						<span v-else>{{ schoolInitials }}</span>
 					</div>
 					<div class="truncate">
-						<h1 class="text-xs font-bold text-slate-900 truncate">{{ authStore.school?.name || 'School Management' }}</h1>
+						<h1 class="text-xs font-bold text-slate-900 truncate" :title="authStore.school?.name">{{ authStore.school?.name || 'School Management' }}</h1>
 						<span class="text-[10px] font-semibold text-indigo-600 uppercase tracking-wider">{{ authStore.school?.code || 'OFFLINE' }}</span>
 					</div>
 				</div>
 				<div v-else class="mx-auto">
-					<div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-						{{ schoolInitials }}
+					<div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs overflow-hidden" :title="authStore.school?.name">
+						<img v-if="authStore.schoolLogo" :src="authStore.schoolLogo" alt="Logo" class="w-full h-full object-contain p-0.5 bg-white" />
+						<span v-else>{{ schoolInitials }}</span>
 					</div>
 				</div>
 

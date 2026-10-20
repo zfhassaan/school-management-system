@@ -10,8 +10,20 @@ export const useAuthStore = defineStore('auth', () => {
 	const isAuthenticated = ref<boolean>(false)
 	const user = ref<UserDTO | null>(null)
 	const school = ref<SchoolDTO | null>(null)
+	const schoolLogo = ref<string | null>(typeof window !== 'undefined' ? localStorage.getItem('sms_school_logo') : null)
 	const token = ref<string | null>(null)
 	const isLoading = ref<boolean>(false)
+
+	function setSchoolLogo(logoData: string | null) {
+		schoolLogo.value = logoData
+		if (typeof window !== 'undefined') {
+			if (logoData) {
+				localStorage.setItem('sms_school_logo', logoData)
+			} else {
+				localStorage.removeItem('sms_school_logo')
+			}
+		}
+	}
 
 	const mustChangePassword = computed(() => !!user.value?.mustChangePassword)
 
@@ -135,6 +147,8 @@ export const useAuthStore = defineStore('auth', () => {
 		isAuthenticated,
 		user,
 		school,
+		schoolLogo,
+		setSchoolLogo,
 		token,
 		isLoading,
 		mustChangePassword,

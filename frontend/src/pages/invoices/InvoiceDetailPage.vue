@@ -33,11 +33,17 @@
 		<div v-if="detail?.invoice" class="invoice-paper bg-white rounded-xl border border-slate-200 shadow-sm p-8 space-y-8 print:border-none print:shadow-none print:p-0">
 			<!-- Header -->
 			<div class="flex items-start justify-between border-b border-slate-100 pb-6">
-				<div>
-					<div class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-1">Official Student Bill</div>
-					<h1 class="text-2xl font-black text-slate-900">{{ currentSchoolName }}</h1>
-					<p class="text-xs text-slate-500 mt-0.5">{{ currentSchoolAddress }}</p>
-					<p v-if="currentSchoolContact" class="text-xs text-slate-500">{{ currentSchoolContact }}</p>
+				<div class="flex items-start gap-4">
+					<div class="w-16 h-16 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-sm tracking-wider overflow-hidden">
+						<img v-if="authStore.schoolLogo" :src="authStore.schoolLogo" alt="School Logo" class="w-full h-full object-contain p-1 bg-white" />
+						<span v-else>{{ currentSchoolName.substring(0, 2).toUpperCase() }}</span>
+					</div>
+					<div>
+						<div class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-0.5">Official Student Bill</div>
+						<h1 class="text-2xl font-black text-slate-900">{{ currentSchoolName }}</h1>
+						<p class="text-xs text-slate-500 mt-0.5">{{ currentSchoolAddress }}</p>
+						<p v-if="currentSchoolContact" class="text-xs text-slate-500">{{ currentSchoolContact }}</p>
+					</div>
 				</div>
 
 				<div class="text-right">

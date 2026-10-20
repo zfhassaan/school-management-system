@@ -82,6 +82,14 @@
 						</td>
 						<td class="py-3 px-4 text-right space-x-2">
 							<button
+								@click="openPrintAdmissionForm(app)"
+								class="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded font-medium text-[11px] cursor-pointer inline-flex items-center gap-1 shadow-2xs mr-1"
+								title="Print Official Admission Form"
+							>
+								<Printer class="w-3 h-3 text-slate-500" />
+								<span>Form</span>
+							</button>
+							<button
 								v-if="app.Status === 'approved'"
 								@click="openEnrollModal(app)"
 								class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium text-[11px] cursor-pointer"
@@ -205,6 +213,29 @@
 						<div>
 							<label class="block font-medium text-slate-700 mb-1">Applicant Last Name *</label>
 							<input v-model="newAppForm.applicantLastName" required placeholder="e.g. Abbas" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+						</div>
+					</div>
+
+					<!-- Candidate Photo Upload -->
+					<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3">
+						<div class="flex items-center gap-3">
+							<div class="w-12 h-14 border border-slate-300 rounded-md bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+								<img v-if="newAppCandidatePhoto" :src="newAppCandidatePhoto" alt="Candidate" class="w-full h-full object-cover" />
+								<User v-else class="w-6 h-6 text-slate-300" />
+							</div>
+							<div>
+								<span class="text-xs font-bold text-slate-800">Candidate Photo</span>
+								<p class="text-[10px] text-slate-500">Attach passport photograph for official admission form.</p>
+							</div>
+						</div>
+						<div class="flex items-center gap-2">
+							<label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium cursor-pointer shadow-2xs">
+								<span>{{ newAppCandidatePhoto ? 'Change' : 'Upload' }}</span>
+								<input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onDirectAppPhotoSelected" />
+							</label>
+							<button v-if="newAppCandidatePhoto" type="button" @click="newAppCandidatePhoto = null" class="text-rose-600 text-xs hover:underline cursor-pointer">
+								Remove
+							</button>
 						</div>
 					</div>
 
@@ -431,6 +462,14 @@
 				</form>
 			</div>
 		</div>
+
+		<!-- Printable Official Admission Form Modal -->
+		<PrintableAdmissionForm
+			:is-open="showPrintFormModal"
+			:application="selectedAppForPrint"
+			@close="showPrintFormModal = false"
+			@photo-updated="onCandidatePhotoUpdated"
+		/>
 	</div>
 </template>
 
@@ -440,7 +479,8 @@ import { useRouter } from 'vue-router'
 import { getServices } from '@/services/factory'
 import { useToast } from '@/composables/useToast'
 import type { ApplicationDTO, SectionDTO, AcademicYearDTO, ClassDTO } from '@/types/common'
-import { Plus, RefreshCw, Layers, UserPlus, FileEdit, X } from 'lucide-vue-next'
+import { Plus, RefreshCw, Layers, UserPlus, FileEdit, X, Printer, User } from 'lucide-vue-next'
+import PrintableAdmissionForm from '@/components/PrintableAdmissionForm.vue'
 
 const router = useRouter()
 const services = getServices()
@@ -455,6 +495,33 @@ const showNewAppChoiceModal = ref(false)
 const showDirectSubmitModal = ref(false)
 const showReviewModal = ref(false)
 const showEnrollModal = ref(false)
+const showPrintFormModal = ref(false)
+const selectedAppForPrint = ref<ApplicationDTO | null>(null)
+const newAppCandidatePhoto = ref<string | null>(null)
+
+function openPrintAdmissionForm(app: ApplicationDTO) {
+	selectedAppForPrint.value = app
+	showPrintFormModal.value = true
+}
+
+function onCandidatePhotoUpdated(photo: string) {
+	if (selectedAppForPrint.value) {
+		if (!selectedAppForPrint.value.Response) {
+			selectedAppForPrint.value.Response = {}
+		}
+		selectedAppForPrint.value.Response.candidatePhoto = photo
+	}
+}
+
+function onDirectAppPhotoSelected(e: Event) {
+	const file = (e.target as HTMLInputElement).files?.[0]
+	if (!file) return
+	const reader = new FileReader()
+	reader.onload = (event) => {
+		newAppCandidatePhoto.value = event.target?.result as string
+	}
+	reader.readAsDataURL(file)
+}
 
 const selectedApp = ref<ApplicationDTO | null>(null)
 const reviewStatus = ref('under_review')
@@ -604,8 +671,12 @@ async function submitDirectApplication() {
 		})
 
 		if (res.success) {
+			if (newAppCandidatePhoto.value && res.data) {
+				localStorage.setItem(`candidate_photo_${res.data}`, newAppCandidatePhoto.value)
+			}
 			toast.success('Admission application submitted successfully!')
 			showDirectSubmitModal.value = false
+			newAppCandidatePhoto.value = null
 			// Reset form fields
 			newAppForm.applicantFirstName = ''
 			newAppForm.applicantLastName = ''

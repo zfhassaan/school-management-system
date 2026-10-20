@@ -23,6 +23,41 @@
 					<Building2 class="w-4 h-4 text-indigo-600" /> School Identity
 				</h2>
 
+				<!-- School Logo Uploader -->
+				<div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-4">
+					<div class="flex items-center gap-4">
+						<div class="w-16 h-16 rounded-xl border border-slate-300 bg-white flex items-center justify-center font-bold text-lg text-slate-400 overflow-hidden shrink-0 shadow-2xs">
+							<img v-if="logoPreview || authStore.schoolLogo" :src="logoPreview || authStore.schoolLogo!" alt="School Logo Preview" class="w-full h-full object-contain p-1" />
+							<div v-else class="text-center p-1">
+								<ImageIcon class="w-6 h-6 mx-auto text-slate-300" />
+								<span class="text-[9px] uppercase font-bold text-slate-400 block mt-0.5">No Logo</span>
+							</div>
+						</div>
+						<div>
+							<h3 class="text-xs font-bold text-slate-800">Official School Crest / Logo</h3>
+							<p class="text-[11px] text-slate-500 mt-0.5 max-w-sm">
+								Used on official admission forms, printable bills, collection receipts, and the application navigation.
+							</p>
+						</div>
+					</div>
+
+					<div class="flex items-center gap-2 shrink-0">
+						<label class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium cursor-pointer transition shadow-2xs flex items-center gap-1.5">
+							<Upload class="w-3.5 h-3.5" />
+							<span>{{ logoPreview || authStore.schoolLogo ? 'Change Logo' : 'Upload Logo' }}</span>
+							<input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="hidden" @change="onLogoSelected" />
+						</label>
+						<button
+							v-if="logoPreview || authStore.schoolLogo"
+							type="button"
+							@click="removeLogo"
+							class="px-2.5 py-1.5 border border-slate-300 hover:bg-slate-100 text-rose-600 rounded-lg text-xs font-medium transition cursor-pointer"
+						>
+							Remove
+						</button>
+					</div>
+				</div>
+
 				<div>
 					<label class="block text-xs font-semibold text-slate-700 mb-1">School Name *</label>
 					<input
@@ -249,12 +284,35 @@ import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
 import DeveloperLogo from '@/components/DeveloperLogo.vue'
 import { openExternalUrl } from '@/utils/browser'
-import { Building2, Coins, Save, Github, Globe, ExternalLink } from 'lucide-vue-next'
+import { Building2, Coins, Save, Github, Globe, ExternalLink, Upload, Image as ImageIcon } from 'lucide-vue-next'
 
 const services = getServices()
 const toast = useToast()
 const authStore = useAuthStore()
 const isSaving = ref(false)
+const logoPreview = ref<string | null>(null)
+const logoChanged = ref(false)
+
+function onLogoSelected(e: Event) {
+	const file = (e.target as HTMLInputElement).files?.[0]
+	if (!file) return
+	if (file.size > 2 * 1024 * 1024) {
+		toast.error('Logo image must be under 2MB')
+		return
+	}
+	const reader = new FileReader()
+	reader.onload = (event) => {
+		logoPreview.value = event.target?.result as string
+		logoChanged.value = true
+	}
+	reader.readAsDataURL(file)
+}
+
+function removeLogo() {
+	logoPreview.value = null
+	logoChanged.value = true
+	authStore.setSchoolLogo(null)
+}
 
 const profile = reactive({
 	name: '',
@@ -325,6 +383,10 @@ async function saveAll() {
 			services.school.updateSettings(settings)
 		])
 		if (pRes.success && sRes.success) {
+			if (logoChanged.value) {
+				authStore.setSchoolLogo(logoPreview.value)
+				logoChanged.value = false
+			}
 			authStore.updateSchoolDetails({
 				name: profile.name,
 				legalName: profile.legalName,
@@ -336,7 +398,7 @@ async function saveAll() {
 				address: profile.address
 			})
 			await authStore.refreshSchool()
-			toast.success('School profile and operational settings saved successfully!')
+			toast.success('School profile, logo, and operational settings saved successfully!')
 		} else {
 			toast.error(pRes.error?.message || sRes.error?.message || 'Failed to save configuration')
 		}

@@ -4870,6 +4870,7 @@ export namespace school {
 	    name: string;
 	    legalName: string;
 	    code: string;
+	    logoDocumentId?: string;
 	    address: shared.Address;
 	    phone: string;
 	    email: string;
@@ -4886,6 +4887,7 @@ export namespace school {
 	        this.name = source["name"];
 	        this.legalName = source["legalName"];
 	        this.code = source["code"];
+	        this.logoDocumentId = source["logoDocumentId"];
 	        this.address = this.convertValues(source["address"], shared.Address);
 	        this.phone = source["phone"];
 	        this.email = source["email"];

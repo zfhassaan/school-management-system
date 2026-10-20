@@ -13,15 +13,16 @@ import (
 )
 
 type UpdateSchoolProfileInput struct {
-	Name        string         `json:"name"`
-	LegalName   string         `json:"legalName"`
-	Code        string         `json:"code"`
-	Address     school.Address `json:"address"`
-	Phone       string         `json:"phone"`
-	Email       string         `json:"email"`
-	Website     string         `json:"website"`
-	Timezone    string         `json:"timezone"`
-	Locale      string         `json:"locale"`
+	Name           string         `json:"name"`
+	LegalName      string         `json:"legalName"`
+	Code           string         `json:"code"`
+	LogoDocumentID *shared.ID     `json:"logoDocumentId,omitempty"`
+	Address        school.Address `json:"address"`
+	Phone          string         `json:"phone"`
+	Email          string         `json:"email"`
+	Website        string         `json:"website"`
+	Timezone       string         `json:"timezone"`
+	Locale         string         `json:"locale"`
 }
 
 type UpdateSchoolSettingsInput struct {
@@ -80,6 +81,9 @@ func (h *SchoolCommandsHandler) UpdateProfile(ctx context.Context, in UpdateScho
 		sch.Name = strings.TrimSpace(in.Name)
 		sch.LegalName = strings.TrimSpace(in.LegalName)
 		sch.Code = strings.ToUpper(strings.TrimSpace(in.Code))
+		if in.LogoDocumentID != nil {
+			sch.LogoDocumentID = in.LogoDocumentID
+		}
 		sch.Address = in.Address
 		sch.Phone = strings.TrimSpace(in.Phone)
 		sch.Email = strings.TrimSpace(in.Email)

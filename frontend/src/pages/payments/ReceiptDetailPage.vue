@@ -46,8 +46,9 @@
 			<div class="flex items-start justify-between border-b-2 border-slate-900 pb-5">
 				<div class="flex items-start gap-4">
 					<!-- School Monogram / Crest Badge -->
-					<div class="w-14 h-14 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-sm tracking-wider">
-						{{ schoolInitials }}
+					<div class="w-16 h-16 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-sm tracking-wider overflow-hidden">
+						<img v-if="authStore.schoolLogo" :src="authStore.schoolLogo" alt="School Logo" class="w-full h-full object-contain p-1 bg-white" />
+						<span v-else>{{ schoolInitials }}</span>
 					</div>
 					<div>
 						<div class="flex items-center gap-2">
