@@ -253,13 +253,55 @@
 				</form>
 			</div>
 		</div>
+
+		<!-- Add Guardian Modal -->
+		<div v-if="showAddGuardianModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+			<div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 border border-slate-200">
+				<h3 class="text-sm font-bold text-slate-900 mb-1">Add Guardian</h3>
+				<p class="text-xs text-slate-500 mb-3">Link a parent or guardian to this student.</p>
+				<form @submit.prevent="submitAddGuardian" class="space-y-3 text-xs">
+					<div class="grid grid-cols-2 gap-2">
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">First Name *</label>
+							<input v-model="newGuardianForm.firstName" required class="w-full border border-slate-300 rounded-lg p-2" />
+						</div>
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Last Name *</label>
+							<input v-model="newGuardianForm.lastName" required class="w-full border border-slate-300 rounded-lg p-2" />
+						</div>
+					</div>
+					<div>
+						<label class="block font-medium text-slate-700 mb-1">Primary Phone *</label>
+						<input v-model="newGuardianForm.phonePrimary" required placeholder="e.g. +92-300-1234567" class="w-full border border-slate-300 rounded-lg p-2" />
+					</div>
+					<div>
+						<label class="block font-medium text-slate-700 mb-1">Email</label>
+						<input v-model="newGuardianForm.email" type="email" placeholder="e.g. parent@example.com" class="w-full border border-slate-300 rounded-lg p-2" />
+					</div>
+					<div>
+						<label class="block font-medium text-slate-700 mb-1">Relationship</label>
+						<select v-model="newGuardianForm.relationship" class="w-full border border-slate-300 rounded-lg p-2 bg-white">
+							<option value="father">Father</option>
+							<option value="mother">Mother</option>
+							<option value="guardian">Legal Guardian</option>
+							<option value="other">Other</option>
+						</select>
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button type="button" @click="showAddGuardianModal = false" class="px-3 py-1.5 border border-slate-300 rounded-lg cursor-pointer">Cancel</button>
+						<button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-medium cursor-pointer" :disabled="savingGuardian">Save Guardian</button>
+					</div>
+				</form>
+			</div>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import type {
 	StudentDTO,
 	EnrollmentDTO,
@@ -270,6 +312,7 @@ import { ArrowLeft, Upload, FileText } from 'lucide-vue-next'
 
 const route = useRoute()
 const services = getServices()
+const toast = useToast()
 
 const currentTab = ref('overview')
 const tabs = [
@@ -289,6 +332,16 @@ const documents = ref<DocumentDTO[]>([])
 const showStatusModal = ref(false)
 const newStatus = ref('active')
 const statusReason = ref('')
+
+const showAddGuardianModal = ref(false)
+const savingGuardian = ref(false)
+const newGuardianForm = reactive({
+	firstName: '',
+	lastName: '',
+	phonePrimary: '',
+	email: '',
+	relationship: 'father'
+})
 
 async function loadProfile() {
 	const studentId = route.params.id as string
@@ -369,8 +422,56 @@ async function downloadDocument(id: string, fileName: string) {
 }
 
 function openAddGuardianModal() {
-	// Simple prompt or placeholder modal for linking
-	alert('Open guardian form modal')
+	newGuardianForm.firstName = ''
+	newGuardianForm.lastName = ''
+	newGuardianForm.phonePrimary = ''
+	newGuardianForm.email = ''
+	newGuardianForm.relationship = 'father'
+	showAddGuardianModal.value = true
+}
+
+async function submitAddGuardian() {
+	if (!student.value) return
+	savingGuardian.value = true
+	try {
+		const gRes = await services.guardians.createGuardian({
+			firstName: newGuardianForm.firstName.trim(),
+			lastName: newGuardianForm.lastName.trim(),
+			phonePrimary: newGuardianForm.phonePrimary.trim(),
+			email: newGuardianForm.email.trim() || undefined
+		})
+		if (gRes.success && gRes.data) {
+			const existingLinks = (guardiansList.value || []).map((g: any) => ({
+				guardianId: g.GuardianID,
+				relationship: g.Relationship,
+				isPrimary: g.IsPrimary,
+				receivesBilling: g.ReceivesBilling,
+				canPickup: g.CanPickup,
+				priority: g.Priority
+			}))
+			existingLinks.push({
+				guardianId: gRes.data,
+				relationship: newGuardianForm.relationship,
+				isPrimary: existingLinks.length === 0,
+				receivesBilling: true,
+				canPickup: true,
+				priority: existingLinks.length + 1
+			})
+			await services.guardians.setStudentGuardians({
+				studentId: student.value.ID,
+				guardians: existingLinks
+			})
+			showAddGuardianModal.value = false
+			toast.success('Guardian added and linked successfully!')
+			await loadProfile()
+		} else {
+			toast.error(gRes.error?.message || 'Failed to create guardian')
+		}
+	} catch (e: any) {
+		toast.error(e.message || 'An error occurred')
+	} finally {
+		savingGuardian.value = false
+	}
 }
 
 function formatDate(d: any) {

@@ -41,7 +41,7 @@
 			</div>
 			<button
 				@click="loadApplications"
-				class="p-2 border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 transition"
+				class="p-2 border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 transition cursor-pointer"
 			>
 				<RefreshCw class="w-3.5 h-3.5" :class="{ 'animate-spin': loading }" />
 			</button>
@@ -65,7 +65,7 @@
 						<td colspan="6" class="py-10 text-center text-slate-400">Loading applications...</td>
 					</tr>
 					<tr v-else-if="applications.length === 0">
-						<td colspan="6" class="py-10 text-center text-slate-400">No applications found.</td>
+						<td colspan="6" class="py-10 text-center text-slate-400">No applications found. Click "New Application" to add one.</td>
 					</tr>
 					<tr v-for="app in applications" :key="app.ID" class="hover:bg-slate-50/50">
 						<td class="py-3 px-4 font-mono font-medium text-slate-900">{{ app.ApplicationNo }}</td>
@@ -102,6 +102,181 @@
 			</table>
 		</div>
 
+		<!-- In-App Confirmation / Action Choice Modal -->
+		<div v-if="showNewAppChoiceModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+			<div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+				<div class="flex items-start justify-between mb-4">
+					<div class="flex items-center gap-3">
+						<div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+							<UserPlus class="w-5 h-5" />
+						</div>
+						<div>
+							<h3 class="text-base font-bold text-slate-900">New Admission Application</h3>
+							<p class="text-xs text-slate-500 mt-0.5">Choose how you would like to proceed:</p>
+						</div>
+					</div>
+					<button @click="showNewAppChoiceModal = false" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+						<X class="w-4 h-4" />
+					</button>
+				</div>
+
+				<div class="space-y-3 mb-5">
+					<!-- Option 1: Direct Entry -->
+					<div
+						@click="startDirectSubmission"
+						class="p-4 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition cursor-pointer group"
+					>
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-2.5">
+								<FileEdit class="w-4 h-4 text-indigo-600" />
+								<span class="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition">Direct Application Form</span>
+							</div>
+							<span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-medium">Quick Entry</span>
+						</div>
+						<p class="text-[11px] text-slate-500 mt-1 pl-6.5">Enter applicant details, guardian contact, and target class directly in the modal.</p>
+					</div>
+
+					<!-- Option 2: Form Builder -->
+					<div
+						@click="goToFormBuilder"
+						class="p-4 rounded-xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50/80 transition cursor-pointer group"
+					>
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-2.5">
+								<Layers class="w-4 h-4 text-slate-600" />
+								<span class="text-xs font-bold text-slate-900 group-hover:text-slate-900 transition">Admission Form Builder</span>
+							</div>
+							<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">Custom Fields</span>
+						</div>
+						<p class="text-[11px] text-slate-500 mt-1 pl-6.5">Customize questionnaire fields, sections, validation rules, and publish schemas.</p>
+					</div>
+				</div>
+
+				<div class="flex justify-end pt-3 border-t border-slate-100">
+					<button
+						type="button"
+						@click="showNewAppChoiceModal = false"
+						class="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg text-xs transition cursor-pointer"
+					>
+						Cancel
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Direct Application Submission Modal -->
+		<div v-if="showDirectSubmitModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+			<div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
+				<div class="flex items-start justify-between mb-4 border-b border-slate-100 pb-3">
+					<div>
+						<h3 class="text-base font-bold text-slate-900">Direct Admission Application</h3>
+						<p class="text-xs text-slate-500 mt-0.5">Submit an applicant for admissions review and enrollment.</p>
+					</div>
+					<button @click="showDirectSubmitModal = false" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+						<X class="w-4 h-4" />
+					</button>
+				</div>
+
+				<form @submit.prevent="submitDirectApplication" class="space-y-4 text-xs">
+					<!-- Academic Year & Applied Class -->
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Academic Year *</label>
+							<select v-model="newAppForm.academicYearId" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
+								<option value="" disabled>Select Year</option>
+								<option v-for="y in academicYears" :key="y.ID" :value="y.ID">{{ y.Name }} ({{ y.Code }})</option>
+							</select>
+						</div>
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Applied Class *</label>
+							<select v-model="newAppForm.appliedClassId" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
+								<option value="" disabled>Select Class</option>
+								<option v-for="c in classes" :key="c.ID" :value="c.ID">{{ c.Name }} ({{ c.Code }})</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Applicant Names -->
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Applicant First Name *</label>
+							<input v-model="newAppForm.applicantFirstName" required placeholder="e.g. Zain" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+						</div>
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Applicant Last Name *</label>
+							<input v-model="newAppForm.applicantLastName" required placeholder="e.g. Abbas" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+						</div>
+					</div>
+
+					<!-- DOB & Gender -->
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Date of Birth</label>
+							<input v-model="newAppForm.applicantDob" type="date" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+						</div>
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Gender *</label>
+							<select v-model="newAppForm.applicantGender" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
+								<option value="male">Male</option>
+								<option value="female">Female</option>
+								<option value="other">Other</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Guardian Info -->
+					<div class="border-t border-slate-100 pt-3">
+						<h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Guardian Information</h4>
+						<div class="grid grid-cols-2 gap-3">
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Guardian Name *</label>
+								<input v-model="newAppForm.guardianName" required placeholder="e.g. Tariq Abbas" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Guardian Phone *</label>
+								<input v-model="newAppForm.guardianPhone" required placeholder="e.g. +92-300-1234567" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+							</div>
+						</div>
+						<div class="mt-3">
+							<label class="block font-medium text-slate-700 mb-1">Guardian Email</label>
+							<input v-model="newAppForm.guardianEmail" type="email" placeholder="e.g. guardian@example.com" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+						</div>
+					</div>
+
+					<!-- Notes -->
+					<div>
+						<label class="block font-medium text-slate-700 mb-1">Notes / Previous School</label>
+						<textarea v-model="newAppForm.notes" rows="2" placeholder="Optional background or previous schooling..." class="w-full border border-slate-300 rounded-lg p-2 text-xs"></textarea>
+					</div>
+
+					<!-- Error Alert -->
+					<div v-if="submitError" class="p-2.5 rounded-lg bg-rose-50 text-rose-700 text-xs border border-rose-200">
+						{{ submitError }}
+					</div>
+
+					<!-- Footer buttons -->
+					<div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+						<button
+							type="button"
+							@click="showDirectSubmitModal = false"
+							class="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg text-xs transition cursor-pointer"
+							:disabled="isSubmitting"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+							:disabled="isSubmitting"
+						>
+							<span v-if="isSubmitting" class="animate-spin mr-1">⏳</span>
+							<span>Submit Application</span>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
 		<!-- Review Modal -->
 		<div v-if="showReviewModal && selectedApp" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
 			<div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 border border-slate-200">
@@ -109,7 +284,7 @@
 				<form @submit.prevent="submitReview" class="space-y-3 text-xs">
 					<div>
 						<label class="block font-medium text-slate-700 mb-1">Decision / Status</label>
-						<select v-model="reviewStatus" class="w-full border border-slate-300 rounded-lg p-2">
+						<select v-model="reviewStatus" class="w-full border border-slate-300 rounded-lg p-2 bg-white">
 							<option value="under_review">Under Review</option>
 							<option value="approved">Approved</option>
 							<option value="rejected">Rejected</option>
@@ -120,8 +295,8 @@
 						<textarea v-model="reviewNotes" rows="3" required class="w-full border border-slate-300 rounded-lg p-2" placeholder="Review comments..."></textarea>
 					</div>
 					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" @click="showReviewModal = false" class="px-3 py-1.5 border border-slate-300 rounded-lg">Cancel</button>
-						<button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-medium">Save Decision</button>
+						<button type="button" @click="showReviewModal = false" class="px-3 py-1.5 border border-slate-300 rounded-lg cursor-pointer">Cancel</button>
+						<button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-medium cursor-pointer">Save Decision</button>
 					</div>
 				</form>
 			</div>
@@ -140,7 +315,7 @@
 					</div>
 					<div>
 						<label class="block font-medium text-slate-700 mb-1">Section</label>
-						<select v-model="enrollSectionId" class="w-full border border-slate-300 rounded-lg p-2">
+						<select v-model="enrollSectionId" class="w-full border border-slate-300 rounded-lg p-2 bg-white">
 							<option value="">No Section</option>
 							<option v-for="s in availableSections" :key="s.ID" :value="s.ID">{{ s.Name }}</option>
 						</select>
@@ -150,8 +325,8 @@
 						<input v-model="enrollRollNo" placeholder="e.g. 01" class="w-full border border-slate-300 rounded-lg p-2" />
 					</div>
 					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" @click="showEnrollModal = false" class="px-3 py-1.5 border border-slate-300 rounded-lg">Cancel</button>
-						<button type="submit" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-medium">Confirm Enrollment</button>
+						<button type="button" @click="showEnrollModal = false" class="px-3 py-1.5 border border-slate-300 rounded-lg cursor-pointer">Cancel</button>
+						<button type="submit" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-medium cursor-pointer">Confirm Enrollment</button>
 					</div>
 				</form>
 			</div>
@@ -160,23 +335,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { getServices } from '@/services/factory'
-import type { ApplicationDTO, SectionDTO } from '@/types/common'
-import { Plus, RefreshCw, Layers } from 'lucide-vue-next'
+import { useToast } from '@/composables/useToast'
+import type { ApplicationDTO, SectionDTO, AcademicYearDTO, ClassDTO } from '@/types/common'
+import { Plus, RefreshCw, Layers, UserPlus, FileEdit, X } from 'lucide-vue-next'
 
 const router = useRouter()
 const services = getServices()
+const toast = useToast()
 
 const applications = ref<ApplicationDTO[]>([])
 const statusFilter = ref('')
 const loading = ref(false)
 
+// Modals
+const showNewAppChoiceModal = ref(false)
+const showDirectSubmitModal = ref(false)
 const showReviewModal = ref(false)
 const showEnrollModal = ref(false)
-const selectedApp = ref<ApplicationDTO | null>(null)
 
+const selectedApp = ref<ApplicationDTO | null>(null)
 const reviewStatus = ref('under_review')
 const reviewNotes = ref('')
 
@@ -185,6 +365,25 @@ const enrollSectionId = ref('')
 const enrollRollNo = ref('')
 const availableSections = ref<SectionDTO[]>([])
 
+// Direct Application Form Data
+const academicYears = ref<AcademicYearDTO[]>([])
+const classes = ref<ClassDTO[]>([])
+const isSubmitting = ref(false)
+const submitError = ref('')
+
+const newAppForm = reactive({
+	academicYearId: '',
+	appliedClassId: '',
+	applicantFirstName: '',
+	applicantLastName: '',
+	applicantDob: '',
+	applicantGender: 'male',
+	guardianName: '',
+	guardianPhone: '',
+	guardianEmail: '',
+	notes: ''
+})
+
 async function loadApplications() {
 	loading.value = true
 	try {
@@ -192,8 +391,110 @@ async function loadApplications() {
 		if (res.success && res.data) {
 			applications.value = res.data
 		}
+	} catch (e: any) {
+		toast.error(e.message || 'Failed to load applications')
 	} finally {
 		loading.value = false
+	}
+}
+
+async function loadFormMetadata() {
+	try {
+		const [yearsRes, classesRes] = await Promise.all([
+			services.academics.listAcademicYears(),
+			services.academics.listClasses()
+		])
+		if (yearsRes.success && yearsRes.data) {
+			academicYears.value = yearsRes.data
+			const activeYear = yearsRes.data.find(y => y.Status === 'active') || yearsRes.data[0]
+			if (activeYear && !newAppForm.academicYearId) {
+				newAppForm.academicYearId = activeYear.ID
+			}
+		}
+		if (classesRes.success && classesRes.data) {
+			classes.value = classesRes.data
+			if (classesRes.data.length > 0 && !newAppForm.appliedClassId) {
+				newAppForm.appliedClassId = classesRes.data[0].ID
+			}
+		}
+	} catch (e: any) {
+		console.error('Failed to load academic years/classes:', e)
+	}
+}
+
+function openNewAppModal() {
+	showNewAppChoiceModal.value = true
+}
+
+function startDirectSubmission() {
+	showNewAppChoiceModal.value = false
+	submitError.value = ''
+	loadFormMetadata()
+	showDirectSubmitModal.value = true
+}
+
+function goToFormBuilder() {
+	showNewAppChoiceModal.value = false
+	router.push('/admissions/builder')
+}
+
+async function submitDirectApplication() {
+	submitError.value = ''
+	if (!newAppForm.academicYearId || !newAppForm.appliedClassId) {
+		submitError.value = 'Academic Year and Applied Class are required.'
+		return
+	}
+	if (!newAppForm.applicantFirstName.trim() || !newAppForm.applicantLastName.trim()) {
+		submitError.value = 'Applicant first and last names are required.'
+		return
+	}
+	if (!newAppForm.guardianName.trim() || !newAppForm.guardianPhone.trim()) {
+		submitError.value = 'Guardian name and contact phone are required.'
+		return
+	}
+
+	isSubmitting.value = true
+	try {
+		let dob: { Year: number; Month: number; Day: number } | undefined
+		if (newAppForm.applicantDob) {
+			const [y, m, d] = newAppForm.applicantDob.split('-').map(Number)
+			if (y && m && d) {
+				dob = { Year: y, Month: m, Day: d }
+			}
+		}
+
+		const res = await services.admissions.submitApplication({
+			academicYearId: newAppForm.academicYearId,
+			appliedClassId: newAppForm.appliedClassId,
+			applicantFirstName: newAppForm.applicantFirstName.trim(),
+			applicantLastName: newAppForm.applicantLastName.trim(),
+			applicantDob: dob,
+			applicantGender: newAppForm.applicantGender,
+			guardianName: newAppForm.guardianName.trim(),
+			guardianPhoneNormalized: newAppForm.guardianPhone.trim(),
+			guardianEmail: newAppForm.guardianEmail.trim(),
+			response: newAppForm.notes ? { notes: newAppForm.notes } : {}
+		})
+
+		if (res.success) {
+			toast.success('Admission application submitted successfully!')
+			showDirectSubmitModal.value = false
+			// Reset form fields
+			newAppForm.applicantFirstName = ''
+			newAppForm.applicantLastName = ''
+			newAppForm.applicantDob = ''
+			newAppForm.guardianName = ''
+			newAppForm.guardianPhone = ''
+			newAppForm.guardianEmail = ''
+			newAppForm.notes = ''
+			await loadApplications()
+		} else {
+			submitError.value = res.error?.message || 'Failed to submit application'
+		}
+	} catch (e: any) {
+		submitError.value = e.message || 'An error occurred while submitting'
+	} finally {
+		isSubmitting.value = false
 	}
 }
 
@@ -206,14 +507,21 @@ function openReviewModal(app: ApplicationDTO) {
 
 async function submitReview() {
 	if (!selectedApp.value) return
-	const res = await services.admissions.updateStatus({
-		applicationId: selectedApp.value.ID,
-		newStatus: reviewStatus.value,
-		reason: reviewNotes.value
-	})
-	if (res.success) {
-		showReviewModal.value = false
-		await loadApplications()
+	try {
+		const res = await services.admissions.updateStatus({
+			applicationId: selectedApp.value.ID,
+			newStatus: reviewStatus.value,
+			reason: reviewNotes.value
+		})
+		if (res.success) {
+			toast.success(`Application updated to "${reviewStatus.value.replace('_', ' ')}"`)
+			showReviewModal.value = false
+			await loadApplications()
+		} else {
+			toast.error(res.error?.message || 'Failed to save review decision')
+		}
+	} catch (e: any) {
+		toast.error(e.message || 'An error occurred')
 	}
 }
 
@@ -221,7 +529,6 @@ async function openEnrollModal(app: ApplicationDTO) {
 	selectedApp.value = app
 	enrollSectionId.value = ''
 	enrollRollNo.value = ''
-	// Load sections for academic year
 	const secRes = await services.academics.listSectionsByYear(app.AcademicYearID)
 	if (secRes.success && secRes.data) {
 		availableSections.value = secRes.data.filter(s => s.ClassID === app.AppliedClassID)
@@ -231,21 +538,24 @@ async function openEnrollModal(app: ApplicationDTO) {
 
 async function submitEnroll() {
 	if (!selectedApp.value) return
-	const [y, m, d] = enrollAdmissionDate.value.split('-').map(Number)
-	const res = await services.admissions.enrollApplication({
-		applicationId: selectedApp.value.ID,
-		sectionId: enrollSectionId.value || undefined,
-		rollNo: enrollRollNo.value || undefined,
-		admissionDate: { Year: y, Month: m, Day: d }
-	})
-	if (res.success && res.data) {
-		showEnrollModal.value = false
-		router.push(`/students/${res.data}`)
+	try {
+		const [y, m, d] = enrollAdmissionDate.value.split('-').map(Number)
+		const res = await services.admissions.enrollApplication({
+			applicationId: selectedApp.value.ID,
+			sectionId: enrollSectionId.value || undefined,
+			rollNo: enrollRollNo.value || undefined,
+			admissionDate: { Year: y, Month: m, Day: d }
+		})
+		if (res.success && res.data) {
+			toast.success('Student enrolled successfully!')
+			showEnrollModal.value = false
+			router.push(`/students/${res.data}`)
+		} else {
+			toast.error(res.error?.message || 'Failed to enroll student')
+		}
+	} catch (e: any) {
+		toast.error(e.message || 'An error occurred during enrollment')
 	}
-}
-
-function openNewAppModal() {
-	alert('Direct submission modal or redirect to admission form')
 }
 
 function getStatusBadgeClass(status: string) {
@@ -267,6 +577,6 @@ function getStatusBadgeClass(status: string) {
 
 onMounted(() => {
 	loadApplications()
+	loadFormMetadata()
 })
 </script>
-

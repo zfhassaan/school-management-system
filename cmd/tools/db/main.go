@@ -9,6 +9,7 @@ import (
 	"os"
 
 	acadCmd "school-management/internal/application/commands/academics"
+	admCmd "school-management/internal/application/commands/admissions"
 	authCmd "school-management/internal/application/commands/auth"
 	feeCmd "school-management/internal/application/commands/fees"
 	guardCmd "school-management/internal/application/commands/guardians"
@@ -16,6 +17,7 @@ import (
 	studCmd "school-management/internal/application/commands/students"
 	"school-management/internal/application/services/authz"
 	"school-management/internal/domain/academics"
+	"school-management/internal/domain/admissions"
 	"school-management/internal/domain/guardians"
 	"school-management/internal/domain/identity"
 	"school-management/internal/domain/payments"
@@ -219,6 +221,15 @@ func seedDatabase(ctx context.Context, db *sqlite.DB) error {
 		return err
 	}
 
+	g3ID, err := acadCmdHandler.CreateClass(authCtx, acadCmd.CreateClassInput{
+		Code:       "G3",
+		Name:       "Grade 3",
+		LevelOrder: 3,
+	})
+	if err != nil {
+		return err
+	}
+
 	cap30 := 30
 	sec1AID, err := acadCmdHandler.CreateSection(authCtx, acadCmd.CreateSectionInput{
 		ClassID:        g1ID,
@@ -328,6 +339,97 @@ func seedDatabase(ctx context.Context, db *sqlite.DB) error {
 			{GuardianID: gAlice, Relationship: guardians.RelFather, IsPrimary: true, ReceivesBilling: true, CanPickup: true, Priority: 1},
 		},
 	})
+
+	// Step 4.5: Admissions Form & Sample Applications
+	fmt.Println("   • Creating admission form and sample applications...")
+	admCmdHandler := admCmd.NewAdmissionCommandsHandler(uow, clock, ids)
+	formDefID, err := admCmdHandler.CreateFormDefinition(authCtx, admCmd.CreateFormDefInput{
+		Code:        "STD-2026",
+		Name:        "General Admission Form",
+		Description: "General admission registration form for upcoming academic session",
+	})
+	if err == nil {
+		schema := admissions.FormSchema{
+			Title: "General Admission Form",
+			Sections: []admissions.FormSection{
+				{
+					ID:    "sec_student",
+					Title: "Student Information",
+					Fields: []admissions.FormField{
+						{ID: "f_prev_school", Label: "Previous School Attended", Type: admissions.FieldText, Required: false},
+					},
+				},
+			},
+		}
+		verID, err := admCmdHandler.CreateFormVersion(authCtx, admCmd.CreateFormVersionInput{
+			FormDefinitionID: formDefID,
+			Schema:           schema,
+		})
+		if err == nil {
+			_ = admCmdHandler.PublishFormVersion(authCtx, admCmd.PublishFormVersionInput{
+				VersionID: verID,
+			})
+
+			// 1. Submitted Application
+			app1DOB := shared.CivilDate(2020, 6, 15)
+			_, _ = admCmdHandler.SubmitApplication(authCtx, admCmd.SubmitApplicationInput{
+				FormVersionID:           verID,
+				AcademicYearID:          yearID,
+				AppliedClassID:          g1ID,
+				ApplicantFirstName:      "Hamza",
+				ApplicantLastName:       "Tariq",
+				ApplicantDOB:            &app1DOB,
+				ApplicantGender:         "male",
+				GuardianName:            "Tariq Mahmood",
+				GuardianPhoneNormalized: "+923001112233",
+				GuardianEmail:           "tariq.m@example.com",
+			})
+
+			// 2. Under Review Application
+			app2DOB := shared.CivilDate(2019, 9, 25)
+			app2ID, err := admCmdHandler.SubmitApplication(authCtx, admCmd.SubmitApplicationInput{
+				FormVersionID:           verID,
+				AcademicYearID:          yearID,
+				AppliedClassID:          g2ID,
+				ApplicantFirstName:      "Zainab",
+				ApplicantLastName:       "Fatima",
+				ApplicantDOB:            &app2DOB,
+				ApplicantGender:         "female",
+				GuardianName:            "Fatima Noor",
+				GuardianPhoneNormalized: "+923214445566",
+				GuardianEmail:           "fatima.noor@example.com",
+			})
+			if err == nil {
+				_ = admCmdHandler.UpdateStatus(authCtx, admCmd.UpdateApplicationStatusInput{
+					ApplicationID: app2ID,
+					NewStatus:     admissions.AppUnderReview,
+					Reason:        "Interview scheduled for next Tuesday",
+				})
+			}
+
+			// 3. Approved Application (Ready to be enrolled)
+			app3DOB := shared.CivilDate(2018, 4, 10)
+			app3ID, err := admCmdHandler.SubmitApplication(authCtx, admCmd.SubmitApplicationInput{
+				FormVersionID:           verID,
+				AcademicYearID:          yearID,
+				AppliedClassID:          g3ID,
+				ApplicantFirstName:      "Bilal",
+				ApplicantLastName:       "Ahmed",
+				ApplicantDOB:            &app3DOB,
+				ApplicantGender:         "male",
+				GuardianName:            "Ahmed Hassan",
+				GuardianPhoneNormalized: "+923337778899",
+				GuardianEmail:           "ahmed.hassan@example.com",
+			})
+			if err == nil {
+				_ = admCmdHandler.UpdateStatus(authCtx, admCmd.UpdateApplicationStatusInput{
+					ApplicationID: app3ID,
+					NewStatus:     admissions.AppApproved,
+					Reason:        "Passed entrance test with 92% marks",
+				})
+			}
+		}
+	}
 
 	// Step 5: Fee Heads & Grade 1 Fee Structure
 	fmt.Println("   • Configuring fee heads, published schedules, and concessions...")

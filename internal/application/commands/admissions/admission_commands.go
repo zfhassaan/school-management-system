@@ -210,16 +210,70 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 			return err
 		}
 
+		formVerID := in.FormVersionID
+		if formVerID == "" {
+			defs, err := r.Admissions.ListFormDefinitions(ctx, sch.ID)
+			if err == nil {
+				for _, def := range defs {
+					pub, err := r.Admissions.GetPublishedVersion(ctx, def.ID)
+					if err == nil && pub != nil {
+						formVerID = pub.ID
+						break
+					}
+				}
+			}
+			if formVerID == "" {
+				defID := h.ids.NewID()
+				def := &admissions.FormDefinition{
+					ID:          defID,
+					SchoolID:    sch.ID,
+					Code:        "STD",
+					Name:        "General Admission Form",
+					Description: "Standard admission application form",
+					IsActive:    true,
+					CreatedAt:   now,
+					UpdatedAt:   now,
+				}
+				if err := r.Admissions.InsertFormDefinition(ctx, def); err != nil {
+					return err
+				}
+				verID := h.ids.NewID()
+				schema := admissions.FormSchema{
+					Title:    "General Admission Form",
+					Sections: []admissions.FormSection{},
+				}
+				hash, _ := admissions.ComputeSchemaHash(schema)
+				ver := &admissions.FormVersion{
+					ID:               verID,
+					FormDefinitionID: defID,
+					VersionNo:        1,
+					Status:           admissions.FormPublished,
+					Schema:           schema,
+					SchemaHash:       hash,
+					PublishedAt:      &now,
+					PublishedBy:      &actor.UserID,
+					CreatedAt:        now,
+					UpdatedAt:        now,
+				}
+				if err := r.Admissions.InsertFormVersion(ctx, ver); err != nil {
+					return err
+				}
+				formVerID = verID
+			}
+		}
+
 		// Validate against published version schema
-		v, err := r.Admissions.GetFormVersion(ctx, in.FormVersionID)
+		v, err := r.Admissions.GetFormVersion(ctx, formVerID)
 		if err != nil {
 			return err
 		}
 		if v.Status != admissions.FormPublished {
 			return shared.Validation("can only submit against published form versions", nil)
 		}
-		if err := admissions.ValidateResponse(v.Schema, in.Response); err != nil {
-			return err
+		if in.Response != nil {
+			if err := admissions.ValidateResponse(v.Schema, in.Response); err != nil {
+				return err
+			}
 		}
 
 		appNo := fmt.Sprintf("APP-%d-%04d", now.Year(), now.Unix()%100000)
@@ -228,7 +282,7 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 			ID:                      id,
 			SchoolID:                sch.ID,
 			ApplicationNo:           appNo,
-			FormVersionID:           in.FormVersionID,
+			FormVersionID:           formVerID,
 			AcademicYearID:          in.AcademicYearID,
 			AppliedClassID:          in.AppliedClassID,
 			Status:                  admissions.AppSubmitted,
