@@ -12,6 +12,7 @@ import type {
 	IDocumentService,
 	IFeeService,
 	IInvoiceService,
+	IPaymentService,
 	AppServices
 } from '@/services/contracts'
 
@@ -205,6 +206,31 @@ export class HttpInvoiceService implements IInvoiceService {
 	async voidInvoice(input: any) { return fetch(`/api/v1/invoices/${input.invoiceId}/void`, { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
 }
 
+export class HttpPaymentService implements IPaymentService {
+	async recordPayment(input: any) { return fetch('/api/v1/payments', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async reversePayment(input: any) { return fetch(`/api/v1/payments/${input.paymentId}/reverse`, { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async getPayment(id: string) { return fetch(`/api/v1/payments/${id}`).then(r => r.json()) }
+	async listPayments(filter: any) {
+		const params = new URLSearchParams()
+		if (filter.studentId) params.set('studentId', filter.studentId)
+		if (filter.status) params.set('status', filter.status)
+		if (filter.paymentMethod) params.set('paymentMethod', filter.paymentMethod)
+		if (filter.limit) params.set('limit', String(filter.limit))
+		return fetch(`/api/v1/payments?${params.toString()}`).then(r => r.json())
+	}
+	async getStudentCreditBalance(studentId: string) { return fetch(`/api/v1/students/${studentId}/credit-balance`).then(r => r.json()) }
+	async requestFinancialAdjustment(input: any) { return fetch('/api/v1/adjustments', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async decideFinancialAdjustment(input: any) { return fetch(`/api/v1/adjustments/${input.adjustmentId}/decide`, { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listFinancialAdjustments(filter: any) {
+		const params = new URLSearchParams()
+		if (filter.studentId) params.set('studentId', filter.studentId)
+		if (filter.status) params.set('status', filter.status)
+		if (filter.limit) params.set('limit', String(filter.limit))
+		return fetch(`/api/v1/adjustments?${params.toString()}`).then(r => r.json())
+	}
+	async getFinancialAdjustment(id: string) { return fetch(`/api/v1/adjustments/${id}`).then(r => r.json()) }
+}
+
 export function createHttpServices(): AppServices {
 	return {
 		auth: new HttpAuthService(),
@@ -219,6 +245,7 @@ export function createHttpServices(): AppServices {
 		admissions: new HttpAdmissionService(),
 		documents: new HttpDocumentService(),
 		fees: new HttpFeeService(),
-		invoices: new HttpInvoiceService()
+		invoices: new HttpInvoiceService(),
+		payments: new HttpPaymentService()
 	}
 }

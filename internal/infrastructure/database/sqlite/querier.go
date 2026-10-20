@@ -32,7 +32,9 @@ type Querier interface {
 	GetAdmissionApplication(ctx context.Context, id string) (GetAdmissionApplicationRow, error)
 	GetAdmissionFormDefinition(ctx context.Context, id string) (AdmissionFormDefinition, error)
 	GetAdmissionFormVersion(ctx context.Context, id string) (AdmissionFormVersion, error)
+	GetAndIncrementReceiptSeq(ctx context.Context, arg GetAndIncrementReceiptSeqParams) (int64, error)
 	GetClass(ctx context.Context, id string) (Class, error)
+	GetCreditBalanceByStudent(ctx context.Context, arg GetCreditBalanceByStudentParams) (CreditBalance, error)
 	GetDiscountPolicy(ctx context.Context, id string) (DiscountPolicy, error)
 	GetDocument(ctx context.Context, id string) (StudentDocument, error)
 	GetEffectivePermissions(ctx context.Context, userID string) ([]string, error)
@@ -40,11 +42,14 @@ type Querier interface {
 	GetFeeStructure(ctx context.Context, id string) (FeeStructure, error)
 	GetFeeStructureForClass(ctx context.Context, arg GetFeeStructureForClassParams) (FeeStructure, error)
 	GetFeeStructureVersion(ctx context.Context, id string) (FeeStructureVersion, error)
+	GetFinancialAdjustmentByID(ctx context.Context, id string) (GetFinancialAdjustmentByIDRow, error)
 	GetGuardian(ctx context.Context, id string) (Guardian, error)
 	GetGuardianByPhone(ctx context.Context, arg GetGuardianByPhoneParams) (Guardian, error)
 	GetInvoice(ctx context.Context, id string) (GetInvoiceRow, error)
 	GetInvoiceByNo(ctx context.Context, arg GetInvoiceByNoParams) (Invoice, error)
 	GetLocalDevice(ctx context.Context) (Device, error)
+	GetPaymentByID(ctx context.Context, id string) (GetPaymentByIDRow, error)
+	GetPaymentReversal(ctx context.Context, paymentID string) (GetPaymentReversalRow, error)
 	GetPromotionBatch(ctx context.Context, id string) (PromotionBatch, error)
 	GetPublishedFeeStructureVersion(ctx context.Context, feeStructureID string) (FeeStructureVersion, error)
 	GetPublishedFormVersion(ctx context.Context, formDefinitionID string) (AdmissionFormVersion, error)
@@ -58,6 +63,7 @@ type Querier interface {
 	GetStudent(ctx context.Context, id string) (Student, error)
 	GetStudentByAdmissionNo(ctx context.Context, arg GetStudentByAdmissionNoParams) (Student, error)
 	GetStudentDiscount(ctx context.Context, id string) (StudentDiscount, error)
+	GetUnpaidInvoicesForStudent(ctx context.Context, arg GetUnpaidInvoicesForStudentParams) ([]Invoice, error)
 	GetUser(ctx context.Context, id string) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
 	GetUserRoleCodes(ctx context.Context, userID string) ([]string, error)
@@ -70,16 +76,21 @@ type Querier interface {
 	InsertAdmissionFormVersion(ctx context.Context, arg InsertAdmissionFormVersionParams) error
 	InsertCampus(ctx context.Context, arg InsertCampusParams) error
 	InsertClass(ctx context.Context, arg InsertClassParams) error
+	InsertCreditLedgerEntry(ctx context.Context, arg InsertCreditLedgerEntryParams) error
 	InsertDiscountPolicy(ctx context.Context, arg InsertDiscountPolicyParams) error
 	InsertEnrollment(ctx context.Context, arg InsertEnrollmentParams) error
 	InsertFeeHead(ctx context.Context, arg InsertFeeHeadParams) error
 	InsertFeeStructure(ctx context.Context, arg InsertFeeStructureParams) error
 	InsertFeeStructureItem(ctx context.Context, arg InsertFeeStructureItemParams) error
 	InsertFeeStructureVersion(ctx context.Context, arg InsertFeeStructureVersionParams) error
+	InsertFinancialAdjustment(ctx context.Context, arg InsertFinancialAdjustmentParams) error
 	InsertGuardian(ctx context.Context, arg InsertGuardianParams) error
 	InsertInvoice(ctx context.Context, arg InsertInvoiceParams) error
 	InsertInvoiceItem(ctx context.Context, arg InsertInvoiceItemParams) error
 	InsertLocalDevice(ctx context.Context, arg InsertLocalDeviceParams) error
+	InsertPayment(ctx context.Context, arg InsertPaymentParams) error
+	InsertPaymentAllocation(ctx context.Context, arg InsertPaymentAllocationParams) error
+	InsertPaymentReversal(ctx context.Context, arg InsertPaymentReversalParams) error
 	InsertPromotionBatch(ctx context.Context, arg InsertPromotionBatchParams) error
 	InsertRecoveryCode(ctx context.Context, arg InsertRecoveryCodeParams) error
 	InsertRole(ctx context.Context, arg InsertRoleParams) error
@@ -99,18 +110,23 @@ type Querier interface {
 	ListAdmissionFormDefinitions(ctx context.Context, schoolID string) ([]AdmissionFormDefinition, error)
 	ListAdmissionFormVersions(ctx context.Context, formDefinitionID string) ([]AdmissionFormVersion, error)
 	ListAdmissionStatusHistory(ctx context.Context, applicationID string) ([]AdmissionStatusHistory, error)
+	ListAllocationsByInvoice(ctx context.Context, invoiceID string) ([]ListAllocationsByInvoiceRow, error)
+	ListAllocationsByPayment(ctx context.Context, paymentID string) ([]ListAllocationsByPaymentRow, error)
 	ListApplicationDocuments(ctx context.Context, applicationID sql.NullString) ([]StudentDocument, error)
 	ListAuditLogs(ctx context.Context, arg ListAuditLogsParams) ([]AuditLog, error)
 	ListCampuses(ctx context.Context, schoolID string) ([]Campuse, error)
 	ListClasses(ctx context.Context, schoolID string) ([]Class, error)
+	ListCreditLedger(ctx context.Context, studentID string) ([]CreditBalanceLedger, error)
 	ListDiscountPolicies(ctx context.Context, schoolID string) ([]DiscountPolicy, error)
 	ListEnrollmentHistory(ctx context.Context, studentID string) ([]ListEnrollmentHistoryRow, error)
 	ListFeeHeads(ctx context.Context, schoolID string) ([]FeeHead, error)
 	ListFeeStructureItems(ctx context.Context, feeStructureVersionID string) ([]ListFeeStructureItemsRow, error)
 	ListFeeStructureVersions(ctx context.Context, feeStructureID string) ([]FeeStructureVersion, error)
 	ListFeeStructures(ctx context.Context, arg ListFeeStructuresParams) ([]FeeStructure, error)
+	ListFinancialAdjustments(ctx context.Context, arg ListFinancialAdjustmentsParams) ([]ListFinancialAdjustmentsRow, error)
 	ListInvoiceItems(ctx context.Context, invoiceID string) ([]InvoiceItem, error)
 	ListInvoices(ctx context.Context, arg ListInvoicesParams) ([]ListInvoicesRow, error)
+	ListPayments(ctx context.Context, arg ListPaymentsParams) ([]ListPaymentsRow, error)
 	ListPendingStudentDiscounts(ctx context.Context, schoolID string) ([]ListPendingStudentDiscountsRow, error)
 	ListPermissions(ctx context.Context) ([]Permission, error)
 	ListRolesWithUserCount(ctx context.Context) ([]ListRolesWithUserCountRow, error)
@@ -137,8 +153,11 @@ type Querier interface {
 	UpdateClass(ctx context.Context, arg UpdateClassParams) error
 	UpdateDiscountPolicy(ctx context.Context, arg UpdateDiscountPolicyParams) error
 	UpdateFeeHead(ctx context.Context, arg UpdateFeeHeadParams) error
+	UpdateFinancialAdjustmentStatus(ctx context.Context, arg UpdateFinancialAdjustmentStatusParams) error
 	UpdateGuardian(ctx context.Context, arg UpdateGuardianParams) error
 	UpdateInvoiceStatus(ctx context.Context, arg UpdateInvoiceStatusParams) error
+	UpdatePaymentAllocation(ctx context.Context, arg UpdatePaymentAllocationParams) error
+	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) error
 	UpdateRole(ctx context.Context, arg UpdateRoleParams) error
 	UpdateSchool(ctx context.Context, arg UpdateSchoolParams) error
 	UpdateSchoolSettings(ctx context.Context, arg UpdateSchoolSettingsParams) error
@@ -146,6 +165,7 @@ type Querier interface {
 	UpdateStudent(ctx context.Context, arg UpdateStudentParams) error
 	UpdateStudentDiscountStatus(ctx context.Context, arg UpdateStudentDiscountStatusParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
+	UpsertCreditBalance(ctx context.Context, arg UpsertCreditBalanceParams) error
 	UpsertPermission(ctx context.Context, arg UpsertPermissionParams) error
 	VoidInvoice(ctx context.Context, arg VoidInvoiceParams) error
 }

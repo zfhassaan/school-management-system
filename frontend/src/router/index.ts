@@ -19,6 +19,9 @@ import FeesStructurePage from '@/pages/fees/FeesStructurePage.vue'
 import DiscountPoliciesPage from '@/pages/fees/DiscountPoliciesPage.vue'
 import InvoicesListPage from '@/pages/invoices/InvoicesListPage.vue'
 import InvoiceDetailPage from '@/pages/invoices/InvoiceDetailPage.vue'
+import PaymentsListPage from '@/pages/payments/PaymentsListPage.vue'
+import ReceiptDetailPage from '@/pages/payments/ReceiptDetailPage.vue'
+import FinancialAdjustmentsPage from '@/pages/payments/FinancialAdjustmentsPage.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(),
@@ -104,6 +107,24 @@ const router = createRouter({
 					name: 'invoice-detail',
 					component: InvoiceDetailPage,
 					meta: { title: 'Invoice Details', permission: 'invoices.view' }
+				},
+				{
+					path: 'payments',
+					name: 'payments',
+					component: PaymentsListPage,
+					meta: { title: 'Payments & Receipts', permission: 'payments.view' }
+				},
+				{
+					path: 'payments/:id',
+					name: 'receipt-detail',
+					component: ReceiptDetailPage,
+					meta: { title: 'Payment Receipt', permission: 'payments.view' }
+				},
+				{
+					path: 'payments/adjustments',
+					name: 'financial-adjustments',
+					component: FinancialAdjustmentsPage,
+					meta: { title: 'Financial Adjustments', permission: 'adjustments.request' }
 				},
 				{
 					path: 'settings/school',

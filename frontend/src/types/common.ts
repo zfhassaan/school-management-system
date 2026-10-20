@@ -497,5 +497,109 @@ export interface InvoiceFilterDTO {
 	limit?: number
 }
 
+// Phase 5: Payments, Allocations, Credits & Financial Adjustments
+
+export interface PaymentDTO {
+	ID: string
+	SchoolID: string
+	StudentID: string
+	ReceiptNo: string
+	PaymentDate: any
+	PaymentMethod: 'cash' | 'bank_transfer' | 'cheque' | 'pos_card' | 'mobile_money' | 'credit_balance'
+	AmountMinor: number
+	AllocatedAmountMinor: number
+	UnallocatedAmountMinor: number
+	ReferenceNo: string
+	PayerName: string
+	PayerPhone: string
+	Status: 'posted' | 'reversed'
+	RecordedByID: string
+	RecordedByName?: string
+	RecordedAt: string
+	Notes: string
+	StudentFirstName?: string
+	StudentLastName?: string
+	AdmissionNo?: string
+}
+
+export interface PaymentAllocationDTO {
+	ID: string
+	PaymentID: string
+	InvoiceID: string
+	InvoiceItemID?: string
+	AllocatedAmountMinor: number
+	AllocatedAt: string
+	AllocatedByID: string
+	InvoiceNo?: string
+	BillingPeriod?: string
+	ReceiptNo?: string
+	PaymentDate?: any
+	PaymentMethod?: string
+}
+
+export interface PaymentReversalDTO {
+	ID: string
+	PaymentID: string
+	ReversalDate: any
+	Reason: string
+	ReversedByID: string
+	ReversedByName?: string
+	ReversedAt: string
+}
+
+export interface PaymentDetailDTO {
+	payment: PaymentDTO
+	allocations: PaymentAllocationDTO[]
+	reversal?: PaymentReversalDTO
+}
+
+export interface CreditLedgerEntryDTO {
+	ID: string
+	CreditBalanceID: string
+	StudentID: string
+	AmountMinor: number
+	BalanceAfterMinor: number
+	ReferenceType: 'overpayment' | 'advance' | 'invoice_application' | 'refund' | 'adjustment'
+	ReferenceID?: string
+	Notes: string
+	CreatedAt: string
+}
+
+export interface StudentCreditBalanceInfoDTO {
+	balanceMinor: number
+	ledger: CreditLedgerEntryDTO[]
+}
+
+export interface FinancialAdjustmentDTO {
+	ID: string
+	SchoolID: string
+	StudentID: string
+	InvoiceID?: string
+	InvoiceItemID?: string
+	AdjustmentType: 'waiver' | 'write_off' | 'debit_correction' | 'credit_correction'
+	AmountMinor: number
+	Reason: string
+	Status: 'pending' | 'approved' | 'rejected'
+	RequestedByID: string
+	RequestedByName?: string
+	RequestedAt: string
+	DecidedByID?: string
+	DecidedByName?: string
+	DecidedAt?: string
+	DecisionNotes: string
+	StudentFirstName?: string
+	StudentLastName?: string
+	AdmissionNo?: string
+	InvoiceNo?: string
+}
+
+export interface RecordPaymentResultDTO {
+	paymentId: string
+	receiptNo: string
+	allocatedMinor: number
+	unallocatedMinor: number
+}
+
+
 
 

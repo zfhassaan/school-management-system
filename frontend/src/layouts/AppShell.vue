@@ -132,6 +132,16 @@
 					<span v-if="!isCollapsed" class="truncate">Invoices</span>
 				</router-link>
 
+				<router-link
+					v-if="authStore.hasPermission('payments.view')"
+					to="/payments"
+					class="flex items-center gap-3 px-2.5 py-2 rounded-lg text-xs font-medium transition"
+					:class="$route.path.startsWith('/payments') ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+				>
+					<CreditCard class="w-4 h-4 shrink-0" />
+					<span v-if="!isCollapsed" class="truncate">Payments</span>
+				</router-link>
+
 				<div v-if="!isCollapsed" class="pt-2 pb-1 px-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
 					Administration
 				</div>
@@ -253,7 +263,8 @@ import {
 	LogOut,
 	DollarSign,
 	Percent,
-	Receipt
+	Receipt,
+	CreditCard
 } from 'lucide-vue-next'
 
 const router = useRouter()

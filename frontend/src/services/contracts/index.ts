@@ -34,7 +34,12 @@ import type {
 	StudentDiscountDTO,
 	InvoiceDTO,
 	InvoiceDetailDTO,
-	InvoiceFilterDTO
+	InvoiceFilterDTO,
+	PaymentDTO,
+	PaymentDetailDTO,
+	StudentCreditBalanceInfoDTO,
+	FinancialAdjustmentDTO,
+	RecordPaymentResultDTO
 } from '@/types/common'
 
 export interface IAuthService {
@@ -250,6 +255,50 @@ export interface IInvoiceService {
 	}): Promise<ResponseEnvelope<boolean>>
 }
 
+export interface IPaymentService {
+	recordPayment(input: {
+		studentId: string
+		paymentDate: string
+		paymentMethod: string
+		amountMinor: number
+		referenceNo?: string
+		payerName?: string
+		payerPhone?: string
+		notes?: string
+	}): Promise<ResponseEnvelope<RecordPaymentResultDTO>>
+	reversePayment(input: {
+		paymentId: string
+		reason: string
+	}): Promise<ResponseEnvelope<boolean>>
+	getPayment(id: string): Promise<ResponseEnvelope<PaymentDetailDTO>>
+	listPayments(filter: {
+		studentId?: string
+		status?: string
+		paymentMethod?: string
+		limit?: number
+	}): Promise<ResponseEnvelope<PaymentDTO[]>>
+	getStudentCreditBalance(studentId: string): Promise<ResponseEnvelope<StudentCreditBalanceInfoDTO>>
+	requestFinancialAdjustment(input: {
+		studentId: string
+		invoiceId?: string
+		invoiceItemId?: string
+		adjustmentType: string
+		amountMinor: number
+		reason: string
+	}): Promise<ResponseEnvelope<string>>
+	decideFinancialAdjustment(input: {
+		adjustmentId: string
+		approved: boolean
+		decisionNotes?: string
+	}): Promise<ResponseEnvelope<boolean>>
+	listFinancialAdjustments(filter: {
+		studentId?: string
+		status?: string
+		limit?: number
+	}): Promise<ResponseEnvelope<FinancialAdjustmentDTO[]>>
+	getFinancialAdjustment(id: string): Promise<ResponseEnvelope<FinancialAdjustmentDTO>>
+}
+
 export interface AppServices {
 	auth: IAuthService
 	users: IUserService
@@ -264,5 +313,6 @@ export interface AppServices {
 	documents: IDocumentService
 	fees: IFeeService
 	invoices: IInvoiceService
+	payments: IPaymentService
 }
 

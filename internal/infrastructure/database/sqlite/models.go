@@ -167,6 +167,27 @@ type Class struct {
 	RowVersion  int64          `json:"row_version"`
 }
 
+type CreditBalance struct {
+	ID          string `json:"id"`
+	SchoolID    string `json:"school_id"`
+	StudentID   string `json:"student_id"`
+	AmountMinor int64  `json:"amount_minor"`
+	UpdatedAt   string `json:"updated_at"`
+	CreatedAt   string `json:"created_at"`
+}
+
+type CreditBalanceLedger struct {
+	ID                string         `json:"id"`
+	CreditBalanceID   string         `json:"credit_balance_id"`
+	StudentID         string         `json:"student_id"`
+	AmountMinor       int64          `json:"amount_minor"`
+	BalanceAfterMinor int64          `json:"balance_after_minor"`
+	ReferenceType     string         `json:"reference_type"`
+	ReferenceID       sql.NullString `json:"reference_id"`
+	Notes             string         `json:"notes"`
+	CreatedAt         string         `json:"created_at"`
+}
+
 type Device struct {
 	ID           string         `json:"id"`
 	DeviceCode   string         `json:"device_code"`
@@ -269,6 +290,23 @@ type FeeStructureVersion struct {
 	RowVersion     int64          `json:"row_version"`
 }
 
+type FinancialAdjustment struct {
+	ID             string         `json:"id"`
+	SchoolID       string         `json:"school_id"`
+	StudentID      string         `json:"student_id"`
+	InvoiceID      sql.NullString `json:"invoice_id"`
+	InvoiceItemID  sql.NullString `json:"invoice_item_id"`
+	AdjustmentType string         `json:"adjustment_type"`
+	AmountMinor    int64          `json:"amount_minor"`
+	Reason         string         `json:"reason"`
+	Status         string         `json:"status"`
+	RequestedByID  string         `json:"requested_by_id"`
+	RequestedAt    string         `json:"requested_at"`
+	DecidedByID    sql.NullString `json:"decided_by_id"`
+	DecidedAt      sql.NullString `json:"decided_at"`
+	DecisionNotes  string         `json:"decision_notes"`
+}
+
 type Guardian struct {
 	ID                     string         `json:"id"`
 	SchoolID               string         `json:"school_id"`
@@ -328,6 +366,44 @@ type InvoiceItem struct {
 	CreatedAt           string `json:"created_at"`
 }
 
+type Payment struct {
+	ID                     string `json:"id"`
+	SchoolID               string `json:"school_id"`
+	StudentID              string `json:"student_id"`
+	ReceiptNo              string `json:"receipt_no"`
+	PaymentDate            string `json:"payment_date"`
+	PaymentMethod          string `json:"payment_method"`
+	AmountMinor            int64  `json:"amount_minor"`
+	AllocatedAmountMinor   int64  `json:"allocated_amount_minor"`
+	UnallocatedAmountMinor int64  `json:"unallocated_amount_minor"`
+	ReferenceNo            string `json:"reference_no"`
+	PayerName              string `json:"payer_name"`
+	PayerPhone             string `json:"payer_phone"`
+	Status                 string `json:"status"`
+	RecordedByID           string `json:"recorded_by_id"`
+	RecordedAt             string `json:"recorded_at"`
+	Notes                  string `json:"notes"`
+}
+
+type PaymentAllocation struct {
+	ID                   string         `json:"id"`
+	PaymentID            string         `json:"payment_id"`
+	InvoiceID            string         `json:"invoice_id"`
+	InvoiceItemID        sql.NullString `json:"invoice_item_id"`
+	AllocatedAmountMinor int64          `json:"allocated_amount_minor"`
+	AllocatedAt          string         `json:"allocated_at"`
+	AllocatedByID        string         `json:"allocated_by_id"`
+}
+
+type PaymentReversal struct {
+	ID           string `json:"id"`
+	PaymentID    string `json:"payment_id"`
+	ReversalDate string `json:"reversal_date"`
+	Reason       string `json:"reason"`
+	ReversedByID string `json:"reversed_by_id"`
+	ReversedAt   string `json:"reversed_at"`
+}
+
 type Permission struct {
 	Code        string `json:"code"`
 	Module      string `json:"module"`
@@ -346,6 +422,12 @@ type PromotionBatch struct {
 	CreatedAt          string         `json:"created_at"`
 	UpdatedAt          string         `json:"updated_at"`
 	RowVersion         int64          `json:"row_version"`
+}
+
+type ReceiptSequence struct {
+	SchoolID   string `json:"school_id"`
+	Year       int64  `json:"year"`
+	CurrentVal int64  `json:"current_val"`
 }
 
 type RecoveryCode struct {

@@ -12,6 +12,7 @@ import type {
 	IDocumentService,
 	IFeeService,
 	IInvoiceService,
+	IPaymentService,
 	AppServices
 } from '@/services/contracts'
 
@@ -33,6 +34,7 @@ declare global {
 				DocumentService?: any
 				FeeService?: any
 				InvoiceService?: any
+				PaymentService?: any
 			}
 		}
 	}
@@ -531,6 +533,54 @@ export class WailsInvoiceService implements IInvoiceService {
 	}
 }
 
+export class WailsPaymentService implements IPaymentService {
+	async recordPayment(input: any) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.RecordPayment(input)
+	}
+	async reversePayment(input: any) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ReversePayment(input)
+	}
+	async getPayment(id: string) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.GetPayment(id)
+	}
+	async listPayments(filter: any) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListPayments(filter)
+	}
+	async getStudentCreditBalance(studentId: string) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.GetStudentCreditBalance(studentId)
+	}
+	async requestFinancialAdjustment(input: any) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.RequestFinancialAdjustment(input)
+	}
+	async decideFinancialAdjustment(input: any) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.DecideFinancialAdjustment(input)
+	}
+	async listFinancialAdjustments(filter: any) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListFinancialAdjustments(filter)
+	}
+	async getFinancialAdjustment(id: string) {
+		const svc = getBinding('PaymentService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.GetFinancialAdjustment(id)
+	}
+}
+
 export function createWailsServices(): AppServices {
 	return {
 		auth: new WailsAuthService(),
@@ -545,7 +595,8 @@ export function createWailsServices(): AppServices {
 		admissions: new WailsAdmissionService(),
 		documents: new WailsDocumentService(),
 		fees: new WailsFeeService(),
-		invoices: new WailsInvoiceService()
+		invoices: new WailsInvoiceService(),
+		payments: new WailsPaymentService()
 	}
 }
 
