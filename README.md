@@ -251,7 +251,7 @@ school-management/
 
 ## 👨‍💻 Author & Engineering
 
-Designed, architected, and built with precision by **Syed Faizan Hassaan**.
+Designed, architected, and built with precision by **Hassaan Ali**.
 
 - **GitHub:** [@zfhassaan](https://github.com/zfhassaan) (`https://github.com/zfhassaan`)
 - **Portfolio:** [zfhassaan.github.io](https://zfhassaan.github.io) (`https://zfhassaan.github.io`)

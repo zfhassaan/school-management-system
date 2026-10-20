@@ -222,7 +222,7 @@
 						@click="showDeveloperModal = true"
 						class="w-full flex items-center gap-2 p-1.5 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-slate-50 transition text-left group"
 						:class="isCollapsed ? 'justify-center' : ''"
-						title="Architect & Developer: Syed Faizan Hassaan (@zfhassaan)"
+						title="Architect & Developer: Hassaan Ali (@zfhassaan)"
 					>
 						<DeveloperLogo sizeClass="w-5 h-5 group-hover:scale-110 transition-transform" />
 						<div v-if="!isCollapsed" class="truncate flex-1">

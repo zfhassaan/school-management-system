@@ -207,7 +207,7 @@
 					</div>
 					<div>
 						<div class="flex items-center gap-2">
-							<h3 class="text-base font-bold text-white">Syed Faizan Hassaan</h3>
+							<h3 class="text-base font-bold text-white">Hassaan Ali</h3>
 							<span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">@zfhassaan</span>
 						</div>
 						<p class="text-xs text-indigo-300 font-medium">Software Architect & Full Stack Engineer</p>

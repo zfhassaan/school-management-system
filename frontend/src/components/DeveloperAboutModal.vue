@@ -51,7 +51,7 @@
 				<!-- Identity Text -->
 				<div>
 					<h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-						Syed Faizan Hassaan
+						Hassaan Ali
 						<span class="text-xs px-2 py-0.5 rounded-full font-mono font-medium bg-slate-100 text-slate-600 border border-slate-200">@zfhassaan</span>
 					</h3>
 					<p class="text-xs text-indigo-600 font-medium mt-0.5">Full Stack Software Architect & Systems Engineer</p>
@@ -124,3 +124,4 @@ function openUrl(url: string) {
 	openExternalUrl(url)
 }
 </script>
+

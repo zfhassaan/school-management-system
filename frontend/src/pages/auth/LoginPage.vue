@@ -70,7 +70,7 @@
 					<div class="flex items-center gap-2.5">
 						<DeveloperLogo sizeClass="w-7 h-7" />
 						<div>
-							<p class="text-xs font-bold text-slate-800 leading-tight">Syed Faizan Hassaan</p>
+							<p class="text-xs font-bold text-slate-800 leading-tight">Hassaan Ali</p>
 							<p class="text-[10px] text-indigo-600 font-medium">@zfhassaan</p>
 						</div>
 					</div>
