@@ -80,30 +80,31 @@
 								{{ app.Status.replace('_', ' ') }}
 							</span>
 						</td>
-						<td class="py-3 px-4 text-right space-x-2">
-							<button
-								@click="openPrintAdmissionForm(app)"
-								class="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded font-medium text-[11px] cursor-pointer inline-flex items-center gap-1 shadow-2xs mr-1"
-								title="Print Official Admission Form"
-							>
-								<Printer class="w-3 h-3 text-slate-500" />
-								<span>Form</span>
-							</button>
-							<button
-								v-if="app.Status === 'approved'"
-								@click="openEnrollModal(app)"
-								class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium text-[11px] cursor-pointer"
-							>
-								Enroll Student
-							</button>
-							<button
-								v-else-if="app.Status !== 'enrolled'"
-								@click="openReviewModal(app)"
-								class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium text-[11px] cursor-pointer"
-							>
-								Review
-							</button>
-							<span v-else class="text-emerald-600 font-medium text-[11px]">Enrolled</span>
+						<td class="py-3 px-4 text-right">
+							<div class="flex items-center justify-end gap-1.5">
+								<button
+									@click="openPrintAdmissionForm(app)"
+									class="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg font-medium text-[11px] cursor-pointer inline-flex items-center gap-1.5 shadow-2xs hover:border-slate-300 transition"
+									title="Print Official Admission Form"
+								>
+									<Printer class="w-3.5 h-3.5 text-slate-500" />
+									<span>Print Form</span>
+								</button>
+								<button
+									v-if="app.Status === 'approved'"
+									@click="openEnrollModal(app)"
+									class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-[11px] cursor-pointer shadow-2xs transition"
+								>
+									Enroll Student
+								</button>
+								<button
+									v-else-if="app.Status !== 'enrolled'"
+									@click="openReviewModal(app)"
+									class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-[11px] cursor-pointer transition"
+								>
+									Review
+								</button>
+							</div>
 						</td>
 					</tr>
 				</tbody>
