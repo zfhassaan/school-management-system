@@ -290,7 +290,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import ChangePasswordModal from '@/components/ChangePasswordModal.vue'
@@ -349,5 +349,9 @@ async function handleLogout() {
 	await authStore.logout()
 	router.push('/login')
 }
+
+onMounted(() => {
+	authStore.refreshSchool()
+})
 </script>
 

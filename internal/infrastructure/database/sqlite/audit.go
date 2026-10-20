@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"school-management/internal/domain/audit"
@@ -46,7 +47,7 @@ func (w *AuditWriter) Append(ctx context.Context, e audit.Entry) error {
 		}
 	}
 
-	return w.q.AppendAuditLog(ctx, AppendAuditLogParams{
+	params := AppendAuditLogParams{
 		ID:            e.ID.String(),
 		OccurredAt:    e.OccurredAt.UTC().Format(time.RFC3339Nano),
 		ActorUserID:   actorID,
@@ -59,7 +60,15 @@ func (w *AuditWriter) Append(ctx context.Context, e audit.Entry) error {
 		BeforeJson:    beforeJSON,
 		AfterJson:     afterJSON,
 		Source:        string(e.Source),
-	})
+	}
+
+	err := w.q.AppendAuditLog(ctx, params)
+	if err != nil && actorID.Valid && strings.Contains(err.Error(), "FOREIGN KEY") {
+		// If actor user id was deleted/reseeded while in-memory session stayed open, retry with NULL actor
+		params.ActorUserID = sql.NullString{Valid: false}
+		err = w.q.AppendAuditLog(ctx, params)
+	}
+	return err
 }
 
 type AuditReader struct {

@@ -246,12 +246,14 @@
 import { reactive, ref, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
 import { useToast } from '@/composables/useToast'
+import { useAuthStore } from '@/stores/auth'
 import DeveloperLogo from '@/components/DeveloperLogo.vue'
 import { openExternalUrl } from '@/utils/browser'
 import { Building2, Coins, Save, Github, Globe, ExternalLink } from 'lucide-vue-next'
 
 const services = getServices()
 const toast = useToast()
+const authStore = useAuthStore()
 const isSaving = ref(false)
 
 const profile = reactive({
@@ -309,6 +311,12 @@ async function saveAll() {
 			services.school.updateSettings(settings)
 		])
 		if (pRes.success && sRes.success) {
+			authStore.updateSchoolDetails({
+				name: profile.name,
+				code: profile.code,
+				timezone: profile.timezone
+			})
+			await authStore.refreshSchool()
 			toast.success('School profile and operational settings saved successfully!')
 		} else {
 			toast.error(pRes.error?.message || sRes.error?.message || 'Failed to save configuration')

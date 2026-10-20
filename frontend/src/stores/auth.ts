@@ -91,6 +91,32 @@ export const useAuthStore = defineStore('auth', () => {
 		}
 	}
 
+	function updateSchoolDetails(updated: Partial<SchoolDTO>) {
+		if (school.value) {
+			school.value = { ...school.value, ...updated }
+		} else {
+			school.value = updated as SchoolDTO
+		}
+	}
+
+	async function refreshSchool() {
+		try {
+			const res = await services.school.getSchool()
+			if (res.success && res.data) {
+				updateSchoolDetails({
+					id: res.data.id || (school.value?.id ?? ''),
+					name: res.data.name,
+					code: res.data.code,
+					timezone: res.data.timezone,
+					currencyCode: res.data.currencyCode,
+					currencyMinorUnits: res.data.currencyMinorUnits
+				})
+			}
+		} catch (e) {
+			console.error('Failed to refresh school details:', e)
+		}
+	}
+
 	return {
 		isInitialized,
 		isAuthenticated,
@@ -103,7 +129,9 @@ export const useAuthStore = defineStore('auth', () => {
 		checkSetup,
 		login,
 		firstRunSetup,
-		logout
+		logout,
+		updateSchoolDetails,
+		refreshSchool
 	}
 })
 
