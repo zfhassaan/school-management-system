@@ -2,7 +2,7 @@
 	<div class="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-800">
 		<!-- Sidebar -->
 		<aside
-			class="relative flex flex-col border-r border-slate-200 bg-white transition-all duration-200 z-20 shrink-0"
+			class="relative flex flex-col border-r border-slate-200 bg-white transition-all duration-200 z-20 shrink-0 no-print"
 			:class="isCollapsed ? 'w-16' : 'w-56'"
 		>
 			<!-- School Brand Header -->
@@ -238,7 +238,7 @@
 		<!-- Main Workspace Area -->
 		<div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 			<!-- Header Bar -->
-			<header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-10">
+			<header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-10 no-print">
 				<div class="flex items-center gap-3">
 					<h2 class="text-sm font-semibold text-slate-800 capitalize">{{ currentRouteTitle }}</h2>
 				</div>
@@ -250,13 +250,13 @@
 			</header>
 
 			<!-- Page Content View -->
-			<main class="flex-1 overflow-y-auto p-6 pb-16">
+			<main class="flex-1 overflow-y-auto p-6 pb-16 print:p-0 print:overflow-visible">
 				<router-view />
 			</main>
 		</div>
 
 		<!-- Floating Bottom-Right Developer Badge -->
-		<DeveloperBadge @open-modal="showDeveloperModal = true" />
+		<DeveloperBadge class="no-print" @open-modal="showDeveloperModal = true" />
 
 		<!-- Mandatory Password Change Modal -->
 		<ChangePasswordModal />

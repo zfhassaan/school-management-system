@@ -30,7 +30,7 @@
 		</div>
 
 		<!-- Invoice Paper Container -->
-		<div v-if="detail?.invoice" class="bg-white rounded-xl border border-slate-200 shadow-sm p-8 space-y-8 print:border-none print:shadow-none print:p-0">
+		<div v-if="detail?.invoice" class="invoice-paper bg-white rounded-xl border border-slate-200 shadow-sm p-8 space-y-8 print:border-none print:shadow-none print:p-0">
 			<!-- Header -->
 			<div class="flex items-start justify-between border-b border-slate-100 pb-6">
 				<div>
@@ -322,6 +322,15 @@ function getStatusBadgeClass(status: string) {
 @media print {
 	.no-print {
 		display: none !important;
+	}
+
+	.invoice-paper {
+		border: none !important;
+		box-shadow: none !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
 	}
 }
 </style>

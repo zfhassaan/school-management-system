@@ -1,9 +1,9 @@
 <template>
-	<div class="h-screen w-screen overflow-hidden flex flex-col">
+	<div class="h-screen w-screen overflow-hidden flex flex-col print:h-auto print:w-auto print:overflow-visible">
 		<!-- Browser Preview Warning Banner (when opened in external browser like Chrome instead of Wails window) -->
 		<div
 			v-if="isBrowserMode && showBrowserBanner"
-			class="bg-amber-500 text-slate-900 text-xs px-4 py-1.5 flex items-center justify-between shrink-0 shadow-xs z-50 font-medium"
+			class="bg-amber-500 text-slate-900 text-xs px-4 py-1.5 flex items-center justify-between shrink-0 shadow-xs z-50 font-medium no-print"
 		>
 			<div class="flex items-center gap-2">
 				<AlertTriangle class="w-4 h-4 shrink-0" />
@@ -16,10 +16,10 @@
 			</button>
 		</div>
 
-		<div class="flex-1 overflow-hidden">
+		<div class="flex-1 overflow-hidden print:overflow-visible">
 			<router-view />
 		</div>
-		<ToastContainer />
+		<ToastContainer class="no-print" />
 	</div>
 </template>
 
@@ -27,14 +27,19 @@
 import { ref, onMounted } from 'vue'
 import ToastContainer from '@/components/ToastContainer.vue'
 import { AlertTriangle } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
 
 const isBrowserMode = ref(false)
 const showBrowserBanner = ref(true)
+const authStore = useAuthStore()
 
-onMounted(() => {
+onMounted(async () => {
 	// If window.go is not present after mount, user is running in external browser outside Wails
 	if (typeof window !== 'undefined' && !(window as any).go) {
 		isBrowserMode.value = true
+	}
+	if (authStore.isAuthenticated) {
+		await authStore.refreshSchool()
 	}
 })
 </script>

@@ -15,3 +15,24 @@
 	}
 }
 
+@media print {
+	.no-print,
+	aside,
+	nav,
+	[data-no-print] {
+		display: none !important;
+	}
+
+	html, body, #app {
+		height: auto !important;
+		min-height: 100% !important;
+		overflow: visible !important;
+		background: #ffffff !important;
+		color: #0f172a !important;
+	}
+
+	@page {
+		margin: 1.2cm;
+		size: auto;
+	}
+}
