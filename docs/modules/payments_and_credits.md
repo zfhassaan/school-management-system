@@ -80,3 +80,4 @@ Adjustments represent non-cash corrections to an invoice's outstanding balance:
 | **Waiver** | Administrative discount approved post-issuance (e.g., hardship concession). | Decreases invoice balance, increases `adjusted_amount_minor`. |
 | **Write-off** | Uncollectible bad debt for withdrawn or departed students. | Closes invoice balance to zero, marking it as written off for accounting. |
 | **Correction** | Correction of an administrative billing mistake. | Adjusts invoice balance up or down with mandatory supervisor note. |
+

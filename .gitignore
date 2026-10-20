@@ -6,6 +6,8 @@
 *.dylib
 bin/
 tools/bin/
+build/bin/
+frontend/package.json.md5
 
 # Test artifacts and databases
 *.db

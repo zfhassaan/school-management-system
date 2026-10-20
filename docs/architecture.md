@@ -178,3 +178,4 @@ Although deployed as a standalone desktop application in Phase 1, the data layer
 - **Desktop Session:** Authentication states are held in protected Go application memory, not in the Chromium webview's insecure `localStorage` or `sessionStorage`.
 - **Cryptographic Passwords:** Passwords are salted and hashed using **Argon2id** (with standard OWASP-recommended memory and iteration parameters).
 - **Audit Logging:** Every user action is recorded with an immutable timestamp, user identifier, IP/machine host, action verb, and structured payload.
+

@@ -110,3 +110,4 @@ Student attachments (birth certificates, immunization cards, transcripts, photos
    ```
 2. **Automatic Deduplication:** If two applicants submit identical health record templates, only one file is saved on disk; multiple database records point to the same content hash.
 3. **Tamper Detection:** When serving documents, the system recomputes the SHA-256 digest to detect unauthorized manual modifications or disk corruption.
+

@@ -59,8 +59,41 @@
 				</div>
 			</form>
 
-			<div class="mt-8 pt-4 border-t border-slate-100 text-center">
-				<span class="text-[11px] text-slate-400">Local SQLite Storage • Zero Internet Required</span>
+			<div class="mt-8 pt-5 border-t border-slate-100">
+				<div class="flex items-center justify-between text-[11px] text-slate-400 mb-3">
+					<span>Offline-First Monolith</span>
+					<span>SQLite WAL Engine</span>
+				</div>
+
+				<!-- Developer Attribution & Links -->
+				<div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70 flex items-center justify-between">
+					<div class="flex items-center gap-2.5">
+						<DeveloperLogo sizeClass="w-7 h-7" />
+						<div>
+							<p class="text-xs font-bold text-slate-800 leading-tight">Syed Faizan Hassaan</p>
+							<p class="text-[10px] text-indigo-600 font-medium">@zfhassaan</p>
+						</div>
+					</div>
+
+					<div class="flex items-center gap-1.5">
+						<button
+							type="button"
+							@click="openUrl('https://github.com/zfhassaan')"
+							class="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200 transition"
+							title="GitHub Profile (https://github.com/zfhassaan)"
+						>
+							<Github class="w-4 h-4" />
+						</button>
+						<button
+							type="button"
+							@click="openUrl('https://zfhassaan.github.io')"
+							class="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-slate-200 transition"
+							title="Personal Portfolio (https://zfhassaan.github.io)"
+						>
+							<Globe class="w-4 h-4" />
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -70,10 +103,16 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { User, Lock, AlertCircle, Loader2 } from 'lucide-vue-next'
+import DeveloperLogo from '@/components/DeveloperLogo.vue'
+import { openExternalUrl } from '@/utils/browser'
+import { User, Lock, AlertCircle, Loader2, Github, Globe } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+function openUrl(url: string) {
+	openExternalUrl(url)
+}
 
 const username = ref('')
 const password = ref('')

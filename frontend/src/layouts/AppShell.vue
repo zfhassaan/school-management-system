@@ -215,6 +215,23 @@
 						<LogOut class="w-4 h-4" />
 					</button>
 				</div>
+
+				<!-- Developer Branding Trigger -->
+				<div class="mt-2 pt-2 border-t border-slate-100">
+					<button
+						@click="showDeveloperModal = true"
+						class="w-full flex items-center gap-2 p-1.5 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-slate-50 transition text-left group"
+						:class="isCollapsed ? 'justify-center' : ''"
+						title="Architect & Developer: Syed Faizan Hassaan (@zfhassaan)"
+					>
+						<DeveloperLogo sizeClass="w-5 h-5 group-hover:scale-110 transition-transform" />
+						<div v-if="!isCollapsed" class="truncate flex-1">
+							<p class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition truncate">zfhassaan</p>
+							<p class="text-[9px] text-slate-400 truncate">Architect & Developer</p>
+						</div>
+						<Info v-if="!isCollapsed" class="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 transition shrink-0" />
+					</button>
+				</div>
 			</div>
 		</aside>
 
@@ -229,6 +246,32 @@
 					<span class="text-xs text-slate-500 font-medium">
 						{{ formattedDate }}
 					</span>
+
+					<!-- Developer Branding & External Links -->
+					<div class="flex items-center gap-1.5 border-l border-slate-200 pl-3">
+						<button
+							@click="openExternalUrl('https://github.com/zfhassaan')"
+							class="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition"
+							title="GitHub: https://github.com/zfhassaan"
+						>
+							<Github class="w-4 h-4" />
+						</button>
+						<button
+							@click="openExternalUrl('https://zfhassaan.github.io')"
+							class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition"
+							title="Portfolio: https://zfhassaan.github.io"
+						>
+							<Globe class="w-4 h-4" />
+						</button>
+						<button
+							@click="showDeveloperModal = true"
+							class="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition border border-transparent hover:border-indigo-100"
+							title="System Info & Developer Profile"
+						>
+							<DeveloperLogo sizeClass="w-4 h-4" />
+							<span class="text-[11px] font-semibold hidden md:inline">zfhassaan</span>
+						</button>
+					</div>
 				</div>
 			</header>
 
@@ -240,6 +283,9 @@
 
 		<!-- Mandatory Password Change Modal -->
 		<ChangePasswordModal />
+
+		<!-- Developer System Info Modal -->
+		<DeveloperAboutModal :isOpen="showDeveloperModal" @close="showDeveloperModal = false" />
 	</div>
 </template>
 
@@ -248,6 +294,9 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import ChangePasswordModal from '@/components/ChangePasswordModal.vue'
+import DeveloperAboutModal from '@/components/DeveloperAboutModal.vue'
+import DeveloperLogo from '@/components/DeveloperLogo.vue'
+import { openExternalUrl } from '@/utils/browser'
 import {
 	LayoutDashboard,
 	GraduationCap,
@@ -264,7 +313,10 @@ import {
 	DollarSign,
 	Percent,
 	Receipt,
-	CreditCard
+	CreditCard,
+	Github,
+	Globe,
+	Info
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -272,6 +324,7 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 const isCollapsed = ref(false)
+const showDeveloperModal = ref(false)
 
 const schoolInitials = computed(() => {
 	const name = authStore.school?.name || 'SMS'

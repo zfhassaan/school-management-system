@@ -1,6 +1,6 @@
-# 🏫 School Management System (SMS)
+# School Management System (SMS)
 
-> **Modern, offline-first, cloud-ready desktop school management platform built with Go, Wails v2, SQLite, and Vue 3.**
+> **Offline-first, cloud-ready desktop school management platform built with Go, Wails v2, SQLite, and Vue 3.**
 
 [![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat&logo=go)](https://golang.org)
 [![Wails](https://img.shields.io/badge/Wails-v2.15+-DF0000?style=flat)](https://wails.io)
@@ -11,7 +11,7 @@
 
 ---
 
-## 📖 Overview
+## Overview
 
 The **School Management System (SMS)** is an offline-first Windows desktop application architected for schools that require complete, uninterrupted operational capability without dependable internet connectivity, while remaining structurally prepared for future multi-device LAN and cloud synchronization (PostgreSQL).
 
@@ -19,40 +19,40 @@ Engineered following **Clean / Hexagonal Architecture** and **CQRS-lite** princi
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🏢 Identity, Campus & Academics
+### Identity, Campus & Academics
 - **Multi-Campus & Term Management:** Support for campuses, academic years, terms/semesters, classes, and sections.
 - **Role-Based Access Control (RBAC):** Granular permissions for Superadmins, School Admins, Accountants, and Registrars.
 - **Audit Logging:** Every state-modifying action records actor, IP, timestamp, entity type, and before/after payloads.
 
-### 🎓 Students, Guardians & Dynamic Admissions
+### Students, Guardians & Dynamic Admissions
 - **Comprehensive Student Profiles:** Demographic details, blood group, medical alerts, admission numbers, and enrollment records.
 - **Multi-Guardian Support:** Link multiple guardians per student (parents, emergency contacts) with prioritized billing and pickup authorizations.
 - **Configurable Admission Form Engine:** Visual drag-and-drop schema definition for admission forms with field-level validations, versioning, drafts, publishing, and dynamic response storage.
 - **Content-Addressed Document Storage:** Student documents and identity proofs are cryptographically hashed (`SHA-256`) and stored deduplicated on the local filesystem.
 
-### 💰 Fees Engine & Batch Invoicing
+### Fees Engine & Batch Invoicing
 - **Modular Fee Heads:** Configurable recurring (Tuition, Facilities) and one-off (Admission, Lab, Sports) heads with strict currency minor unit precision (`int64`).
 - **Immutable Fee Schedules:** Versioned fee structures that protect historical financial records from retroactive corruption.
 - **Multi-Tier Discount Policies:** Automated evaluation of sibling discounts (e.g., 20% off for 2nd+ child), academic merit scholarships, and staff concessions.
 - **Batch Invoicing:** Deterministic mass generation of invoices for entire classes/terms with idempotent execution.
 - **Calculated Overdue Tracking:** Overdue statuses are derived on the fly based on due dates and school timezone to prevent midnight status mutation race conditions.
 
-### 💳 Payments, Sequential Receipts & Advance Credit
+### Payments, Sequential Receipts & Advance Credit
 - **Strict Sequential Receipt Numbering:** Unbroken sequence receipts per calendar year (e.g., `RCP-2026-000001`) enforced via atomic database sequence counters.
 - **Automated FIFO Allocations:** Payments are intelligently allocated against the student's oldest overdue invoices first before servicing newer charges.
 - **Advance Credit Ledger:** Overpayments automatically flow into a dedicated student credit balance, instantly available for allocation against future invoices.
 - **Financial Adjustments:** Formal workflows for fee waivers, bad-debt write-offs, and full/partial payment reversals with auditable reason codes.
 
-### ⚡ Offline-First Architecture
+### Offline-First Architecture
 - **Pure Go SQLite:** Powered by `modernc.org/sqlite` (no CGO or MinGW required on Windows).
 - **Concurrent WAL Mode:** Write-Ahead Logging with dedicated single-writer connection (`MaxOpenConns=1`, `_txlock=immediate`) and concurrent reader pool to guarantee zero database locks (`SQLITE_BUSY`).
 - **Transactional Outbox:** Every database mutation writes to a `sync_outbox` table in the exact same transaction, establishing the foundation for bidirectional cloud synchronization.
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 ```text
 Vue 3 Frontend (Composition API + TypeScript + Tailwind v4)
@@ -92,7 +92,7 @@ For complete architectural details, see [docs/architecture.md](docs/architecture
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technologies |
 |---|---|
@@ -107,7 +107,7 @@ For complete architectural details, see [docs/architecture.md](docs/architecture
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### Prerequisites
 Ensure the following tools are installed on your machine:
@@ -174,7 +174,7 @@ wails build
 
 ---
 
-## 🧪 Testing
+## Testing
 
 The system features complete end-to-end integration test suites using in-memory isolated SQLite instances:
 
@@ -191,7 +191,7 @@ Test coverage includes:
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 school-management/
@@ -237,17 +237,31 @@ school-management/
 
 ---
 
-## 📚 Documentation Index
+## =Documentation Index
 
-- [🏛️ System Architecture](docs/architecture.md) — Hexagonal design, layers, outbox pattern, and thread-safe SQLite concurrency.
-- [💾 Database Design](docs/database.md) — Complete relational schema, UUIDv7 indexing, and minor currency units.
-- [🎓 Academics & Dynamic Admissions](docs/modules/academic_admissions.md) — Campus, terms, students, and form schema builder.
-- [💰 Fees Engine & Batch Invoicing](docs/modules/fees_and_billing.md) — Versioned fees, discount evaluation, and billing periods.
-- [💳 Payments, Receipts & Credits](docs/modules/payments_and_credits.md) — Atomic receipt sequence, FIFO allocations, and credit ledger.
-- [💻 Developer Guide](docs/guides/development.md) — Detailed instructions on contributing, testing, and debugging.
-- [🚀 Deployment & Backups](docs/guides/deployment.md) — Installer packaging, local app data locations, and data safety.
+- [System Architecture](docs/architecture.md) — Hexagonal design, layers, outbox pattern, and thread-safe SQLite concurrency.
+- [Database Design](docs/database.md) — Complete relational schema, UUIDv7 indexing, and minor currency units.
+- [Academics & Dynamic Admissions](docs/modules/academic_admissions.md) — Campus, terms, students, and form schema builder.
+- [Fees Engine & Batch Invoicing](docs/modules/fees_and_billing.md) — Versioned fees, discount evaluation, and billing periods.
+- [Payments, Receipts & Credits](docs/modules/payments_and_credits.md) — Atomic receipt sequence, FIFO allocations, and credit ledger.
+- [Developer Guide](docs/guides/development.md) — Detailed instructions on contributing, testing, and debugging.
+- [Deployment & Backups](docs/guides/deployment.md) — Installer packaging, local app data locations, and data safety.
 
 ---
 
-## 📄 License
+## 👨‍💻 Author & Engineering
+
+Designed, architected, and built with precision by **Syed Faizan Hassaan**.
+
+- **GitHub:** [@zfhassaan](https://github.com/zfhassaan) (`https://github.com/zfhassaan`)
+- **Portfolio:** [zfhassaan.github.io](https://zfhassaan.github.io) (`https://zfhassaan.github.io`)
+- **Role:** Full Stack Software Architect & Systems Engineer
+
+[![GitHub Profile](https://img.shields.io/badge/GitHub-zfhassaan-181717?style=flat&logo=github)](https://github.com/zfhassaan)
+[![Portfolio Website](https://img.shields.io/badge/Portfolio-zfhassaan.github.io-4F46E5?style=flat&logo=safari)](https://zfhassaan.github.io)
+
+---
+
+## License
 This project is licensed under the MIT License.
+

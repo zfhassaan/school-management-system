@@ -154,3 +154,4 @@ To guarantee sub-10ms response times on datasets with tens of thousands of stude
    DO UPDATE SET last_sequence = receipt_sequences.last_sequence + 1
    RETURNING last_sequence;
    ```
+

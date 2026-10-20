@@ -96,3 +96,4 @@ npm --prefix frontend run build
    - Vue components must **never** call `window.go.*` directly. Always use the service abstraction layer in `frontend/src/services/`.
 4. **Audit Logging:**
    - Any state-modifying use case executed in `internal/application/commands/` must record an audit entry via `recorder.Record(...)` in the same transaction.
+

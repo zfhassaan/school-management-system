@@ -91,3 +91,4 @@ In traditional systems, a scheduled cron job runs nightly to change status from 
 Instead, **overdue status is calculated dynamically** when querying invoices:
 $$\text{IsOverdue} = (\text{Status} \in \{\text{issued}, \text{partially\_paid}\}) \land (\text{DueDate} < \text{Today}_{\text{SchoolTZ}}) \land (\text{BalanceMinor} > 0)$$
 This guarantees that overdue penalties and flags display accurately the instant the app is opened, regardless of how long the computer was powered off.
+

@@ -90,3 +90,4 @@ The School Management System is architected from day one to support seamless mig
 - The database schema is mirrored in `database/migrations/postgres/`.
 - Repository interfaces in `internal/domain/` are implemented for both SQLite and PostgreSQL.
 - Switching to PostgreSQL requires changing the database driver configuration in `config.yaml` without modifying any domain or frontend code.
+
