@@ -168,3 +168,4 @@ func (s *AcademicService) UpdateSection(ctx context.Context, in acadCmd.UpdateSe
 	}
 	return dto.Ok(true)
 }
+

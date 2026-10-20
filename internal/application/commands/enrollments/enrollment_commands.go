@@ -210,3 +210,4 @@ func (h *EnrollmentCommandsHandler) ExecutePromotionBatch(ctx context.Context, i
 	}
 	return batchID, nil
 }
+

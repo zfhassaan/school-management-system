@@ -112,3 +112,4 @@ func toDomainDoc(row StudentDocument) *documents.Document {
 		Revision:         row.RowVersion,
 	}
 }
+

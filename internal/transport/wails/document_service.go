@@ -99,3 +99,4 @@ func (s *DocumentService) GetContent(ctx context.Context, id shared.ID) dto.Resp
 		DataBase64: base64.StdEncoding.EncodeToString(data),
 	})
 }
+

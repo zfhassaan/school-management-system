@@ -400,3 +400,4 @@ func (h *AcademicCommandsHandler) UpdateSection(ctx context.Context, in UpdateSe
 		})
 	})
 }
+

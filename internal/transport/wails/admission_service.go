@@ -138,3 +138,4 @@ func (s *AdmissionService) EnrollApplication(ctx context.Context, in admCmd.Enro
 	}
 	return dto.Ok(id)
 }
+

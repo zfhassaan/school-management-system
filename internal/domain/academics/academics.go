@@ -128,3 +128,4 @@ type Repository interface {
 	ListCampuses(ctx context.Context, schoolID shared.ID) ([]Campus, error)
 	InsertCampus(ctx context.Context, c *Campus) error
 }
+

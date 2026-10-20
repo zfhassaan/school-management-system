@@ -269,3 +269,4 @@ onMounted(() => {
 	loadApplications()
 })
 </script>
+

@@ -105,3 +105,4 @@ func (h *AdmissionQueriesHandler) GetApplication(ctx context.Context, id shared.
 	})
 	return res, err
 }
+

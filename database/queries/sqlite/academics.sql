@@ -69,3 +69,4 @@ SELECT * FROM campuses WHERE school_id = ? ORDER BY name ASC;
 -- name: InsertCampus :exec
 INSERT INTO campuses (id, school_id, code, name, address, is_active, created_at, updated_at, row_version)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1);
+

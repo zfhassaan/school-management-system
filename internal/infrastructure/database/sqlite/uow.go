@@ -41,6 +41,7 @@ func (u *UnitOfWork) Write(ctx context.Context, fn func(ctx context.Context, r u
 		Guardians:     &GuardiansRepository{q: q},
 		Admissions:    &AdmissionsRepository{q: q},
 		Documents:     &DocumentsRepository{q: q},
+		Fees:          &FeesRepository{q: q},
 		Audit:         &AuditWriter{q: q},
 		AuditReader:   &AuditReader{q: q},
 		Outbox:        &OutboxWriter{q: q, deviceID: u.db.deviceID},
@@ -70,6 +71,7 @@ func (u *UnitOfWork) Read(ctx context.Context, fn func(ctx context.Context, r uo
 		Guardians:     &GuardiansRepository{q: q},
 		Admissions:    &AdmissionsRepository{q: q},
 		Documents:     &DocumentsRepository{q: q},
+		Fees:          &FeesRepository{q: q},
 		AuditReader:   &AuditReader{q: q},
 	}
 	return fn(ctx, repos)

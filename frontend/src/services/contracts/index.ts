@@ -25,7 +25,16 @@ import type {
 	FormDefinitionDTO,
 	FormVersionDTO,
 	ApplicationDTO,
-	DocumentDTO
+	DocumentDTO,
+	FeeHeadDTO,
+	FeeStructureDTO,
+	FeeStructureVersionDTO,
+	FeeStructureVersionDetailDTO,
+	DiscountPolicyDTO,
+	StudentDiscountDTO,
+	InvoiceDTO,
+	InvoiceDetailDTO,
+	InvoiceFilterDTO
 } from '@/types/common'
 
 export interface IAuthService {
@@ -156,6 +165,91 @@ export interface IDocumentService {
 	getContent(id: string): Promise<ResponseEnvelope<{ document: DocumentDTO; dataBase64: string }>>
 }
 
+export interface IFeeService {
+	listFeeHeads(): Promise<ResponseEnvelope<FeeHeadDTO[]>>
+	createFeeHead(input: {
+		code: string
+		name: string
+		description: string
+		isRecurring: boolean
+		defaultAmountMinor: number
+	}): Promise<ResponseEnvelope<string>>
+	updateFeeHead(input: {
+		id: string
+		name: string
+		description: string
+		isRecurring: boolean
+		defaultAmountMinor: number
+		isActive: boolean
+	}): Promise<ResponseEnvelope<boolean>>
+
+	listFeeStructures(academicYearId: string): Promise<ResponseEnvelope<FeeStructureDTO[]>>
+	createFeeStructure(input: {
+		academicYearId: string
+		classId: string
+		campusId?: string
+		code: string
+		name: string
+		description: string
+	}): Promise<ResponseEnvelope<string>>
+	listFeeStructureVersions(feeStructureId: string): Promise<ResponseEnvelope<FeeStructureVersionDTO[]>>
+	getFeeStructureVersionDetail(versionId: string): Promise<ResponseEnvelope<FeeStructureVersionDetailDTO>>
+	createFeeStructureVersion(input: {
+		feeStructureId: string
+		changelog: string
+		items: {
+			feeHeadId: string
+			amountMinor: number
+			frequency: string
+			dueDay: number
+			isOptional: boolean
+		}[]
+	}): Promise<ResponseEnvelope<string>>
+	publishFeeStructureVersion(versionId: string): Promise<ResponseEnvelope<boolean>>
+
+	listDiscountPolicies(): Promise<ResponseEnvelope<DiscountPolicyDTO[]>>
+	createDiscountPolicy(input: {
+		code: string
+		name: string
+		description: string
+		discountType: string
+		rateBasisPoints?: number
+		amountMinor?: number
+		feeHeadId?: string
+		requiresApproval: boolean
+	}): Promise<ResponseEnvelope<string>>
+	listStudentDiscounts(studentId: string, academicYearId: string): Promise<ResponseEnvelope<StudentDiscountDTO[]>>
+	listPendingDiscounts(): Promise<ResponseEnvelope<StudentDiscountDTO[]>>
+	applyStudentDiscount(input: {
+		studentId: string
+		discountPolicyId: string
+		academicYearId: string
+		validFrom: string
+		validTo?: string
+	}): Promise<ResponseEnvelope<string>>
+	decideStudentDiscount(input: {
+		discountId: string
+		approved: boolean
+		rejectionReason?: string
+	}): Promise<ResponseEnvelope<boolean>>
+}
+
+export interface IInvoiceService {
+	listInvoices(filter: InvoiceFilterDTO): Promise<ResponseEnvelope<InvoiceDTO[]>>
+	getInvoice(id: string): Promise<ResponseEnvelope<InvoiceDetailDTO>>
+	generateInvoicesBatch(input: {
+		academicYearId: string
+		classId: string
+		billingPeriod: string
+		issueDate: string
+		dueDate: string
+	}): Promise<ResponseEnvelope<string[]>>
+	voidInvoice(input: {
+		invoiceId: string
+		reason: string
+	}): Promise<ResponseEnvelope<boolean>>
+}
+
 export interface AppServices {
 	auth: IAuthService
 	users: IUserService
@@ -168,5 +262,7 @@ export interface AppServices {
 	enrollments: IEnrollmentService
 	admissions: IAdmissionService
 	documents: IDocumentService
+	fees: IFeeService
+	invoices: IInvoiceService
 }
 

@@ -92,3 +92,4 @@ type Repository interface {
 	ListForStudent(ctx context.Context, studentID shared.ID) ([]StudentGuardianLink, error)
 	SetStudentGuardians(ctx context.Context, studentID shared.ID, links []StudentGuardianLink) error
 }
+

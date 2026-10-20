@@ -387,3 +387,4 @@ func (h *AdmissionCommandsHandler) EnrollApplication(ctx context.Context, in Enr
 	}
 	return studentID, nil
 }
+

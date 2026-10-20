@@ -197,3 +197,4 @@ type Repository interface {
 	InsertApplication(ctx context.Context, a *Application) error
 	UpdateStatus(ctx context.Context, a *Application, reason string, actorID shared.ID, at time.Time) error
 }
+

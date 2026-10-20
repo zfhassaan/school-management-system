@@ -257,3 +257,4 @@ func (h *StudentCommandsHandler) ChangeStudentStatus(ctx context.Context, in Cha
 		})
 	})
 }
+

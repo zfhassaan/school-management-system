@@ -183,3 +183,4 @@ type EnrollmentRepository interface {
 	InsertPromotionBatch(ctx context.Context, batch *PromotionBatch) error
 	GetPromotionBatch(ctx context.Context, id shared.ID) (*PromotionBatch, error)
 }
+

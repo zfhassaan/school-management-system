@@ -17,6 +17,7 @@ import (
 	authCmd "school-management/internal/application/commands/auth"
 	docCmd "school-management/internal/application/commands/documents"
 	enrCmd "school-management/internal/application/commands/enrollments"
+	feeCmd "school-management/internal/application/commands/fees"
 	guardCmd "school-management/internal/application/commands/guardians"
 	rolesCmd "school-management/internal/application/commands/roles"
 	schoolCmd "school-management/internal/application/commands/school"
@@ -28,6 +29,7 @@ import (
 	authQuery "school-management/internal/application/queries/auth"
 	docQuery "school-management/internal/application/queries/documents"
 	enrQuery "school-management/internal/application/queries/enrollments"
+	feeQuery "school-management/internal/application/queries/fees"
 	guardQuery "school-management/internal/application/queries/guardians"
 	rolesQuery "school-management/internal/application/queries/roles"
 	schoolQuery "school-management/internal/application/queries/school"
@@ -88,6 +90,7 @@ func main() {
 	enrCmdHandler := enrCmd.NewEnrollmentCommandsHandler(uow, clock, ids)
 	admCmdHandler := admCmd.NewAdmissionCommandsHandler(uow, clock, ids)
 	docCmdHandler := docCmd.NewDocumentCommandsHandler(uow, blobStore, clock, ids)
+	feeCmdHandler := feeCmd.NewFeeCommandsHandler(uow, clock, ids)
 
 	authQueries := authQuery.NewAuthQueriesHandler(uow)
 	usersQueries := usersQuery.NewUserQueriesHandler(uow)
@@ -100,6 +103,7 @@ func main() {
 	enrQueries := enrQuery.NewEnrollmentQueriesHandler(uow)
 	admQueries := admQuery.NewAdmissionQueriesHandler(uow)
 	docQueries := docQuery.NewDocumentQueriesHandler(uow, blobStore)
+	feeQueries := feeQuery.NewFeeQueriesHandler(uow)
 
 	// Desktop Session Manager and Transport Services
 	sessionMgr := wailsTransport.NewSessionManager(ids)
@@ -114,6 +118,8 @@ func main() {
 	enrSvc := wailsTransport.NewEnrollmentService(sessionMgr, enrCmdHandler, enrQueries)
 	admSvc := wailsTransport.NewAdmissionService(sessionMgr, admCmdHandler, admQueries)
 	docSvc := wailsTransport.NewDocumentService(sessionMgr, docCmdHandler, docQueries)
+	feeSvc := wailsTransport.NewFeeService(sessionMgr, feeCmdHandler, feeQueries)
+	invoiceSvc := wailsTransport.NewInvoiceService(sessionMgr, feeCmdHandler, feeQueries)
 
 	err = wails.Run(&options.App{
 		Title:             "School Management System",
@@ -142,6 +148,8 @@ func main() {
 			enrSvc,
 			admSvc,
 			docSvc,
+			feeSvc,
+			invoiceSvc,
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent: false,

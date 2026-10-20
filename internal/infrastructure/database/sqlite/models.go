@@ -179,6 +179,23 @@ type Device struct {
 	LastSeenAt   sql.NullString `json:"last_seen_at"`
 }
 
+type DiscountPolicy struct {
+	ID               string         `json:"id"`
+	SchoolID         string         `json:"school_id"`
+	Code             string         `json:"code"`
+	Name             string         `json:"name"`
+	Description      string         `json:"description"`
+	DiscountType     string         `json:"discount_type"`
+	RateBasisPoints  int64          `json:"rate_basis_points"`
+	AmountMinor      int64          `json:"amount_minor"`
+	FeeHeadID        sql.NullString `json:"fee_head_id"`
+	RequiresApproval int64          `json:"requires_approval"`
+	IsActive         int64          `json:"is_active"`
+	CreatedAt        string         `json:"created_at"`
+	UpdatedAt        string         `json:"updated_at"`
+	RowVersion       int64          `json:"row_version"`
+}
+
 type Enrollment struct {
 	ID                     string         `json:"id"`
 	StudentID              string         `json:"student_id"`
@@ -195,6 +212,61 @@ type Enrollment struct {
 	CreatedAt              string         `json:"created_at"`
 	UpdatedAt              string         `json:"updated_at"`
 	RowVersion             int64          `json:"row_version"`
+}
+
+type FeeHead struct {
+	ID                 string `json:"id"`
+	SchoolID           string `json:"school_id"`
+	Code               string `json:"code"`
+	Name               string `json:"name"`
+	Description        string `json:"description"`
+	IsRecurring        int64  `json:"is_recurring"`
+	DefaultAmountMinor int64  `json:"default_amount_minor"`
+	IsActive           int64  `json:"is_active"`
+	CreatedAt          string `json:"created_at"`
+	UpdatedAt          string `json:"updated_at"`
+	RowVersion         int64  `json:"row_version"`
+}
+
+type FeeStructure struct {
+	ID             string         `json:"id"`
+	SchoolID       string         `json:"school_id"`
+	AcademicYearID string         `json:"academic_year_id"`
+	ClassID        string         `json:"class_id"`
+	CampusID       sql.NullString `json:"campus_id"`
+	Code           string         `json:"code"`
+	Name           string         `json:"name"`
+	Description    string         `json:"description"`
+	IsActive       int64          `json:"is_active"`
+	CreatedAt      string         `json:"created_at"`
+	UpdatedAt      string         `json:"updated_at"`
+	RowVersion     int64          `json:"row_version"`
+}
+
+type FeeStructureItem struct {
+	ID                    string `json:"id"`
+	FeeStructureVersionID string `json:"fee_structure_version_id"`
+	FeeHeadID             string `json:"fee_head_id"`
+	AmountMinor           int64  `json:"amount_minor"`
+	Frequency             string `json:"frequency"`
+	DueDay                int64  `json:"due_day"`
+	IsOptional            int64  `json:"is_optional"`
+	CreatedAt             string `json:"created_at"`
+	UpdatedAt             string `json:"updated_at"`
+}
+
+type FeeStructureVersion struct {
+	ID             string         `json:"id"`
+	FeeStructureID string         `json:"fee_structure_id"`
+	VersionNo      int64          `json:"version_no"`
+	Status         string         `json:"status"`
+	Changelog      string         `json:"changelog"`
+	CreatedBy      string         `json:"created_by"`
+	PublishedBy    sql.NullString `json:"published_by"`
+	PublishedAt    sql.NullString `json:"published_at"`
+	CreatedAt      string         `json:"created_at"`
+	UpdatedAt      string         `json:"updated_at"`
+	RowVersion     int64          `json:"row_version"`
 }
 
 type Guardian struct {
@@ -218,6 +290,42 @@ type Guardian struct {
 	CreatedAt              string         `json:"created_at"`
 	UpdatedAt              string         `json:"updated_at"`
 	RowVersion             int64          `json:"row_version"`
+}
+
+type Invoice struct {
+	ID                  string         `json:"id"`
+	SchoolID            string         `json:"school_id"`
+	StudentID           string         `json:"student_id"`
+	AcademicYearID      string         `json:"academic_year_id"`
+	InvoiceNo           string         `json:"invoice_no"`
+	IssueDate           string         `json:"issue_date"`
+	DueDate             string         `json:"due_date"`
+	BillingPeriod       string         `json:"billing_period"`
+	SubtotalAmountMinor int64          `json:"subtotal_amount_minor"`
+	DiscountAmountMinor int64          `json:"discount_amount_minor"`
+	TotalAmountMinor    int64          `json:"total_amount_minor"`
+	PaidAmountMinor     int64          `json:"paid_amount_minor"`
+	BalanceMinor        int64          `json:"balance_minor"`
+	Status              string         `json:"status"`
+	VoidReason          string         `json:"void_reason"`
+	VoidedBy            sql.NullString `json:"voided_by"`
+	VoidedAt            sql.NullString `json:"voided_at"`
+	CreatedBy           string         `json:"created_by"`
+	CreatedAt           string         `json:"created_at"`
+	UpdatedAt           string         `json:"updated_at"`
+	RowVersion          int64          `json:"row_version"`
+}
+
+type InvoiceItem struct {
+	ID                  string `json:"id"`
+	InvoiceID           string `json:"invoice_id"`
+	FeeHeadID           string `json:"fee_head_id"`
+	FeeHeadName         string `json:"fee_head_name"`
+	Description         string `json:"description"`
+	OriginalAmountMinor int64  `json:"original_amount_minor"`
+	DiscountAmountMinor int64  `json:"discount_amount_minor"`
+	NetAmountMinor      int64  `json:"net_amount_minor"`
+	CreatedAt           string `json:"created_at"`
 }
 
 type Permission struct {
@@ -344,6 +452,23 @@ type Student struct {
 	CreatedAt       string         `json:"created_at"`
 	UpdatedAt       string         `json:"updated_at"`
 	RowVersion      int64          `json:"row_version"`
+}
+
+type StudentDiscount struct {
+	ID               string         `json:"id"`
+	StudentID        string         `json:"student_id"`
+	DiscountPolicyID string         `json:"discount_policy_id"`
+	AcademicYearID   string         `json:"academic_year_id"`
+	Status           string         `json:"status"`
+	ApprovedBy       sql.NullString `json:"approved_by"`
+	ApprovedAt       sql.NullString `json:"approved_at"`
+	RejectionReason  string         `json:"rejection_reason"`
+	ValidFrom        string         `json:"valid_from"`
+	ValidTo          sql.NullString `json:"valid_to"`
+	CreatedBy        string         `json:"created_by"`
+	CreatedAt        string         `json:"created_at"`
+	UpdatedAt        string         `json:"updated_at"`
+	RowVersion       int64          `json:"row_version"`
 }
 
 type StudentDocument struct {

@@ -18,6 +18,7 @@ type Querier interface {
 	ClearUserRoles(ctx context.Context, userID string) error
 	CloseEnrollment(ctx context.Context, arg CloseEnrollmentParams) error
 	CountActiveWithRole(ctx context.Context, code string) (int64, error)
+	CountInvoicesInPeriod(ctx context.Context, arg CountInvoicesInPeriodParams) (int64, error)
 	CountStudents(ctx context.Context, schoolID string) (int64, error)
 	CountUsers(ctx context.Context) (int64, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
@@ -32,12 +33,20 @@ type Querier interface {
 	GetAdmissionFormDefinition(ctx context.Context, id string) (AdmissionFormDefinition, error)
 	GetAdmissionFormVersion(ctx context.Context, id string) (AdmissionFormVersion, error)
 	GetClass(ctx context.Context, id string) (Class, error)
+	GetDiscountPolicy(ctx context.Context, id string) (DiscountPolicy, error)
 	GetDocument(ctx context.Context, id string) (StudentDocument, error)
 	GetEffectivePermissions(ctx context.Context, userID string) ([]string, error)
+	GetFeeHead(ctx context.Context, id string) (FeeHead, error)
+	GetFeeStructure(ctx context.Context, id string) (FeeStructure, error)
+	GetFeeStructureForClass(ctx context.Context, arg GetFeeStructureForClassParams) (FeeStructure, error)
+	GetFeeStructureVersion(ctx context.Context, id string) (FeeStructureVersion, error)
 	GetGuardian(ctx context.Context, id string) (Guardian, error)
 	GetGuardianByPhone(ctx context.Context, arg GetGuardianByPhoneParams) (Guardian, error)
+	GetInvoice(ctx context.Context, id string) (GetInvoiceRow, error)
+	GetInvoiceByNo(ctx context.Context, arg GetInvoiceByNoParams) (Invoice, error)
 	GetLocalDevice(ctx context.Context) (Device, error)
 	GetPromotionBatch(ctx context.Context, id string) (PromotionBatch, error)
+	GetPublishedFeeStructureVersion(ctx context.Context, feeStructureID string) (FeeStructureVersion, error)
 	GetPublishedFormVersion(ctx context.Context, formDefinitionID string) (AdmissionFormVersion, error)
 	GetRole(ctx context.Context, id string) (Role, error)
 	GetRoleByCode(ctx context.Context, code string) (Role, error)
@@ -48,6 +57,7 @@ type Querier interface {
 	GetSession(ctx context.Context, id string) (UserSession, error)
 	GetStudent(ctx context.Context, id string) (Student, error)
 	GetStudentByAdmissionNo(ctx context.Context, arg GetStudentByAdmissionNoParams) (Student, error)
+	GetStudentDiscount(ctx context.Context, id string) (StudentDiscount, error)
 	GetUser(ctx context.Context, id string) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
 	GetUserRoleCodes(ctx context.Context, userID string) ([]string, error)
@@ -60,8 +70,15 @@ type Querier interface {
 	InsertAdmissionFormVersion(ctx context.Context, arg InsertAdmissionFormVersionParams) error
 	InsertCampus(ctx context.Context, arg InsertCampusParams) error
 	InsertClass(ctx context.Context, arg InsertClassParams) error
+	InsertDiscountPolicy(ctx context.Context, arg InsertDiscountPolicyParams) error
 	InsertEnrollment(ctx context.Context, arg InsertEnrollmentParams) error
+	InsertFeeHead(ctx context.Context, arg InsertFeeHeadParams) error
+	InsertFeeStructure(ctx context.Context, arg InsertFeeStructureParams) error
+	InsertFeeStructureItem(ctx context.Context, arg InsertFeeStructureItemParams) error
+	InsertFeeStructureVersion(ctx context.Context, arg InsertFeeStructureVersionParams) error
 	InsertGuardian(ctx context.Context, arg InsertGuardianParams) error
+	InsertInvoice(ctx context.Context, arg InsertInvoiceParams) error
+	InsertInvoiceItem(ctx context.Context, arg InsertInvoiceItemParams) error
 	InsertLocalDevice(ctx context.Context, arg InsertLocalDeviceParams) error
 	InsertPromotionBatch(ctx context.Context, arg InsertPromotionBatchParams) error
 	InsertRecoveryCode(ctx context.Context, arg InsertRecoveryCodeParams) error
@@ -71,6 +88,7 @@ type Querier interface {
 	InsertSchoolSettings(ctx context.Context, arg InsertSchoolSettingsParams) error
 	InsertSection(ctx context.Context, arg InsertSectionParams) error
 	InsertStudent(ctx context.Context, arg InsertStudentParams) error
+	InsertStudentDiscount(ctx context.Context, arg InsertStudentDiscountParams) error
 	InsertStudentDocument(ctx context.Context, arg InsertStudentDocumentParams) error
 	InsertStudentGuardian(ctx context.Context, arg InsertStudentGuardianParams) error
 	InsertUser(ctx context.Context, arg InsertUserParams) error
@@ -85,11 +103,20 @@ type Querier interface {
 	ListAuditLogs(ctx context.Context, arg ListAuditLogsParams) ([]AuditLog, error)
 	ListCampuses(ctx context.Context, schoolID string) ([]Campuse, error)
 	ListClasses(ctx context.Context, schoolID string) ([]Class, error)
+	ListDiscountPolicies(ctx context.Context, schoolID string) ([]DiscountPolicy, error)
 	ListEnrollmentHistory(ctx context.Context, studentID string) ([]ListEnrollmentHistoryRow, error)
+	ListFeeHeads(ctx context.Context, schoolID string) ([]FeeHead, error)
+	ListFeeStructureItems(ctx context.Context, feeStructureVersionID string) ([]ListFeeStructureItemsRow, error)
+	ListFeeStructureVersions(ctx context.Context, feeStructureID string) ([]FeeStructureVersion, error)
+	ListFeeStructures(ctx context.Context, arg ListFeeStructuresParams) ([]FeeStructure, error)
+	ListInvoiceItems(ctx context.Context, invoiceID string) ([]InvoiceItem, error)
+	ListInvoices(ctx context.Context, arg ListInvoicesParams) ([]ListInvoicesRow, error)
+	ListPendingStudentDiscounts(ctx context.Context, schoolID string) ([]ListPendingStudentDiscountsRow, error)
 	ListPermissions(ctx context.Context) ([]Permission, error)
 	ListRolesWithUserCount(ctx context.Context) ([]ListRolesWithUserCountRow, error)
 	ListSectionRoster(ctx context.Context, sectionID sql.NullString) ([]ListSectionRosterRow, error)
 	ListSectionsByYear(ctx context.Context, academicYearID string) ([]ListSectionsByYearRow, error)
+	ListStudentDiscounts(ctx context.Context, arg ListStudentDiscountsParams) ([]ListStudentDiscountsRow, error)
 	ListStudentDocuments(ctx context.Context, studentID sql.NullString) ([]StudentDocument, error)
 	ListStudentGuardians(ctx context.Context, studentID string) ([]ListStudentGuardiansRow, error)
 	ListStudentStatusHistory(ctx context.Context, studentID string) ([]StudentStatusHistory, error)
@@ -98,6 +125,7 @@ type Querier interface {
 	ListUsers(ctx context.Context) ([]User, error)
 	MarkRecoveryCodeUsed(ctx context.Context, arg MarkRecoveryCodeUsedParams) error
 	PublishAdmissionFormVersion(ctx context.Context, arg PublishAdmissionFormVersionParams) error
+	PublishFeeStructureVersion(ctx context.Context, arg PublishFeeStructureVersionParams) error
 	ReplaceUserRecoveryCodes(ctx context.Context, userID string) error
 	RetireAdmissionFormVersion(ctx context.Context, arg RetireAdmissionFormVersionParams) error
 	RevokeAllUserSessions(ctx context.Context, arg RevokeAllUserSessionsParams) error
@@ -107,14 +135,19 @@ type Querier interface {
 	UpdateAcademicYear(ctx context.Context, arg UpdateAcademicYearParams) error
 	UpdateAdmissionApplicationStatus(ctx context.Context, arg UpdateAdmissionApplicationStatusParams) error
 	UpdateClass(ctx context.Context, arg UpdateClassParams) error
+	UpdateDiscountPolicy(ctx context.Context, arg UpdateDiscountPolicyParams) error
+	UpdateFeeHead(ctx context.Context, arg UpdateFeeHeadParams) error
 	UpdateGuardian(ctx context.Context, arg UpdateGuardianParams) error
+	UpdateInvoiceStatus(ctx context.Context, arg UpdateInvoiceStatusParams) error
 	UpdateRole(ctx context.Context, arg UpdateRoleParams) error
 	UpdateSchool(ctx context.Context, arg UpdateSchoolParams) error
 	UpdateSchoolSettings(ctx context.Context, arg UpdateSchoolSettingsParams) error
 	UpdateSection(ctx context.Context, arg UpdateSectionParams) error
 	UpdateStudent(ctx context.Context, arg UpdateStudentParams) error
+	UpdateStudentDiscountStatus(ctx context.Context, arg UpdateStudentDiscountStatusParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpsertPermission(ctx context.Context, arg UpsertPermissionParams) error
+	VoidInvoice(ctx context.Context, arg VoidInvoiceParams) error
 }
 
 var _ Querier = (*Queries)(nil)

@@ -10,6 +10,8 @@ import type {
 	IEnrollmentService,
 	IAdmissionService,
 	IDocumentService,
+	IFeeService,
+	IInvoiceService,
 	AppServices
 } from '@/services/contracts'
 
@@ -169,6 +171,40 @@ export class HttpDocumentService implements IDocumentService {
 	async getContent(id: string) { return fetch(`/api/v1/documents/${id}/content`).then(r => r.json()) }
 }
 
+export class HttpFeeService implements IFeeService {
+	async listFeeHeads() { return fetch('/api/v1/fees/heads').then(r => r.json()) }
+	async createFeeHead(input: any) { return fetch('/api/v1/fees/heads', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async updateFeeHead(input: any) { return fetch(`/api/v1/fees/heads/${input.id}`, { method: 'PUT', body: JSON.stringify(input) }).then(r => r.json()) }
+
+	async listFeeStructures(academicYearId: string) { return fetch(`/api/v1/fees/structures?academicYearId=${academicYearId}`).then(r => r.json()) }
+	async createFeeStructure(input: any) { return fetch('/api/v1/fees/structures', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listFeeStructureVersions(feeStructureId: string) { return fetch(`/api/v1/fees/structures/${feeStructureId}/versions`).then(r => r.json()) }
+	async getFeeStructureVersionDetail(versionId: string) { return fetch(`/api/v1/fees/versions/${versionId}`).then(r => r.json()) }
+	async createFeeStructureVersion(input: any) { return fetch('/api/v1/fees/versions', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async publishFeeStructureVersion(versionId: string) { return fetch(`/api/v1/fees/versions/${versionId}/publish`, { method: 'POST' }).then(r => r.json()) }
+
+	async listDiscountPolicies() { return fetch('/api/v1/fees/discounts/policies').then(r => r.json()) }
+	async createDiscountPolicy(input: any) { return fetch('/api/v1/fees/discounts/policies', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async listStudentDiscounts(studentId: string, academicYearId: string) { return fetch(`/api/v1/fees/discounts/students?studentId=${studentId}&academicYearId=${academicYearId}`).then(r => r.json()) }
+	async listPendingDiscounts() { return fetch('/api/v1/fees/discounts/pending').then(r => r.json()) }
+	async applyStudentDiscount(input: any) { return fetch('/api/v1/fees/discounts/apply', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async decideStudentDiscount(input: any) { return fetch('/api/v1/fees/discounts/decide', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+}
+
+export class HttpInvoiceService implements IInvoiceService {
+	async listInvoices(filter: any) {
+		const params = new URLSearchParams()
+		if (filter.status) params.set('status', filter.status)
+		if (filter.academicYearId) params.set('academicYearId', filter.academicYearId)
+		if (filter.studentId) params.set('studentId', filter.studentId)
+		if (filter.limit) params.set('limit', String(filter.limit))
+		return fetch(`/api/v1/invoices?${params.toString()}`).then(r => r.json())
+	}
+	async getInvoice(id: string) { return fetch(`/api/v1/invoices/${id}`).then(r => r.json()) }
+	async generateInvoicesBatch(input: any) { return fetch('/api/v1/invoices/batch', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async voidInvoice(input: any) { return fetch(`/api/v1/invoices/${input.invoiceId}/void`, { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+}
+
 export function createHttpServices(): AppServices {
 	return {
 		auth: new HttpAuthService(),
@@ -181,6 +217,8 @@ export function createHttpServices(): AppServices {
 		guardians: new HttpGuardianService(),
 		enrollments: new HttpEnrollmentService(),
 		admissions: new HttpAdmissionService(),
-		documents: new HttpDocumentService()
+		documents: new HttpDocumentService(),
+		fees: new HttpFeeService(),
+		invoices: new HttpInvoiceService()
 	}
 }

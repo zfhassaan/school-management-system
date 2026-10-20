@@ -74,3 +74,4 @@ func (s *FilesystemBlobStore) Delete(ctx context.Context, storageKey string) err
 	cleanPath := filepath.Clean(filepath.Join(s.baseDir, storageKey))
 	return os.Remove(cleanPath)
 }
+

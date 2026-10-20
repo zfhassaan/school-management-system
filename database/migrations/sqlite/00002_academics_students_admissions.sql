@@ -306,3 +306,4 @@ DROP TABLE IF EXISTS students_fts;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS sections;
 -- +goose StatementEnd
+

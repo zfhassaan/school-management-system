@@ -129,3 +129,4 @@ func (h *AcademicQueriesHandler) ListTerms(ctx context.Context, yearID shared.ID
 	})
 	return res, err
 }
+

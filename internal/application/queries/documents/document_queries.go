@@ -81,3 +81,4 @@ func (h *DocumentQueriesHandler) GetDocumentContent(ctx context.Context, id shar
 	}
 	return data, doc, nil
 }
+

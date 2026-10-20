@@ -8,6 +8,7 @@ import (
 	"school-management/internal/domain/admissions"
 	"school-management/internal/domain/audit"
 	"school-management/internal/domain/documents"
+	"school-management/internal/domain/fees"
 	"school-management/internal/domain/guardians"
 	"school-management/internal/domain/identity"
 	"school-management/internal/domain/school"
@@ -26,6 +27,7 @@ type Repos struct {
 	Guardians     guardians.Repository
 	Admissions    admissions.Repository
 	Documents     documents.Repository
+	Fees          fees.Repository
 	Audit         audit.Writer
 	AuditReader   AuditReader
 	Outbox        outbox.Writer

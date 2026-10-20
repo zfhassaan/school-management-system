@@ -81,3 +81,4 @@ func (h *EnrollmentQueriesHandler) GetPromotionBatch(ctx context.Context, id sha
 	})
 	return res, err
 }
+

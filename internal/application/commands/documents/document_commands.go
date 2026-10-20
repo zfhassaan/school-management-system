@@ -99,3 +99,4 @@ func (h *DocumentCommandsHandler) UploadDocument(ctx context.Context, in UploadD
 	}
 	return id, nil
 }
+

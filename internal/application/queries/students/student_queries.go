@@ -80,3 +80,4 @@ func (h *StudentQueriesHandler) ListStatusHistory(ctx context.Context, studentID
 	})
 	return res, err
 }
+

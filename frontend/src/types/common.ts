@@ -363,4 +363,139 @@ export interface DocumentDTO {
 	CreatedAt: string
 }
 
+// Phase 4: Fees & Invoicing
+
+export interface FeeHeadDTO {
+	ID: string
+	SchoolID: string
+	Code: string
+	Name: string
+	Description: string
+	IsRecurring: boolean
+	DefaultAmountMinor: number
+	IsActive: boolean
+}
+
+export interface FeeStructureDTO {
+	ID: string
+	SchoolID: string
+	AcademicYearID: string
+	ClassID: string
+	CampusID?: string
+	Code: string
+	Name: string
+	Description: string
+	IsActive: boolean
+}
+
+export interface FeeStructureVersionDTO {
+	ID: string
+	FeeStructureID: string
+	VersionNo: number
+	Status: 'draft' | 'published' | 'retired'
+	Changelog: string
+	CreatedByID: string
+	PublishedByID?: string
+	PublishedAt?: string
+}
+
+export interface FeeStructureItemDTO {
+	ID: string
+	FeeStructureVersionID: string
+	FeeHeadID: string
+	AmountMinor: number
+	Frequency: 'monthly' | 'termly' | 'annual' | 'one_time'
+	DueDay: number
+	IsOptional: boolean
+	FeeHeadCode?: string
+	FeeHeadName?: string
+}
+
+export interface FeeStructureVersionDetailDTO {
+	version: FeeStructureVersionDTO
+	items: FeeStructureItemDTO[]
+}
+
+export interface DiscountPolicyDTO {
+	ID: string
+	SchoolID: string
+	Code: string
+	Name: string
+	Description: string
+	DiscountType: 'percentage' | 'fixed'
+	RateBasisPoints: number
+	AmountMinor: number
+	FeeHeadID?: string
+	RequiresApproval: boolean
+	IsActive: boolean
+}
+
+export interface StudentDiscountDTO {
+	ID: string
+	StudentID: string
+	DiscountPolicyID: string
+	AcademicYearID: string
+	Status: 'pending' | 'approved' | 'rejected' | 'revoked'
+	ApprovedByID?: string
+	ApprovedAt?: string
+	RejectionReason: string
+	ValidFrom: any
+	ValidTo?: any
+	PolicyCode?: string
+	PolicyName?: string
+	DiscountType?: string
+	RateBasisPoints?: number
+	PolicyAmountMinor?: number
+	StudentFirstName?: string
+	StudentLastName?: string
+	AdmissionNo?: string
+}
+
+export interface InvoiceDTO {
+	ID: string
+	SchoolID: string
+	StudentID: string
+	AcademicYearID: string
+	InvoiceNo: string
+	IssueDate: any
+	DueDate: any
+	BillingPeriod: string
+	SubtotalAmountMinor: number
+	DiscountAmountMinor: number
+	TotalAmountMinor: number
+	PaidAmountMinor: number
+	BalanceMinor: number
+	Status: 'draft' | 'issued' | 'partially_paid' | 'paid' | 'overdue' | 'void'
+	VoidReason?: string
+	StudentFirstName?: string
+	StudentLastName?: string
+	AdmissionNo?: string
+	CreatedAt: string
+}
+
+export interface InvoiceItemDTO {
+	ID: string
+	InvoiceID: string
+	FeeHeadID: string
+	FeeHeadName: string
+	Description: string
+	OriginalAmountMinor: number
+	DiscountAmountMinor: number
+	NetAmountMinor: number
+}
+
+export interface InvoiceDetailDTO {
+	invoice: InvoiceDTO
+	items: InvoiceItemDTO[]
+}
+
+export interface InvoiceFilterDTO {
+	schoolId?: string
+	status?: string
+	academicYearId?: string
+	studentId?: string
+	limit?: number
+}
+
+
 

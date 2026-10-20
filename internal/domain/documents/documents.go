@@ -38,3 +38,4 @@ type Repository interface {
 	ListForStudent(ctx context.Context, studentID shared.ID) ([]Document, error)
 	ListForApplication(ctx context.Context, applicationID shared.ID) ([]Document, error)
 }
+

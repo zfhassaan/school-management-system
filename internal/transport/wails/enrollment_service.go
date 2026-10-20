@@ -88,3 +88,4 @@ func (s *EnrollmentService) GetPromotionBatch(ctx context.Context, id shared.ID)
 	}
 	return dto.Ok(res)
 }
+

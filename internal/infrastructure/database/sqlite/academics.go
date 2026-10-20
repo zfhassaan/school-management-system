@@ -483,3 +483,4 @@ func (r *AcademicsRepository) InsertCampus(ctx context.Context, c *academics.Cam
 	c.Revision = 1
 	return nil
 }
+

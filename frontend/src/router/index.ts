@@ -15,6 +15,10 @@ import AcademicsPage from '@/pages/academics/AcademicsPage.vue'
 import AdmissionsPage from '@/pages/admissions/AdmissionsPage.vue'
 import AdmissionFormBuilderPage from '@/pages/admissions/AdmissionFormBuilderPage.vue'
 import PromotionsPage from '@/pages/promotions/PromotionsPage.vue'
+import FeesStructurePage from '@/pages/fees/FeesStructurePage.vue'
+import DiscountPoliciesPage from '@/pages/fees/DiscountPoliciesPage.vue'
+import InvoicesListPage from '@/pages/invoices/InvoicesListPage.vue'
+import InvoiceDetailPage from '@/pages/invoices/InvoiceDetailPage.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(),
@@ -76,6 +80,30 @@ const router = createRouter({
 					name: 'promotions',
 					component: PromotionsPage,
 					meta: { title: 'Class Promotions', permission: 'academics.promote' }
+				},
+				{
+					path: 'fees/structure',
+					name: 'fees-structure',
+					component: FeesStructurePage,
+					meta: { title: 'Fee Structures', permission: 'fees.view' }
+				},
+				{
+					path: 'fees/discounts',
+					name: 'fees-discounts',
+					component: DiscountPoliciesPage,
+					meta: { title: 'Discounts & Concessions', permission: 'fees.view' }
+				},
+				{
+					path: 'invoices',
+					name: 'invoices',
+					component: InvoicesListPage,
+					meta: { title: 'Student Invoices', permission: 'invoices.view' }
+				},
+				{
+					path: 'invoices/:id',
+					name: 'invoice-detail',
+					component: InvoiceDetailPage,
+					meta: { title: 'Invoice Details', permission: 'invoices.view' }
 				},
 				{
 					path: 'settings/school',

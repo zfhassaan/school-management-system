@@ -10,6 +10,8 @@ import type {
 	IEnrollmentService,
 	IAdmissionService,
 	IDocumentService,
+	IFeeService,
+	IInvoiceService,
 	AppServices
 } from '@/services/contracts'
 
@@ -29,6 +31,8 @@ declare global {
 				EnrollmentService?: any
 				AdmissionService?: any
 				DocumentService?: any
+				FeeService?: any
+				InvoiceService?: any
 			}
 		}
 	}
@@ -426,6 +430,107 @@ export class WailsDocumentService implements IDocumentService {
 	}
 }
 
+export class WailsFeeService implements IFeeService {
+	async listFeeHeads() {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListFeeHeads()
+	}
+	async createFeeHead(input: any) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.CreateFeeHead(input)
+	}
+	async updateFeeHead(input: any) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.UpdateFeeHead(input)
+	}
+	async listFeeStructures(academicYearId: string) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListFeeStructures(academicYearId)
+	}
+	async createFeeStructure(input: any) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.CreateFeeStructure(input)
+	}
+	async listFeeStructureVersions(feeStructureId: string) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListFeeStructureVersions(feeStructureId)
+	}
+	async getFeeStructureVersionDetail(versionId: string) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.GetFeeStructureVersionDetail(versionId)
+	}
+	async createFeeStructureVersion(input: any) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.CreateFeeStructureVersion(input)
+	}
+	async publishFeeStructureVersion(versionId: string) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.PublishFeeStructureVersion(versionId)
+	}
+	async listDiscountPolicies() {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListDiscountPolicies()
+	}
+	async createDiscountPolicy(input: any) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.CreateDiscountPolicy(input)
+	}
+	async listStudentDiscounts(studentId: string, academicYearId: string) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListStudentDiscounts(studentId, academicYearId)
+	}
+	async listPendingDiscounts() {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListPendingDiscounts()
+	}
+	async applyStudentDiscount(input: any) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ApplyStudentDiscount(input)
+	}
+	async decideStudentDiscount(input: any) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.DecideStudentDiscount(input)
+	}
+}
+
+export class WailsInvoiceService implements IInvoiceService {
+	async listInvoices(filter: any) {
+		const svc = getBinding('InvoiceService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ListInvoices(filter)
+	}
+	async getInvoice(id: string) {
+		const svc = getBinding('InvoiceService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.GetInvoice(id)
+	}
+	async generateInvoicesBatch(input: any) {
+		const svc = getBinding('InvoiceService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.GenerateInvoicesBatch(input)
+	}
+	async voidInvoice(input: any) {
+		const svc = getBinding('InvoiceService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.VoidInvoice(input)
+	}
+}
+
 export function createWailsServices(): AppServices {
 	return {
 		auth: new WailsAuthService(),
@@ -438,7 +543,9 @@ export function createWailsServices(): AppServices {
 		guardians: new WailsGuardianService(),
 		enrollments: new WailsEnrollmentService(),
 		admissions: new WailsAdmissionService(),
-		documents: new WailsDocumentService()
+		documents: new WailsDocumentService(),
+		fees: new WailsFeeService(),
+		invoices: new WailsInvoiceService()
 	}
 }
 
