@@ -246,40 +246,17 @@
 					<span class="text-xs text-slate-500 font-medium">
 						{{ formattedDate }}
 					</span>
-
-					<!-- Developer Branding & External Links -->
-					<div class="flex items-center gap-1.5 border-l border-slate-200 pl-3">
-						<button
-							@click="openExternalUrl('https://github.com/zfhassaan')"
-							class="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition"
-							title="GitHub: https://github.com/zfhassaan"
-						>
-							<Github class="w-4 h-4" />
-						</button>
-						<button
-							@click="openExternalUrl('https://zfhassaan.github.io')"
-							class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition"
-							title="Portfolio: https://zfhassaan.github.io"
-						>
-							<Globe class="w-4 h-4" />
-						</button>
-						<button
-							@click="showDeveloperModal = true"
-							class="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition border border-transparent hover:border-indigo-100"
-							title="System Info & Developer Profile"
-						>
-							<DeveloperLogo sizeClass="w-4 h-4" />
-							<span class="text-[11px] font-semibold hidden md:inline">zfhassaan</span>
-						</button>
-					</div>
 				</div>
 			</header>
 
 			<!-- Page Content View -->
-			<main class="flex-1 overflow-y-auto p-6">
+			<main class="flex-1 overflow-y-auto p-6 pb-16">
 				<router-view />
 			</main>
 		</div>
+
+		<!-- Floating Bottom-Right Developer Badge -->
+		<DeveloperBadge @open-modal="showDeveloperModal = true" />
 
 		<!-- Mandatory Password Change Modal -->
 		<ChangePasswordModal />
@@ -295,8 +272,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import ChangePasswordModal from '@/components/ChangePasswordModal.vue'
 import DeveloperAboutModal from '@/components/DeveloperAboutModal.vue'
+import DeveloperBadge from '@/components/DeveloperBadge.vue'
 import DeveloperLogo from '@/components/DeveloperLogo.vue'
-import { openExternalUrl } from '@/utils/browser'
 import {
 	LayoutDashboard,
 	GraduationCap,
@@ -314,8 +291,6 @@ import {
 	Percent,
 	Receipt,
 	CreditCard,
-	Github,
-	Globe,
 	Info
 } from 'lucide-vue-next'
 
