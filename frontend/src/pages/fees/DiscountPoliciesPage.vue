@@ -445,6 +445,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import StudentSearchSelect from '@/components/StudentSearchSelect.vue'
 import type {
 	DiscountPolicyDTO,
@@ -457,6 +458,7 @@ import { formatMinor, formatBasisPoints, formatCivilDate } from '@/utils/format'
 import { Plus } from 'lucide-vue-next'
 
 const services = getServices()
+const toast = useToast()
 
 const currentTab = ref('policies')
 
@@ -639,12 +641,13 @@ async function decideDiscount(discountId: string, approved: boolean, reason?: st
 			rejectionReason: reason
 		})
 		if (res.success) {
+			toast.success(approved ? 'Student discount approved.' : 'Student discount rejected.')
 			await Promise.all([loadPendingDiscounts(), loadStudentDiscounts()])
 		} else {
-			alert(res.error?.message || 'Failed to process decision')
+			toast.error(res.error?.message || 'Failed to process decision')
 		}
 	} catch (e: any) {
-		alert(e.message || 'An error occurred')
+		toast.error(e.message || 'An error occurred while deciding discount')
 	}
 }
 

@@ -198,12 +198,14 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import type { InvoiceDetailDTO, SchoolProfileDTO } from '@/types/common'
 import { formatMinor, formatCivilDate } from '@/utils/format'
 import { ArrowLeft, Printer, Ban } from 'lucide-vue-next'
 
 const route = useRoute()
 const services = getServices()
+const toast = useToast()
 
 const detail = ref<InvoiceDetailDTO | null>(null)
 const schoolProfile = ref<SchoolProfileDTO | null>(null)
@@ -256,12 +258,13 @@ async function submitVoid() {
 		})
 		if (res.success) {
 			showVoidModal.value = false
+			toast.success('Invoice marked as void.')
 			await loadInvoice()
 		} else {
-			alert(res.error?.message || 'Failed to void invoice')
+			toast.error(res.error?.message || 'Failed to void invoice')
 		}
 	} catch (e: any) {
-		alert(e.message || 'An error occurred')
+		toast.error(e.message || 'An error occurred while voiding invoice')
 	}
 }
 

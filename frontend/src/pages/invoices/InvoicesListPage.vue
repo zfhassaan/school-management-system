@@ -261,11 +261,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import type { InvoiceDTO, AcademicYearDTO, ClassDTO } from '@/types/common'
 import { formatMinor, formatCivilDate } from '@/utils/format'
 import { Plus, RefreshCw } from 'lucide-vue-next'
 
 const services = getServices()
+const toast = useToast()
 
 const invoices = ref<InvoiceDTO[]>([])
 const academicYears = ref<AcademicYearDTO[]>([])
@@ -377,7 +379,7 @@ async function submitBatchGenerate() {
 			return
 		}
 		const count = res.data ? res.data.length : 0
-		alert(`Successfully generated ${count} invoices for the selected class period.`)
+		toast.success(`Successfully generated ${count} invoices for the selected class period.`)
 		showBatchModal.value = false
 		await loadInvoices()
 	} catch (e: any) {
@@ -402,12 +404,13 @@ async function submitVoidInvoice() {
 		})
 		if (res.success) {
 			showVoidModal.value = false
+			toast.success('Invoice marked as void.')
 			await loadInvoices()
 		} else {
-			alert(res.error?.message || 'Failed to void invoice')
+			toast.error(res.error?.message || 'Failed to void invoice')
 		}
 	} catch (e: any) {
-		alert(e.message || 'An error occurred')
+		toast.error(e.message || 'An error occurred while voiding invoice')
 	}
 }
 

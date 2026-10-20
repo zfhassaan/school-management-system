@@ -112,6 +112,9 @@ func (h *EnrollmentCommandsHandler) ExecutePromotionBatch(ctx context.Context, i
 	if err != nil {
 		return "", err
 	}
+	if in.FromAcademicYearID == in.ToAcademicYearID {
+		return "", shared.Validation("source and target academic years cannot be identical; class promotions transition students to a different academic year", nil)
+	}
 	if len(in.Items) == 0 {
 		return "", shared.Validation("no students provided for promotion", nil)
 	}

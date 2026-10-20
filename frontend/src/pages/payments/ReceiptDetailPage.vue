@@ -198,12 +198,14 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import type { PaymentDetailDTO, SchoolProfileDTO } from '@/types/common'
 import { formatMinor, formatCivilDate } from '@/utils/format'
 import { ArrowLeft, Printer, Ban } from 'lucide-vue-next'
 
 const route = useRoute()
 const services = getServices()
+const toast = useToast()
 
 const detail = ref<PaymentDetailDTO | null>(null)
 const schoolProfile = ref<SchoolProfileDTO | null>(null)
@@ -256,12 +258,13 @@ async function submitReverse() {
 		})
 		if (res.success) {
 			showReverseModal.value = false
+			toast.success('Payment successfully reversed and marked as void.')
 			await loadPayment()
 		} else {
-			alert(res.error?.message || 'Failed to reverse payment')
+			toast.error(res.error?.message || 'Failed to reverse payment')
 		}
 	} catch (e: any) {
-		alert(e.message || 'An error occurred')
+		toast.error(e.message || 'An error occurred while reversing payment')
 	}
 }
 </script>

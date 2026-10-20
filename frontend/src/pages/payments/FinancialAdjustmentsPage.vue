@@ -359,6 +359,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import StudentSearchSelect from '@/components/StudentSearchSelect.vue'
 import type {
 	FinancialAdjustmentDTO,
@@ -370,6 +371,7 @@ import { formatMinor, formatCivilDate } from '@/utils/format'
 import { Plus, RefreshCw, Receipt } from 'lucide-vue-next'
 
 const services = getServices()
+const toast = useToast()
 
 const currentTab = ref('adjustments')
 const adjustments = ref<FinancialAdjustmentDTO[]>([])
@@ -508,12 +510,13 @@ async function decideAdjustment(id: string, approved: boolean, notes = '') {
 			decisionNotes: notes
 		})
 		if (res.success) {
+			toast.success(approved ? 'Adjustment successfully approved.' : 'Adjustment rejected.')
 			await loadAdjustments()
 		} else {
-			alert(res.error?.message || 'Failed to decide adjustment')
+			toast.error(res.error?.message || 'Failed to decide adjustment')
 		}
 	} catch (e: any) {
-		alert(e.message || 'An error occurred')
+		toast.error(e.message || 'An error occurred while processing adjustment')
 	}
 }
 

@@ -557,6 +557,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import type {
 	FeeHeadDTO,
 	FeeStructureDTO,
@@ -570,6 +571,7 @@ import { formatMinor, formatCivilDate } from '@/utils/format'
 import { Plus, RefreshCw, Lock, CheckCircle2 } from 'lucide-vue-next'
 
 const services = getServices()
+const toast = useToast()
 
 const currentTab = ref('heads')
 const loading = ref(false)
@@ -881,12 +883,13 @@ async function publishVersion(versionId: string) {
 	try {
 		const res = await services.fees.publishFeeStructureVersion(versionId)
 		if (res.success) {
+			toast.success('Fee structure version published successfully and locked for billing.')
 			await selectVersion(versionId)
 		} else {
-			alert(res.error?.message || 'Failed to publish version')
+			toast.error(res.error?.message || 'Failed to publish version')
 		}
 	} catch (e: any) {
-		alert(e.message || 'An error occurred')
+		toast.error(e.message || 'An error occurred while publishing version')
 	}
 }
 

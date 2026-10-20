@@ -332,6 +332,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import StudentSearchSelect from '@/components/StudentSearchSelect.vue'
 import type { PaymentDTO, StudentDTO } from '@/types/common'
 import { formatMinor, formatCivilDate } from '@/utils/format'
@@ -339,6 +340,7 @@ import { Plus, RefreshCw, Scale, Search } from 'lucide-vue-next'
 
 const router = useRouter()
 const services = getServices()
+const toast = useToast()
 
 const paymentsList = ref<PaymentDTO[]>([])
 const studentsList = ref<StudentDTO[]>([])
@@ -483,12 +485,13 @@ async function submitReversePayment() {
 		})
 		if (res.success) {
 			showReverseModal.value = false
+			toast.success('Payment successfully reversed and ledger updated.')
 			await loadPayments()
 		} else {
-			alert(res.error?.message || 'Failed to reverse payment')
+			toast.error(res.error?.message || 'Failed to reverse payment')
 		}
 	} catch (e: any) {
-		alert(e.message || 'An error occurred')
+		toast.error(e.message || 'An error occurred while reversing payment')
 	}
 }
 </script>
