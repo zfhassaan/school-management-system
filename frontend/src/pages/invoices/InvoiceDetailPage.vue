@@ -35,9 +35,9 @@
 			<div class="flex items-start justify-between border-b border-slate-100 pb-6">
 				<div>
 					<div class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-1">Official Student Bill</div>
-					<h1 class="text-2xl font-black text-slate-900">{{ schoolProfile?.name || 'School Management System' }}</h1>
-					<p class="text-xs text-slate-500 mt-0.5">{{ schoolProfile?.address?.line1 || 'Academic Campus & Financial Office' }}</p>
-					<p v-if="schoolProfile?.phone" class="text-xs text-slate-500">Tel: {{ schoolProfile.phone }}</p>
+					<h1 class="text-2xl font-black text-slate-900">{{ currentSchoolName }}</h1>
+					<p class="text-xs text-slate-500 mt-0.5">{{ currentSchoolAddress }}</p>
+					<p v-if="currentSchoolContact" class="text-xs text-slate-500">{{ currentSchoolContact }}</p>
 				</div>
 
 				<div class="text-right">
@@ -147,7 +147,7 @@
 			<div class="border-t border-slate-100 pt-6 text-[11px] text-slate-400 space-y-1">
 				<p class="font-semibold text-slate-600">Payment Instructions</p>
 				<p>Please present this invoice at the cashier's office or deposit directly into the institution's designated bank account. Ensure the Invoice Number ({{ detail.invoice.InvoiceNo }}) is quoted as the payment reference.</p>
-				<p class="pt-4 text-[10px] text-slate-300">Generated automatically by School Management System. This is a computer-generated statement.</p>
+				<p class="pt-4 text-[10px] text-slate-300">Generated automatically by {{ currentSchoolName }}. This is an official computerized fee bill.</p>
 			</div>
 		</div>
 
@@ -195,21 +195,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getServices } from '@/services/factory'
 import { useToast } from '@/composables/useToast'
-import type { InvoiceDetailDTO, SchoolProfileDTO } from '@/types/common'
+import { useAuthStore } from '@/stores/auth'
+import type { InvoiceDetailDTO } from '@/types/common'
 import { formatMinor, formatCivilDate } from '@/utils/format'
 import { ArrowLeft, Printer, Ban } from 'lucide-vue-next'
 
 const route = useRoute()
 const services = getServices()
 const toast = useToast()
+const authStore = useAuthStore()
 
 const detail = ref<InvoiceDetailDTO | null>(null)
-const schoolProfile = ref<SchoolProfileDTO | null>(null)
+const schoolProfile = ref<any>(null)
 const loading = ref(false)
+
+const currentSchoolName = computed(() => {
+	const p = schoolProfile.value
+	const a = authStore.school
+	return p?.name || p?.Name || a?.name || 'School Management System'
+})
+
+const currentSchoolAddress = computed(() => {
+	const p = schoolProfile.value
+	const a = authStore.school
+	const addr = p?.address || p?.Address || a?.address
+	if (addr) {
+		const parts = [addr.line1 || addr.Line1, addr.city || addr.City, addr.country || addr.Country].filter(Boolean)
+		if (parts.length > 0) return parts.join(', ')
+	}
+	return 'Academic Campus & Financial Office'
+})
+
+const currentSchoolContact = computed(() => {
+	const p = schoolProfile.value
+	const a = authStore.school
+	const phone = p?.phone || p?.Phone || a?.phone
+	const email = p?.email || p?.Email || a?.email
+	const parts = []
+	if (phone) parts.push(`Tel: ${phone}`)
+	if (email) parts.push(`Email: ${email}`)
+	return parts.join(' • ')
+})
 
 const showVoidModal = ref(false)
 const voidReason = ref('')

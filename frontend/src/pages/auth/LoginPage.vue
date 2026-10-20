@@ -4,10 +4,10 @@
 			<!-- Header -->
 			<div class="text-center mb-8">
 				<div class="w-12 h-12 bg-indigo-600 text-white rounded-xl mx-auto flex items-center justify-center font-bold text-lg mb-3 shadow-md shadow-indigo-200">
-					SMS
+					{{ schoolInitials }}
 				</div>
-				<h1 class="text-xl font-bold text-slate-900">Sign in to your School</h1>
-				<p class="text-xs text-slate-500 mt-1">Single-School Management System (Offline-Ready)</p>
+				<h1 class="text-xl font-bold text-slate-900">{{ authStore.school?.name || 'Sign in to your School' }}</h1>
+				<p class="text-xs text-slate-500 mt-1">{{ authStore.school?.code ? `${authStore.school.code} • Management Portal` : 'Single-School Management System (Offline-Ready)' }}</p>
 			</div>
 
 			<!-- Error Alert -->
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import DeveloperBadge from '@/components/DeveloperBadge.vue'
@@ -89,6 +89,23 @@ const username = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
+
+const schoolInitials = computed(() => {
+	const code = authStore.school?.code
+	if (code && code !== 'OFFLINE') {
+		return code.length <= 3 ? code.toUpperCase() : code.substring(0, 2).toUpperCase()
+	}
+	const name = authStore.school?.name || 'SMS'
+	const words = name.trim().split(/\s+/)
+	if (words.length >= 2) {
+		return (words[0][0] + words[1][0]).toUpperCase()
+	}
+	return name.substring(0, 2).toUpperCase()
+})
+
+onMounted(async () => {
+	await authStore.checkSetup()
+})
 
 async function handleLogin() {
 	errorMessage.value = ''

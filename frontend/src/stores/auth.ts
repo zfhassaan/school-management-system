@@ -29,8 +29,15 @@ export const useAuthStore = defineStore('auth', () => {
 		try {
 			const res = await services.auth.checkSetupStatus()
 			if (res.success && res.data) {
-				isInitialized.value = res.data.isInitialized
-				return res.data.isInitialized
+				const d = res.data as any
+				const initialized = !!(d.isInitialized ?? d.IsInitialized)
+				isInitialized.value = initialized
+				if ((d.schoolName || d.SchoolName) && !school.value?.name) {
+					updateSchoolDetails({
+						name: d.schoolName || d.SchoolName
+					})
+				}
+				return initialized
 			}
 			isInitialized.value = false
 			return false
@@ -103,13 +110,19 @@ export const useAuthStore = defineStore('auth', () => {
 		try {
 			const res = await services.school.getSchool()
 			if (res.success && res.data) {
+				const d = res.data as any
 				updateSchoolDetails({
-					id: res.data.id || (school.value?.id ?? ''),
-					name: res.data.name,
-					code: res.data.code,
-					timezone: res.data.timezone,
-					currencyCode: res.data.currencyCode,
-					currencyMinorUnits: res.data.currencyMinorUnits
+					id: d.id || d.ID || (school.value?.id ?? ''),
+					name: d.name || d.Name || school.value?.name || '',
+					legalName: d.legalName || d.LegalName || school.value?.legalName || '',
+					code: d.code || d.Code || school.value?.code || '',
+					timezone: d.timezone || d.Timezone || school.value?.timezone || '',
+					currencyCode: d.currencyCode || d.CurrencyCode || school.value?.currencyCode || 'PKR',
+					currencyMinorUnits: d.currencyMinorUnits ?? d.CurrencyMinorUnits ?? school.value?.currencyMinorUnits ?? 2,
+					phone: d.phone || d.Phone || school.value?.phone || '',
+					email: d.email || d.Email || school.value?.email || '',
+					website: d.website || d.Website || school.value?.website || '',
+					address: d.address || d.Address || school.value?.address
 				})
 			}
 		} catch (e) {

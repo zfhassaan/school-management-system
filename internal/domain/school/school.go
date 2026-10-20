@@ -17,22 +17,22 @@ type Address = shared.Address
 
 // School is the tenant root. The system manages exactly one school.
 type School struct {
-	ID                 shared.ID
-	Name               string
-	LegalName          string
-	Code               string
-	LogoDocumentID     *shared.ID
-	Address            Address
-	Phone              string
-	Email              string
-	Website            string
-	Timezone           string
-	CurrencyCode       string
-	CurrencyMinorUnits int
-	Locale             string
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
-	Revision           int64
+	ID                 shared.ID  `json:"id"`
+	Name               string     `json:"name"`
+	LegalName          string     `json:"legalName"`
+	Code               string     `json:"code"`
+	LogoDocumentID     *shared.ID `json:"logoDocumentId,omitempty"`
+	Address            Address    `json:"address"`
+	Phone              string     `json:"phone"`
+	Email              string     `json:"email"`
+	Website            string     `json:"website"`
+	Timezone           string     `json:"timezone"`
+	CurrencyCode       string     `json:"currencyCode"`
+	CurrencyMinorUnits int        `json:"currencyMinorUnits"`
+	Locale             string     `json:"locale"`
+	CreatedAt          time.Time  `json:"createdAt"`
+	UpdatedAt          time.Time  `json:"updatedAt"`
+	Revision           int64      `json:"revision"`
 }
 
 var (

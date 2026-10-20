@@ -302,7 +302,15 @@ const isCollapsed = ref(false)
 const showDeveloperModal = ref(false)
 
 const schoolInitials = computed(() => {
-	const name = authStore.school?.name || 'SMS'
+	const code = authStore.school?.code
+	if (code && code !== 'OFFLINE') {
+		return code.length <= 3 ? code.toUpperCase() : code.substring(0, 2).toUpperCase()
+	}
+	const name = authStore.school?.name || 'SM'
+	const words = name.trim().split(/\s+/)
+	if (words.length >= 2) {
+		return (words[0][0] + words[1][0]).toUpperCase()
+	}
 	return name.substring(0, 2).toUpperCase()
 })
 

@@ -4750,24 +4750,24 @@ export namespace roles {
 export namespace school {
 	
 	export class School {
-	    ID: string;
-	    Name: string;
-	    LegalName: string;
-	    Code: string;
-	    LogoDocumentID?: string;
-	    Address: shared.Address;
-	    Phone: string;
-	    Email: string;
-	    Website: string;
-	    Timezone: string;
-	    CurrencyCode: string;
-	    CurrencyMinorUnits: number;
-	    Locale: string;
+	    id: string;
+	    name: string;
+	    legalName: string;
+	    code: string;
+	    logoDocumentId?: string;
+	    address: shared.Address;
+	    phone: string;
+	    email: string;
+	    website: string;
+	    timezone: string;
+	    currencyCode: string;
+	    currencyMinorUnits: number;
+	    locale: string;
 	    // Go type: time
-	    CreatedAt: any;
+	    createdAt: any;
 	    // Go type: time
-	    UpdatedAt: any;
-	    Revision: number;
+	    updatedAt: any;
+	    revision: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new School(source);
@@ -4775,22 +4775,22 @@ export namespace school {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.ID = source["ID"];
-	        this.Name = source["Name"];
-	        this.LegalName = source["LegalName"];
-	        this.Code = source["Code"];
-	        this.LogoDocumentID = source["LogoDocumentID"];
-	        this.Address = this.convertValues(source["Address"], shared.Address);
-	        this.Phone = source["Phone"];
-	        this.Email = source["Email"];
-	        this.Website = source["Website"];
-	        this.Timezone = source["Timezone"];
-	        this.CurrencyCode = source["CurrencyCode"];
-	        this.CurrencyMinorUnits = source["CurrencyMinorUnits"];
-	        this.Locale = source["Locale"];
-	        this.CreatedAt = this.convertValues(source["CreatedAt"], null);
-	        this.UpdatedAt = this.convertValues(source["UpdatedAt"], null);
-	        this.Revision = source["Revision"];
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.legalName = source["legalName"];
+	        this.code = source["code"];
+	        this.logoDocumentId = source["logoDocumentId"];
+	        this.address = this.convertValues(source["address"], shared.Address);
+	        this.phone = source["phone"];
+	        this.email = source["email"];
+	        this.website = source["website"];
+	        this.timezone = source["timezone"];
+	        this.currencyCode = source["currencyCode"];
+	        this.currencyMinorUnits = source["currencyMinorUnits"];
+	        this.locale = source["locale"];
+	        this.createdAt = this.convertValues(source["createdAt"], null);
+	        this.updatedAt = this.convertValues(source["updatedAt"], null);
+	        this.revision = source["revision"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

@@ -293,7 +293,21 @@ onMounted(async () => {
 			services.school.getSettings()
 		])
 		if (pRes.success && pRes.data) {
-			Object.assign(profile, pRes.data)
+			const d = pRes.data as any
+			profile.name = d.name || d.Name || ''
+			profile.legalName = d.legalName || d.LegalName || ''
+			profile.code = d.code || d.Code || ''
+			profile.timezone = d.timezone || d.Timezone || 'Asia/Karachi'
+			profile.phone = d.phone || d.Phone || ''
+			profile.email = d.email || d.Email || ''
+			profile.website = d.website || d.Website || ''
+			profile.locale = d.locale || d.Locale || 'en'
+			const addr = d.address || d.Address || {}
+			profile.address = {
+				line1: addr.line1 || addr.Line1 || '',
+				city: addr.city || addr.City || '',
+				country: addr.country || addr.Country || ''
+			}
 		}
 		if (sRes.success && sRes.data) {
 			Object.assign(settings, sRes.data)
@@ -313,8 +327,13 @@ async function saveAll() {
 		if (pRes.success && sRes.success) {
 			authStore.updateSchoolDetails({
 				name: profile.name,
+				legalName: profile.legalName,
 				code: profile.code,
-				timezone: profile.timezone
+				timezone: profile.timezone,
+				phone: profile.phone,
+				email: profile.email,
+				website: profile.website,
+				address: profile.address
 			})
 			await authStore.refreshSchool()
 			toast.success('School profile and operational settings saved successfully!')

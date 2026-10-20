@@ -35,9 +35,9 @@
 			<div class="flex items-start justify-between border-b border-slate-100 pb-5">
 				<div>
 					<div class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 mb-0.5">Fee Collection Receipt</div>
-					<h1 class="text-xl font-black text-slate-900">{{ schoolProfile?.name || 'School Management System' }}</h1>
-					<p class="text-xs text-slate-500">{{ schoolProfile?.address?.line1 || 'Academic Bursar & Cashier Office' }}</p>
-					<p v-if="schoolProfile?.phone" class="text-xs text-slate-500">Tel: {{ schoolProfile.phone }}</p>
+					<h1 class="text-xl font-black text-slate-900">{{ currentSchoolName }}</h1>
+					<p class="text-xs text-slate-500">{{ currentSchoolAddress }}</p>
+					<p v-if="currentSchoolContact" class="text-xs text-slate-500">{{ currentSchoolContact }}</p>
 				</div>
 
 				<div class="text-right">
@@ -139,7 +139,7 @@
 				<div class="flex justify-between items-end text-xs text-slate-500">
 					<div>
 						<p class="text-[10px] text-slate-400">Thank you for your payment.</p>
-						<p class="text-[10px] text-slate-300 mt-1">Official computerized receipt issued by School Management System.</p>
+						<p class="text-[10px] text-slate-300 mt-1">Official computerized receipt issued by {{ currentSchoolName }}.</p>
 					</div>
 					<div class="text-center w-48">
 						<div class="border-b border-slate-300 pb-1 mb-1 font-mono text-[11px] text-slate-600">
@@ -195,21 +195,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getServices } from '@/services/factory'
 import { useToast } from '@/composables/useToast'
-import type { PaymentDetailDTO, SchoolProfileDTO } from '@/types/common'
+import { useAuthStore } from '@/stores/auth'
+import type { PaymentDetailDTO } from '@/types/common'
 import { formatMinor, formatCivilDate } from '@/utils/format'
 import { ArrowLeft, Printer, Ban } from 'lucide-vue-next'
 
 const route = useRoute()
 const services = getServices()
 const toast = useToast()
+const authStore = useAuthStore()
 
 const detail = ref<PaymentDetailDTO | null>(null)
-const schoolProfile = ref<SchoolProfileDTO | null>(null)
+const schoolProfile = ref<any>(null)
 const loading = ref(false)
+
+const currentSchoolName = computed(() => {
+	const p = schoolProfile.value
+	const a = authStore.school
+	return p?.name || p?.Name || a?.name || 'School Management System'
+})
+
+const currentSchoolAddress = computed(() => {
+	const p = schoolProfile.value
+	const a = authStore.school
+	const addr = p?.address || p?.Address || a?.address
+	if (addr) {
+		const parts = [addr.line1 || addr.Line1, addr.city || addr.City, addr.country || addr.Country].filter(Boolean)
+		if (parts.length > 0) return parts.join(', ')
+	}
+	return 'Academic Bursar & Cashier Office'
+})
+
+const currentSchoolContact = computed(() => {
+	const p = schoolProfile.value
+	const a = authStore.school
+	const phone = p?.phone || p?.Phone || a?.phone
+	const email = p?.email || p?.Email || a?.email
+	const parts = []
+	if (phone) parts.push(`Tel: ${phone}`)
+	if (email) parts.push(`Email: ${email}`)
+	return parts.join(' • ')
+})
 
 const showReverseModal = ref(false)
 const reverseReason = ref('')

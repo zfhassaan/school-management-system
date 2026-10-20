@@ -22,11 +22,23 @@ export interface UserDTO {
 export interface SchoolDTO {
 	id: string
 	name: string
+	legalName?: string
 	code: string
 	timezone: string
 	currencyCode: string
 	currencyMinorUnits: number
-	dateFormat: string
+	dateFormat?: string
+	phone?: string
+	email?: string
+	website?: string
+	address?: {
+		line1?: string
+		line2?: string
+		city?: string
+		region?: string
+		postalCode?: string
+		country?: string
+	}
 }
 
 export interface LoginResult {
