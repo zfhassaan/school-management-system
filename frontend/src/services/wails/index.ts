@@ -40,10 +40,34 @@ declare global {
 	}
 }
 
+function findService(serviceName: string) {
+	const go = (window as any)?.go
+	if (!go) return null
+	if (go.wails && go.wails[serviceName]) return go.wails[serviceName]
+	if (go.main && go.main[serviceName]) return go.main[serviceName]
+	for (const key of Object.keys(go)) {
+		if (go[key] && go[key][serviceName]) return go[key][serviceName]
+	}
+	return null
+}
+
+async function getBindingAsync(serviceName: string, maxWaitMs = 1500) {
+	let svc = findService(serviceName)
+	if (svc) return svc
+
+	const start = Date.now()
+	while (Date.now() - start < maxWaitMs) {
+		await new Promise(r => setTimeout(r, 20))
+		svc = findService(serviceName)
+		if (svc) return svc
+	}
+	return null
+}
+
 function getBinding(serviceName: string) {
-	const svc = (window.go?.wails as any)?.[serviceName]
+	const svc = findService(serviceName)
 	if (!svc) {
-		console.warn(`[Wails] Service ${serviceName} is not available on window.go.wails`)
+		console.warn(`[Wails] Service ${serviceName} is not available on window.go`)
 		return null
 	}
 	return svc
@@ -51,17 +75,17 @@ function getBinding(serviceName: string) {
 
 export class WailsAuthService implements IAuthService {
 	async checkSetupStatus() {
-		const svc = getBinding('AuthService')
+		const svc = (await getBindingAsync('AuthService')) || getBinding('AuthService')
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
 		return await svc.CheckSetupStatus()
 	}
 	async firstRunSetup(input: any) {
-		const svc = getBinding('AuthService')
+		const svc = (await getBindingAsync('AuthService')) || getBinding('AuthService')
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
 		return await svc.FirstRunSetup(input)
 	}
 	async login(credentials: any) {
-		const svc = getBinding('AuthService')
+		const svc = (await getBindingAsync('AuthService')) || getBinding('AuthService')
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
 		return await svc.Login(credentials)
 	}
