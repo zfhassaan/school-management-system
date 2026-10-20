@@ -158,17 +158,13 @@
 			<div class="col-span-4 bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
 				<h3 class="font-bold text-sm text-slate-900">Select Student</h3>
 				<div>
-					<label class="block text-xs font-medium text-slate-700 mb-1">Student *</label>
-					<select
+					<StudentSearchSelect
 						v-model="selectedCreditStudentId"
-						@change="loadCreditBalance"
-						class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-					>
-						<option value="" disabled>Choose student...</option>
-						<option v-for="s in studentsList" :key="s.ID" :value="s.ID">
-							{{ s.FirstName }} {{ s.LastName }} ({{ s.AdmissionNo }})
-						</option>
-					</select>
+						:students="studentsList"
+						label="Student"
+						placeholder="Search student by name or ID..."
+						@select="loadCreditBalance"
+					/>
 				</div>
 
 				<div v-if="creditInfo" class="pt-4 border-t border-slate-100 space-y-2">
@@ -240,18 +236,14 @@
 					</div>
 
 					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Select Student *</label>
-						<select
+						<StudentSearchSelect
 							v-model="adjForm.studentId"
-							@change="loadStudentInvoices"
+							:students="studentsList"
+							label="Select Student"
 							required
-							class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-						>
-							<option value="" disabled>Select Student</option>
-							<option v-for="s in studentsList" :key="s.ID" :value="s.ID">
-								{{ s.FirstName }} {{ s.LastName }} ({{ s.AdmissionNo }})
-							</option>
-						</select>
+							placeholder="Search student by name or ID..."
+							@select="loadStudentInvoices"
+						/>
 					</div>
 
 					<div>
@@ -282,7 +274,7 @@
 							</select>
 						</div>
 						<div>
-							<label class="block text-xs font-medium text-slate-700 mb-1">Amount ($) *</label>
+							<label class="block text-xs font-medium text-slate-700 mb-1">Amount (PKR) *</label>
 							<input
 								v-model.number="adjForm.amountDecimal"
 								type="number"
@@ -367,6 +359,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
+import StudentSearchSelect from '@/components/StudentSearchSelect.vue'
 import type {
 	FinancialAdjustmentDTO,
 	StudentDTO,

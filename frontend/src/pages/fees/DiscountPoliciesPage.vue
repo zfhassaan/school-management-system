@@ -166,20 +166,14 @@
 						{{ assignSuccess }}
 					</div>
 
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Select Student *</label>
-						<select
-							v-model="assignForm.studentId"
-							@change="loadStudentDiscounts"
-							required
-							class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-						>
-							<option value="" disabled>Select Student</option>
-							<option v-for="s in studentsList" :key="s.ID" :value="s.ID">
-								{{ s.FirstName }} {{ s.LastName }} ({{ s.AdmissionNo }})
-							</option>
-						</select>
-					</div>
+					<StudentSearchSelect
+						v-model="assignForm.studentId"
+						:students="studentsList"
+						label="Select Student"
+						required
+						placeholder="Search student by name or ID (e.g. Diana, ADM-2026-0004)..."
+						@select="loadStudentDiscounts"
+					/>
 
 					<div>
 						<label class="block text-xs font-medium text-slate-700 mb-1">Academic Year *</label>
@@ -451,6 +445,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
+import StudentSearchSelect from '@/components/StudentSearchSelect.vue'
 import type {
 	DiscountPolicyDTO,
 	StudentDiscountDTO,

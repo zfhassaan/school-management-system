@@ -25,7 +25,17 @@
 
 		<!-- Filters & Search Bar -->
 		<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-wrap gap-3 items-center justify-between">
-			<div class="flex items-center gap-3 flex-wrap">
+			<div class="flex items-center gap-3 flex-wrap flex-1">
+				<div class="relative min-w-[220px]">
+					<Search class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+					<input
+						v-model="searchFilter"
+						type="text"
+						placeholder="Search by student, ID, or receipt #..."
+						class="w-full pl-8.5 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+					/>
+				</div>
+
 				<div>
 					<label class="text-[11px] font-semibold text-slate-600 mr-2">Method:</label>
 					<select
@@ -84,7 +94,12 @@
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-slate-100 text-slate-700">
-					<tr v-for="p in paymentsList" :key="p.ID" class="hover:bg-slate-50/50">
+					<tr v-if="filteredPayments.length === 0">
+						<td colspan="9" class="py-8 text-center text-slate-400">
+							{{ paymentsList.length === 0 ? 'No payments recorded yet.' : 'No payments matching search criteria.' }}
+						</td>
+					</tr>
+					<tr v-for="p in filteredPayments" :key="p.ID" class="hover:bg-slate-50/50">
 						<td class="py-3 px-4 font-mono font-bold text-slate-900">
 							<router-link :to="`/payments/${p.ID}`" class="hover:text-indigo-600 hover:underline">
 								{{ p.ReceiptNo }}
@@ -158,28 +173,23 @@
 						{{ paymentError }}
 					</div>
 
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Select Student *</label>
-						<select
-							v-model="paymentForm.studentId"
-							required
-							class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-						>
-							<option value="" disabled>Select Student</option>
-							<option v-for="s in studentsList" :key="s.ID" :value="s.ID">
-								{{ s.FirstName }} {{ s.LastName }} ({{ s.AdmissionNo }})
-							</option>
-						</select>
-					</div>
+					<StudentSearchSelect
+						v-model="paymentForm.studentId"
+						:students="studentsList"
+						label="Select Student"
+						required
+						placeholder="Type student name or ID (e.g. Diana, ADM-2026-0004)..."
+						@select="onStudentSelected"
+					/>
 
 					<div class="grid grid-cols-2 gap-3">
 						<div>
-							<label class="block text-xs font-medium text-slate-700 mb-1">Amount ($) *</label>
+							<label class="block text-xs font-medium text-slate-700 mb-1">Amount (PKR) *</label>
 							<input
 								v-model.number="paymentForm.amountDecimal"
 								type="number"
-								min="0.01"
-								step="0.01"
+								min="1"
+								step="1"
 								required
 								class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-bold"
 							/>
@@ -319,12 +329,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getServices } from '@/services/factory'
+import StudentSearchSelect from '@/components/StudentSearchSelect.vue'
 import type { PaymentDTO, StudentDTO } from '@/types/common'
 import { formatMinor, formatCivilDate } from '@/utils/format'
-import { Plus, RefreshCw, Scale } from 'lucide-vue-next'
+import { Plus, RefreshCw, Scale, Search } from 'lucide-vue-next'
 
 const router = useRouter()
 const services = getServices()
@@ -335,6 +346,25 @@ const loading = ref(false)
 
 const methodFilter = ref('')
 const statusFilter = ref('')
+const searchFilter = ref('')
+
+const filteredPayments = computed(() => {
+	const q = searchFilter.value.trim().toLowerCase()
+	if (!q) return paymentsList.value
+	return paymentsList.value.filter(p => {
+		const name = (p.StudentFirstName ? `${p.StudentFirstName} ${p.StudentLastName || ''}` : p.PayerName || '').toLowerCase()
+		const rcp = (p.ReceiptNo || '').toLowerCase()
+		const ref = (p.ReferenceNo || '').toLowerCase()
+		const adm = (p.AdmissionNo || '').toLowerCase()
+		return name.includes(q) || rcp.includes(q) || ref.includes(q) || adm.includes(q)
+	})
+})
+
+function onStudentSelected(s: StudentDTO | null) {
+	if (s && !paymentForm.value.payerName) {
+		paymentForm.value.payerName = `${s.FirstName} ${s.LastName}'s Guardian`
+	}
+}
 
 // Payment Modal
 const showPaymentModal = ref(false)
