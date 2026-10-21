@@ -5,6 +5,7 @@ import (
 	schoolQuery "school-management/internal/application/queries/school"
 	"school-management/internal/application/services/reqctx"
 	"school-management/internal/domain/school"
+	"school-management/internal/platform"
 	"school-management/internal/transport/dto"
 )
 
@@ -62,6 +63,14 @@ func (s *SchoolService) UpdateSettings(in schoolCmd.UpdateSchoolSettingsInput) d
 	if err != nil {
 		code, msg, fields := MapError(err)
 		return dto.Fail[bool](code, msg, fields, reqctx.CorrelationID(ctx))
+	}
+	return dto.Ok(true)
+}
+
+func (s *SchoolService) UpdateTaskbarIcon(base64Data string) dto.Response[bool] {
+	err := platform.SetWindowIconFromBase64(base64Data)
+	if err != nil {
+		return dto.Fail[bool]("internal", err.Error(), nil, "")
 	}
 	return dto.Ok(true)
 }

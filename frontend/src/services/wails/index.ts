@@ -195,6 +195,11 @@ export class WailsSchoolService implements ISchoolService {
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
 		return await svc.UpdateSettings(input)
 	}
+	async updateTaskbarIcon(base64Data: string) {
+		const svc = getBinding('SchoolService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.UpdateTaskbarIcon(base64Data)
+	}
 }
 
 export class WailsAuditService implements IAuditService {

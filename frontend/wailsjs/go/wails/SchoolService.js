@@ -17,3 +17,7 @@ export function UpdateSchoolProfile(arg1) {
 export function UpdateSettings(arg1) {
   return window['go']['wails']['SchoolService']['UpdateSettings'](arg1);
 }
+
+export function UpdateTaskbarIcon(arg1) {
+  return window['go']['wails']['SchoolService']['UpdateTaskbarIcon'](arg1);
+}

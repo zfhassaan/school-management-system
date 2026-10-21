@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getServices } from '@/services/factory'
 import type { UserDTO, SchoolDTO, FirstRunSetupInput } from '@/types/common'
+import { updateFavicon, resetFavicon } from '@/utils/icon'
 
 export const useAuthStore = defineStore('auth', () => {
 	const services = getServices()
@@ -14,13 +15,30 @@ export const useAuthStore = defineStore('auth', () => {
 	const token = ref<string | null>(null)
 	const isLoading = ref<boolean>(false)
 
-	function setSchoolLogo(logoData: string | null) {
+	// Sync taskbar and favicon on startup if logo exists
+	if (typeof window !== 'undefined' && schoolLogo.value) {
+		updateFavicon(schoolLogo.value)
+		setTimeout(() => {
+			if (schoolLogo.value) {
+				services.school.updateTaskbarIcon(schoolLogo.value).catch(() => {})
+			}
+		}, 1000)
+	}
+
+	async function setSchoolLogo(logoData: string | null) {
 		schoolLogo.value = logoData
 		if (typeof window !== 'undefined') {
 			if (logoData) {
 				localStorage.setItem('sms_school_logo', logoData)
+				updateFavicon(logoData)
+				try {
+					await services.school.updateTaskbarIcon(logoData)
+				} catch (e) {
+					console.warn('Failed to update taskbar icon', e)
+				}
 			} else {
 				localStorage.removeItem('sms_school_logo')
+				resetFavicon()
 			}
 		}
 	}

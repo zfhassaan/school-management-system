@@ -69,3 +69,4 @@ func TestVaultManagerEncryptionRoundTrip(t *testing.T) {
 		t.Fatalf("exported data does not match original!")
 	}
 }
+

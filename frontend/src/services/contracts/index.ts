@@ -95,6 +95,7 @@ export interface ISchoolService {
 	updateSchoolProfile(input: any): Promise<ResponseEnvelope<boolean>>
 	getSettings(): Promise<ResponseEnvelope<SchoolSettingsDTO>>
 	updateSettings(input: any): Promise<ResponseEnvelope<boolean>>
+	updateTaskbarIcon(base64Data: string): Promise<ResponseEnvelope<boolean>>
 }
 
 export interface IAuditService {

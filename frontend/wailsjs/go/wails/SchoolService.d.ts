@@ -10,3 +10,5 @@ export function GetSettings():Promise<dto.Response_school_management_internal_do
 export function UpdateSchoolProfile(arg1:school.UpdateSchoolProfileInput):Promise<dto.Response_bool_>;
 
 export function UpdateSettings(arg1:school.UpdateSchoolSettingsInput):Promise<dto.Response_bool_>;
+
+export function UpdateTaskbarIcon(arg1:string):Promise<dto.Response_bool_>;

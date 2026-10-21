@@ -93,6 +93,9 @@ export class HttpSchoolService implements ISchoolService {
 	async updateSettings(input: any) {
 		return fetch('/api/v1/school/settings', { method: 'PUT', body: JSON.stringify(input) }).then(r => r.json())
 	}
+	async updateTaskbarIcon(base64Data: string) {
+		return fetch('/api/v1/school/taskbar-icon', { method: 'POST', body: JSON.stringify({ icon: base64Data }) }).then(r => r.json())
+	}
 }
 
 export class HttpAuditService implements IAuditService {
