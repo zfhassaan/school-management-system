@@ -113,15 +113,16 @@
 								/>
 							</div>
 							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Password * (Min 10 chars)</label>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Password * (Min 10 chars, letters &amp; digits)</label>
 								<input
 									v-model="form.adminPassword"
 									type="password"
 									required
 									minlength="10"
-									placeholder="••••••••••••"
+									placeholder="e.g. AdminPass2026!"
 									class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-hidden border-slate-300"
 								/>
+								<p class="text-[10px] text-slate-500 mt-1">Must contain letters and digits, and not equal username.</p>
 							</div>
 						</div>
 					</div>
@@ -214,6 +215,23 @@ const isCopied = ref(false)
 
 async function handleSetup() {
 	errorMessage.value = ''
+
+	// Client-side pre-validation
+	if (form.adminPassword.length < 10) {
+		errorMessage.value = 'Password must be at least 10 characters long.'
+		return
+	}
+	const hasLetter = /[a-zA-Z]/.test(form.adminPassword)
+	const hasDigit = /[0-9]/.test(form.adminPassword)
+	if (!hasLetter || !hasDigit) {
+		errorMessage.value = 'Password must contain both letters and digits (e.g. AdminPass2026).'
+		return
+	}
+	if (form.adminPassword.toLowerCase() === form.adminUsername.toLowerCase().trim()) {
+		errorMessage.value = 'Password cannot be the same as the username.'
+		return
+	}
+
 	isLoading.value = true
 	try {
 		const res = await authStore.firstRunSetup(form)

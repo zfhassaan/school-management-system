@@ -91,7 +91,7 @@ export const useAuthStore = defineStore('auth', () => {
 			}
 			return {
 				success: false,
-				error: res.error?.message || 'Login failed'
+				error: formatApiError(res.error, 'Login failed')
 			}
 		} finally {
 			isLoading.value = false
@@ -111,11 +111,23 @@ export const useAuthStore = defineStore('auth', () => {
 			}
 			return {
 				success: false,
-				error: res.error?.message || 'Setup failed'
+				error: formatApiError(res.error, 'Setup failed')
 			}
 		} finally {
 			isLoading.value = false
 		}
+	}
+
+	function formatApiError(err: any, fallback: string): string {
+		if (!err) return fallback
+		let msg = err.message || fallback
+		if (err.fields && Object.keys(err.fields).length > 0) {
+			const details = Object.entries(err.fields)
+				.map(([f, m]) => `${f}: ${m}`)
+				.join(', ')
+			return `${msg} (${details})`
+		}
+		return msg
 	}
 
 	async function logout() {
