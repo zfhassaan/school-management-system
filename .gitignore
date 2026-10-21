@@ -47,7 +47,8 @@ vendor/
 
 # Node & Frontend
 node_modules/
-frontend/dist/
+frontend/dist/*
+!frontend/dist/.gitkeep
 .vite/
 
 # OS and Editor files

@@ -45,6 +45,13 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Prepare embed placeholders
+        run: |
+          mkdir -p frontend/dist
+          touch frontend/dist/index.html
+          mkdir -p cmd/installer
+          touch cmd/installer/school-management.exe
+
       - name: Go Vet
         run: go vet ./...
 
