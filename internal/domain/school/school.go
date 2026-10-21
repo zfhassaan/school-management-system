@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	_ "time/tzdata"
 	"unicode/utf8"
 
 	"school-management/internal/domain/shared"
