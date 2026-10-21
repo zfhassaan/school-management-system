@@ -2974,6 +2974,40 @@ export namespace dto {
 		    return a;
 		}
 	}
+	export class Response_school_management_internal_transport_wails_DatabaseStatusDTO_ {
+	    success: boolean;
+	    data?: wails.DatabaseStatusDTO;
+	    error?: ErrorDTO;
+	
+	    static createFrom(source: any = {}) {
+	        return new Response_school_management_internal_transport_wails_DatabaseStatusDTO_(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.data = this.convertValues(source["data"], wails.DatabaseStatusDTO);
+	        this.error = this.convertValues(source["error"], ErrorDTO);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Response_string_ {
 	    success: boolean;
 	    data?: string;
@@ -5482,6 +5516,30 @@ export namespace users {
 
 export namespace wails {
 	
+	export class DatabaseStatusDTO {
+	    isEncrypted: boolean;
+	    encryptionAlgorithm: string;
+	    keyDerivation: string;
+	    vaultPath: string;
+	    workingPath: string;
+	    vaultSizeBytes: number;
+	    lastEncryptedAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new DatabaseStatusDTO(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.isEncrypted = source["isEncrypted"];
+	        this.encryptionAlgorithm = source["encryptionAlgorithm"];
+	        this.keyDerivation = source["keyDerivation"];
+	        this.vaultPath = source["vaultPath"];
+	        this.workingPath = source["workingPath"];
+	        this.vaultSizeBytes = source["vaultSizeBytes"];
+	        this.lastEncryptedAt = source["lastEncryptedAt"];
+	    }
+	}
 	export class DocumentContentResponse {
 	    document?: documents.Document;
 	    dataBase64: string;
@@ -5513,6 +5571,34 @@ export namespace wails {
 		    }
 		    return a;
 		}
+	}
+	export class ExportDatabaseInput {
+	    adminPassword: string;
+	    customSavePath: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ExportDatabaseInput(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.adminPassword = source["adminPassword"];
+	        this.customSavePath = source["customSavePath"];
+	    }
+	}
+	export class RestoreDatabaseInput {
+	    adminPassword: string;
+	    backupFilePath: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new RestoreDatabaseInput(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.adminPassword = source["adminPassword"];
+	        this.backupFilePath = source["backupFilePath"];
+	    }
 	}
 	export class UploadDocumentRequest {
 	    studentId?: string;

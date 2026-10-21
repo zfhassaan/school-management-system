@@ -13,6 +13,7 @@ import type {
 	IFeeService,
 	IInvoiceService,
 	IPaymentService,
+	IBackupService,
 	AppServices
 } from '@/services/contracts'
 
@@ -35,6 +36,7 @@ declare global {
 				FeeService?: any
 				InvoiceService?: any
 				PaymentService?: any
+				BackupService?: any
 			}
 		}
 	}
@@ -605,6 +607,38 @@ export class WailsPaymentService implements IPaymentService {
 	}
 }
 
+class WailsBackupService implements IBackupService {
+	async getDatabaseStatus() {
+		const svc = getBinding('BackupService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.GetDatabaseStatus()
+	}
+	async exportDecryptedDatabase(input: { adminPassword?: string; customSavePath?: string }) {
+		const svc = getBinding('BackupService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ExportDecryptedDatabase({
+			adminPassword: input.adminPassword || '',
+			customSavePath: input.customSavePath || ''
+		})
+	}
+	async exportEncryptedDatabase(input: { adminPassword?: string; customSavePath?: string }) {
+		const svc = getBinding('BackupService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.ExportEncryptedDatabase({
+			adminPassword: input.adminPassword || '',
+			customSavePath: input.customSavePath || ''
+		})
+	}
+	async restoreDatabase(input: { adminPassword?: string; backupFilePath: string }) {
+		const svc = getBinding('BackupService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.RestoreDatabase({
+			adminPassword: input.adminPassword || '',
+			backupFilePath: input.backupFilePath
+		})
+	}
+}
+
 export function createWailsServices(): AppServices {
 	return {
 		auth: new WailsAuthService(),
@@ -620,7 +654,8 @@ export function createWailsServices(): AppServices {
 		documents: new WailsDocumentService(),
 		fees: new WailsFeeService(),
 		invoices: new WailsInvoiceService(),
-		payments: new WailsPaymentService()
+		payments: new WailsPaymentService(),
+		backup: new WailsBackupService()
 	}
 }
 

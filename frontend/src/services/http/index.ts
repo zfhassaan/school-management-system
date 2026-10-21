@@ -13,6 +13,7 @@ import type {
 	IFeeService,
 	IInvoiceService,
 	IPaymentService,
+	IBackupService,
 	AppServices
 } from '@/services/contracts'
 
@@ -231,6 +232,13 @@ export class HttpPaymentService implements IPaymentService {
 	async getFinancialAdjustment(id: string) { return fetch(`/api/v1/adjustments/${id}`).then(r => r.json()) }
 }
 
+class HttpBackupService implements IBackupService {
+	async getDatabaseStatus() { return fetch('/api/v1/backup/status').then(r => r.json()) }
+	async exportDecryptedDatabase(input: any) { return fetch('/api/v1/backup/export-decrypted', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async exportEncryptedDatabase(input: any) { return fetch('/api/v1/backup/export-encrypted', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+	async restoreDatabase(input: any) { return fetch('/api/v1/backup/restore', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+}
+
 export function createHttpServices(): AppServices {
 	return {
 		auth: new HttpAuthService(),
@@ -246,6 +254,7 @@ export function createHttpServices(): AppServices {
 		documents: new HttpDocumentService(),
 		fees: new HttpFeeService(),
 		invoices: new HttpInvoiceService(),
-		payments: new HttpPaymentService()
+		payments: new HttpPaymentService(),
+		backup: new HttpBackupService()
 	}
 }

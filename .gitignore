@@ -11,6 +11,7 @@ frontend/package.json.md5
 
 # Test artifacts and databases
 *.db
+*.db.enc
 *.db-journal
 *.db-wal
 *.db-shm

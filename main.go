@@ -126,6 +126,7 @@ func main() {
 	feeSvc := wailsTransport.NewFeeService(sessionMgr, feeCmdHandler, feeQueries)
 	invoiceSvc := wailsTransport.NewInvoiceService(sessionMgr, feeCmdHandler, feeQueries)
 	paymentSvc := wailsTransport.NewPaymentService(sessionMgr, paymentCmdHandler, paymentQueries)
+	backupSvc := wailsTransport.NewBackupService(sessionMgr, db, uow, hasher)
 
 	err = wails.Run(&options.App{
 		Title:             "School Management System",
@@ -157,6 +158,7 @@ func main() {
 			feeSvc,
 			invoiceSvc,
 			paymentSvc,
+			backupSvc,
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent: false,

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -44,8 +45,25 @@ type StorageConfig struct {
 	BackupsDir   string `yaml:"backups_dir"`
 }
 
-// DefaultDataDir returns the OS-approved local app data directory for Windows or other OSes.
+// DefaultDataDir returns the installation directory (where the application executable is located)
+// so the database and runtime data live in the same installed folder, or falls back to
+// the local app data directory if the executable folder is read-only.
 func DefaultDataDir() (string, error) {
+	// First check if the executable directory can be used (installed application folder)
+	if exePath, err := os.Executable(); err == nil {
+		exeDir := filepath.Dir(exePath)
+		// Ignore temporary directories created by go test / go run
+		lowerDir := strings.ToLower(exeDir)
+		if !strings.Contains(lowerDir, "temp") && !strings.Contains(lowerDir, "tmp") {
+			// Verify write permission
+			testFile := filepath.Join(exeDir, ".write_test")
+			if err := os.WriteFile(testFile, []byte("ok"), 0o600); err == nil {
+				_ = os.Remove(testFile)
+				return exeDir, nil
+			}
+		}
+	}
+
 	localAppData := os.Getenv("LOCALAPPDATA")
 	if localAppData == "" {
 		home, err := os.UserHomeDir()

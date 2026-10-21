@@ -299,6 +299,23 @@ export interface IPaymentService {
 	getFinancialAdjustment(id: string): Promise<ResponseEnvelope<FinancialAdjustmentDTO>>
 }
 
+export interface DatabaseStatusDTO {
+	isEncrypted: boolean
+	encryptionAlgorithm: string
+	keyDerivation: string
+	vaultPath: string
+	workingPath: string
+	vaultSizeBytes: number
+	lastEncryptedAt: string
+}
+
+export interface IBackupService {
+	getDatabaseStatus(): Promise<ResponseEnvelope<DatabaseStatusDTO>>
+	exportDecryptedDatabase(input: { adminPassword?: string; customSavePath?: string }): Promise<ResponseEnvelope<string>>
+	exportEncryptedDatabase(input: { adminPassword?: string; customSavePath?: string }): Promise<ResponseEnvelope<string>>
+	restoreDatabase(input: { adminPassword?: string; backupFilePath: string }): Promise<ResponseEnvelope<boolean>>
+}
+
 export interface AppServices {
 	auth: IAuthService
 	users: IUserService
@@ -314,5 +331,6 @@ export interface AppServices {
 	fees: IFeeService
 	invoices: IInvoiceService
 	payments: IPaymentService
+	backup: IBackupService
 }
 

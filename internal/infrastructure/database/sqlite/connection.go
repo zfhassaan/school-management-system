@@ -22,9 +22,16 @@ type DB struct {
 	readerDB *sql.DB
 	logger   *slog.Logger
 	deviceID shared.ID
+	vault    *VaultManager
 }
 
 func Open(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*DB, error) {
+	// Initialize and prepare AES-256-GCM encrypted database vault
+	vault := NewVaultManager(cfg.Database.Path)
+	if err := vault.PrepareWorkingDatabase(); err != nil {
+		return nil, fmt.Errorf("failed to prepare encrypted database vault: %w", err)
+	}
+
 	// Build Writer DSN with IMMEDIATE lock and WAL pragmas
 	// Note: ModernC sqlite driver accepts parameters formatted as url query params
 	writerParams := url.Values{}
@@ -84,6 +91,7 @@ func Open(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*DB, er
 		writerDB: writerDB,
 		readerDB: readerDB,
 		logger:   logger,
+		vault:    vault,
 	}
 
 	// Run migrations
@@ -96,6 +104,11 @@ func Open(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*DB, er
 	if err := db.initDeviceAndCatalog(ctx, cfg.App); err != nil {
 		_ = db.Close()
 		return nil, fmt.Errorf("failed to init device and permission catalog: %w", err)
+	}
+
+	// Initial sync to encrypted vault file
+	if err := db.CheckpointAndSync(ctx); err != nil {
+		db.logger.Warn("initial encrypted vault sync failed", "error", err)
 	}
 
 	return db, nil
@@ -216,13 +229,39 @@ func (db *DB) DeviceID() shared.ID {
 	return db.deviceID
 }
 
+func (db *DB) Vault() *VaultManager {
+	return db.vault
+}
+
+// CheckpointAndSync flushes SQLite WAL to working database file and updates the encrypted vault.
+func (db *DB) CheckpointAndSync(ctx context.Context) error {
+	if db.writerDB != nil {
+		if _, err := db.writerDB.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE)"); err != nil {
+			db.logger.Warn("wal checkpoint failed", "error", err)
+		}
+	}
+	if db.vault != nil {
+		return db.vault.SyncEncrypted()
+	}
+	return nil
+}
+
 func (db *DB) Close() error {
 	var err1, err2 error
+	if db.writerDB != nil {
+		// Run WAL checkpoint before closing to flush all committed data
+		_, _ = db.writerDB.Exec("PRAGMA wal_checkpoint(TRUNCATE)")
+	}
 	if db.readerDB != nil {
 		err1 = db.readerDB.Close()
 	}
 	if db.writerDB != nil {
 		err2 = db.writerDB.Close()
+	}
+	if db.vault != nil {
+		if err := db.vault.FinalizeShutdown(); err != nil {
+			db.logger.Error("failed to finalize encrypted vault on shutdown", "error", err)
+		}
 	}
 	if err1 != nil {
 		return err1
