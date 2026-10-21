@@ -59,3 +59,4 @@ func TestTimeLoadLocationDirect(t *testing.T) {
 		t.Errorf("expected Asia/Karachi, got %v", loc.String())
 	}
 }
+
