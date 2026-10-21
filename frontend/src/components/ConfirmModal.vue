@@ -65,7 +65,7 @@
 					}"
 					:disabled="loading"
 				>
-					<span v-if="loading" class="animate-spin mr-1">⏳</span>
+					<RefreshCw v-if="loading" class="w-3.5 h-3.5 animate-spin mr-1 inline" />
 					<span>{{ confirmText }}</span>
 				</button>
 			</div>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { AlertCircle, AlertTriangle, CheckCircle2, Info, HelpCircle, X } from 'lucide-vue-next'
+import { AlertCircle, AlertTriangle, CheckCircle2, Info, HelpCircle, X, RefreshCw } from 'lucide-vue-next'
 
 withDefaults(
 	defineProps<{

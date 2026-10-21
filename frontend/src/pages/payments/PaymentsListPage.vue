@@ -263,7 +263,7 @@
 					</div>
 
 					<div class="p-2.5 bg-blue-50 border border-blue-100 rounded-lg text-[11px] text-blue-700">
-						💡 Payments are automatically allocated against the student's oldest unpaid invoices (FIFO). Any excess overpayment is preserved as credit for future billing.
+						Payments are automatically allocated against the student's oldest unpaid invoices (FIFO). Any excess overpayment is preserved as credit for future billing.
 					</div>
 
 					<div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
@@ -305,7 +305,7 @@
 						></textarea>
 					</div>
 					<div class="p-2 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-800">
-						⚠️ Reversing this payment will restore the outstanding balances on all associated student invoices.
+						Notice: Reversing this payment will restore the outstanding balances on all associated student invoices.
 					</div>
 					<div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
 						<button

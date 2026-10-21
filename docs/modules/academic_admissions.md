@@ -1,4 +1,4 @@
-# 🎓 Academic Structure & Dynamic Admissions
+# Academic Structure & Dynamic Admissions
 
 ## 1. Academic Hierarchy
 

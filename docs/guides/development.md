@@ -1,4 +1,4 @@
-# 💻 Developer & Contributor Guide
+# Developer & Contributor Guide
 
 ## 1. Environment Setup
 

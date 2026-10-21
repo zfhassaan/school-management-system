@@ -1,4 +1,4 @@
-# 💳 Payments, Sequential Receipts & Advance Credit
+# Payments, Sequential Receipts & Advance Credit
 
 ## 1. Sequential Receipt Generation
 

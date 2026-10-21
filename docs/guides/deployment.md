@@ -1,4 +1,4 @@
-# 🚀 Deployment, Packaging & Operational Guide
+# Deployment, Packaging & Operational Guide
 
 ## 1. Building the Desktop Application
 

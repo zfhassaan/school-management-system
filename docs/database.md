@@ -1,4 +1,4 @@
-# 💾 Database Architecture & Schema Specification
+# Database Architecture & Schema Specification
 
 ## 1. Design Principles & Conventions
 

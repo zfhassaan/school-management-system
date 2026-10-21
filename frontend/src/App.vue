@@ -11,8 +11,8 @@
 					<strong>Browser Preview:</strong> Running in an external browser tab. Use the native Wails Desktop Application window to interact with the offline SQLite database.
 				</span>
 			</div>
-			<button @click="showBrowserBanner = false" class="text-slate-800 hover:text-black text-xs font-bold px-1.5 py-0.5 rounded hover:bg-amber-400">
-				✕
+			<button @click="showBrowserBanner = false" class="text-slate-800 hover:text-black text-xs font-bold p-1 rounded hover:bg-amber-400">
+				<X class="w-3.5 h-3.5" />
 			</button>
 		</div>
 
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import ToastContainer from '@/components/ToastContainer.vue'
-import { AlertTriangle } from 'lucide-vue-next'
+import { AlertTriangle, X } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
 const isBrowserMode = ref(false)

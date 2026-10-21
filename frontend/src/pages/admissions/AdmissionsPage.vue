@@ -301,7 +301,7 @@
 							class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
 							:disabled="isSubmitting"
 						>
-							<span v-if="isSubmitting" class="animate-spin mr-1">⏳</span>
+							<RefreshCw v-if="isSubmitting" class="w-3.5 h-3.5 animate-spin mr-1 inline" />
 							<span>Submit Application</span>
 						</button>
 					</div>
@@ -456,7 +456,7 @@
 							class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-xs transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
 							:disabled="enrollingStudent || !enrollClassId"
 						>
-							<span v-if="enrollingStudent" class="animate-spin mr-1">⏳</span>
+							<RefreshCw v-if="enrollingStudent" class="w-3.5 h-3.5 animate-spin mr-1 inline" />
 							<span>{{ enrollingStudent ? 'Enrolling...' : 'Confirm Enrollment' }}</span>
 						</button>
 					</div>

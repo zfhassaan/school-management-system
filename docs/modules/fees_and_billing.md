@@ -1,4 +1,4 @@
-# 💰 Fees Engine & Batch Invoicing
+# Fees Engine & Batch Invoicing
 
 ## 1. Domain Foundations: Exact Financial Precision
 

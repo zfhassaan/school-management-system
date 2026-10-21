@@ -1,4 +1,4 @@
-# 🏛️ System Architecture
+# System Architecture
 
 ## 1. Architectural Philosophy
 

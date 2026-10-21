@@ -56,13 +56,13 @@ func main() {
 
 	// 1. Fresh: Remove existing database files or drop all tables
 	if *freshFlag {
-		fmt.Printf("🗑️  Performing fresh migration on: %s\n", dbPath)
+		fmt.Printf("[RESET] Performing fresh migration on: %s\n", dbPath)
 		err1 := os.Remove(dbPath)
 		_ = os.Remove(dbPath + "-wal")
 		_ = os.Remove(dbPath + "-shm")
 
 		if err1 != nil && !os.IsNotExist(err1) {
-			fmt.Println("⚠️  Database file is currently open by running app. Resetting tables via SQL connection...")
+			fmt.Println("[WARN] Database file is currently open by running app. Resetting tables via SQL connection...")
 			cleanCfg := cfg
 			logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 			rawDB, openErr := sqlite.Open(ctx, cleanCfg, logger)
@@ -86,26 +86,26 @@ func main() {
 				rawDB.Close()
 			}
 		}
-		fmt.Println("✅ Existing database cleared.")
+		fmt.Println("[OK] Existing database cleared.")
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	db, err := sqlite.Open(ctx, cfg, logger)
 	if err != nil {
-		fmt.Printf("❌ Failed to open database: %v\n", err)
+		fmt.Printf("[ERROR] Failed to open database: %v\n", err)
 		os.Exit(1)
 	}
 	defer db.Close()
-	fmt.Println("✅ Embedded Goose migrations applied up to latest version.")
+	fmt.Println("[OK] Embedded Goose migrations applied up to latest version.")
 
 	// 2. Seed: Populate demo data
 	if *seedFlag {
-		fmt.Println("🌱 Seeding comprehensive demo dataset...")
+		fmt.Println("[SEED] Seeding comprehensive demo dataset...")
 		if err := seedDatabase(ctx, db); err != nil {
-			fmt.Printf("❌ Seeding failed: %v\n", err)
+			fmt.Printf("[ERROR] Seeding failed: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Println("🎉 Database seeded successfully!")
+		fmt.Println("[SUCCESS] Database seeded successfully!")
 	}
 }
 
@@ -581,7 +581,7 @@ func seedDatabase(ctx context.Context, db *sqlite.DB) error {
 	fmt.Printf("     -> Receipt %s issued for Bob (Fully paid + Rs 40.00 credit advance stored)\n", payRes2.ReceiptNo)
 
 	fmt.Println("\n==================================================================")
-	fmt.Println("🏫  SCHOOL DEMO ENVIRONMENT READY!")
+	fmt.Println("SCHOOL DEMO ENVIRONMENT READY")
 	fmt.Println("==================================================================")
 	fmt.Printf("  School Name:      Oakridge International Academy (%s)\n", setupRes.SchoolID)
 	fmt.Printf("  Admin Username:   admin\n")

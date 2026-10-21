@@ -277,7 +277,7 @@
 				<!-- 8. OFFICIAL TEAR-OFF OFFICE RECORD SLIP -->
 				<div class="border-t-2 border-dashed border-slate-400 pt-2.5 space-y-2">
 					<div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-600">
-						<span>✂ ADMISSION ACKNOWLEDGEMENT SLIP (OFFICE / PARENT COPY)</span>
+						<span>ADMISSION ACKNOWLEDGEMENT SLIP (OFFICE / PARENT COPY)</span>
 						<span class="font-mono">{{ application.ApplicationNo }}</span>
 					</div>
 					<div class="border border-slate-300 p-2 rounded bg-slate-50 grid grid-cols-4 gap-2 text-[10.5px]">

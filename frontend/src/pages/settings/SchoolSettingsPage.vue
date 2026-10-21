@@ -445,7 +445,7 @@
 							:disabled="isExportingDecrypted"
 							class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition cursor-pointer"
 						>
-							<span v-if="isExportingDecrypted" class="animate-spin mr-1">⏳</span>
+							<RefreshCw v-if="isExportingDecrypted" class="w-4 h-4 animate-spin mr-1 inline" />
 							<span>{{ isExportingDecrypted ? 'Decrypting & Exporting...' : 'Authorize & Download' }}</span>
 						</button>
 					</div>
@@ -514,7 +514,7 @@
 							:disabled="isRestoring || !restoreBackupPath"
 							class="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition cursor-pointer"
 						>
-							<span v-if="isRestoring" class="animate-spin mr-1">⏳</span>
+							<RefreshCw v-if="isRestoring" class="w-4 h-4 animate-spin mr-1 inline" />
 							<span>{{ isRestoring ? 'Restoring & Re-encrypting...' : 'Confirm & Restore' }}</span>
 						</button>
 					</div>
