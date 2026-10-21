@@ -4,6 +4,9 @@
 *.dll
 *.so
 *.dylib
+*.ico
+build/appicon.png
+build/windows/icon.ico
 bin/
 tools/bin/
 build/bin/
