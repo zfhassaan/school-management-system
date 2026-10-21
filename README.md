@@ -1,53 +1,66 @@
-# School Management System (SMS)
+# Desktop School Management System (SMS)
 
-> **Offline-first, cloud-ready desktop school management platform built with Go, Wails v2, SQLite, and Vue 3.**
+> **Enterprise-grade, offline-first desktop school management software with AES-256 encrypted database at rest, executive printable admission forms, automated fee invoicing, and in-app GitHub auto-updater.**
 
 [![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat&logo=go)](https://golang.org)
 [![Wails](https://img.shields.io/badge/Wails-v2.15+-DF0000?style=flat)](https://wails.io)
 [![Vue 3](https://img.shields.io/badge/Vue-3.5+-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4.0-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com)
+[![Encryption: AES-256-GCM](https://img.shields.io/badge/Security-AES--256--GCM-green.svg)](https://en.wikipedia.org/wiki/Galois/Counter_Mode)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
 ## Overview
 
-The **School Management System (SMS)** is an offline-first Windows desktop application architected for schools that require complete, uninterrupted operational capability without dependable internet connectivity, while remaining structurally prepared for future multi-device LAN and cloud synchronization (PostgreSQL).
+The **Desktop School Management System (SMS)** is a secure, standalone Windows application engineered for primary, secondary, and higher-education institutions. Designed with an **offline-first philosophy**, it ensures complete operational autonomy without requiring an internet connection, while featuring local **AES-256-GCM encryption at rest**, automated hot-patching via GitHub Releases, and zero-headache local installations.
 
-Engineered following **Clean / Hexagonal Architecture** and **CQRS-lite** principles, the domain and application layers remain entirely decoupled from the presentation layer (Wails / Vue 3) and persistence mechanism (SQLite / PostgreSQL).
+Built using **Go (Golang)**, **Wails v2**, **Vue 3**, and **SQLite (ModernC)** following **Clean Architecture (Hexagonal) & CQRS-lite**, the application provides lightning-fast native performance with minimal memory usage.
 
 ---
 
-## Key Features
+## Core Capabilities
 
-### Identity, Campus & Academics
-- **Multi-Campus & Term Management:** Support for campuses, academic years, terms/semesters, classes, and sections.
-- **Role-Based Access Control (RBAC):** Granular permissions for Superadmins, School Admins, Accountants, and Registrars.
-- **Audit Logging:** Every state-modifying action records actor, IP, timestamp, entity type, and before/after payloads.
+### 🛡️ Security & Zero-Leak Encrypted Vault
+- **AES-256-GCM Encryption at Rest:** The local SQLite database is encrypted on disk into `.db.enc` vaults. Unauthorized users cannot inspect plain SQL tables or extract student records.
+- **Hardware-Entropy Key Generation:** Cryptographic keys are generated deterministically per installation using Windows DPAPI and machine hardware signatures.
+- **Decrypted Backup & Restore Center:** Administrators can export decrypted SQL snapshots on-demand for manual auditing, off-site archiving, or migration, with safe encrypted restore mechanisms.
 
-### Students, Guardians & Dynamic Admissions
-- **Comprehensive Student Profiles:** Demographic details, blood group, medical alerts, admission numbers, and enrollment records.
-- **Multi-Guardian Support:** Link multiple guardians per student (parents, emergency contacts) with prioritized billing and pickup authorizations.
-- **Configurable Admission Form Engine:** Visual drag-and-drop schema definition for admission forms with field-level validations, versioning, drafts, publishing, and dynamic response storage.
-- **Content-Addressed Document Storage:** Student documents and identity proofs are cryptographically hashed (`SHA-256`) and stored deduplicated on the local filesystem.
+### 🎓 Dynamic Admissions & Executive Print Engine
+- **Visual Form Builder:** Drag-and-drop form schema builder with real-time field validations, drafts, and versioning.
+- **Executive Institutional Print Format:** Official admission forms formatted with institutional double borders, student photo boxes, dynamic school logos, structured parent/student data tables, and perforated tear-off verification slips.
+- **Silent Print Optimization:** Automatic browser print header/footer suppression and exact CMYK print color preservation.
 
-### Fees Engine & Batch Invoicing
-- **Modular Fee Heads:** Configurable recurring (Tuition, Facilities) and one-off (Admission, Lab, Sports) heads with strict currency minor unit precision (`int64`).
-- **Immutable Fee Schedules:** Versioned fee structures that protect historical financial records from retroactive corruption.
-- **Multi-Tier Discount Policies:** Automated evaluation of sibling discounts (e.g., 20% off for 2nd+ child), academic merit scholarships, and staff concessions.
-- **Batch Invoicing:** Deterministic mass generation of invoices for entire classes/terms with idempotent execution.
-- **Calculated Overdue Tracking:** Overdue statuses are derived on the fly based on due dates and school timezone to prevent midnight status mutation race conditions.
+### 🏫 Dynamic Branding & Windows Integration
+- **Live Taskbar & Window Icon Switching:** Uploading a new school logo dynamically regenerates multi-resolution `.ico` bundles and hot-updates the Windows Taskbar, titlebar, and webview favicon at runtime.
+- **Local Asset Storage:** Logos, student photos, and identity documents are SHA-256 hashed and stored deduplicated inside the secure local installation directory.
 
-### Payments, Sequential Receipts & Advance Credit
-- **Strict Sequential Receipt Numbering:** Unbroken sequence receipts per calendar year (e.g., `RCP-2026-000001`) enforced via atomic database sequence counters.
-- **Automated FIFO Allocations:** Payments are intelligently allocated against the student's oldest overdue invoices first before servicing newer charges.
-- **Advance Credit Ledger:** Overpayments automatically flow into a dedicated student credit balance, instantly available for allocation against future invoices.
-- **Financial Adjustments:** Formal workflows for fee waivers, bad-debt write-offs, and full/partial payment reversals with auditable reason codes.
+### 💰 Fees Engine, Invoicing & FIFO Payments
+- **Batch Fee Generation:** Idempotent mass invoice generation for entire academic classes and terms.
+- **Automated FIFO Allocations:** Payments systematically offset oldest overdue balances first before settling current charges.
+- **Strict Sequential Receipt Numbering:** Unbroken receipt audit sequences (e.g., `RCP-2026-000001`) enforced via atomic database sequences.
+- **Advance Credit Ledger:** Automatic overpayment rollover credited to future invoices.
 
-### Offline-First Architecture
-- **Pure Go SQLite:** Powered by `modernc.org/sqlite` (no CGO or MinGW required on Windows).
-- **Concurrent WAL Mode:** Write-Ahead Logging with dedicated single-writer connection (`MaxOpenConns=1`, `_txlock=immediate`) and concurrent reader pool to guarantee zero database locks (`SQLITE_BUSY`).
+### 🔄 In-App GitHub Releases Auto-Updater
+- **One-Click Update Checker:** Queries the GitHub Releases API directly from the app header and settings menu.
+- **In-App Changelog Viewer:** Live Markdown release notes preview.
+- **Safe Windows Hot-Patching:** Renames locked running binaries (`.old`), installs new executables seamlessly, and restarts without requiring administrative command-line operations.
+
+---
+
+## Technology Stack
+
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Backend Core** | Go 1.26+ | Clean architecture domain logic, CQRS commands/queries |
+| **Desktop Bridge** | Wails v2.15+ | High-performance Go-to-Webview IPC bridge |
+| **Database** | SQLite (`modernc.org/sqlite`) | Pure Go WAL-mode embedded SQL with zero CGO dependencies |
+| **Data Security** | AES-256-GCM | Encrypted database vault with machine-level key derivation |
+| **Frontend** | Vue 3 + TypeScript | Composition API, Pinia stores, Vue Router |
+| **Styling** | Tailwind CSS v4.0 | Responsive institutional design, optimized print stylesheet |
+
+---
 - **Transactional Outbox:** Every database mutation writes to a `sync_outbox` table in the exact same transaction, establishing the foundation for bidirectional cloud synchronization.
 
 ---
