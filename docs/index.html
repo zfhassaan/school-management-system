@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Management System (SMS) — Offline-First Desktop Institutional ERP</title>
+  <meta name="description" content="Enterprise-grade, offline-first desktop school management system with AES-256 encrypted database at rest, executive printable admission forms, and automated fee invoicing.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>">
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+              950: '#1e1b4b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    .dark-glass {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.4);
+    }
+    .hero-glow {
+      background: radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.15) 0%, rgba(248, 250, 252, 0) 70%);
+    }
+    .grid-pattern {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(226, 232, 240, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(226, 232, 240, 0.4) 1px, transparent 1px);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- 1. NAVIGATION BAR -->
+  <nav class="fixed top-0 inset-x-0 z-50 glass-card border-b border-slate-200/80 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#hero" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-brand-600 to-indigo-500 text-white flex items-center justify-center shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform duration-200">
+          <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-base font-extrabold font-display tracking-tight text-slate-900 block leading-tight">School Management</span>
+          <span class="text-[10px] uppercase font-bold tracking-widest text-brand-600">Enterprise Desktop</span>
+        </div>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-600">
+        <a href="#features" class="hover:text-brand-600 transition">Features</a>
+        <a href="#showcase" class="hover:text-brand-600 transition">Admissions &amp; Printing</a>
+        <a href="#security" class="hover:text-brand-600 transition">AES-256 Vault</a>
+        <a href="#specs" class="hover:text-brand-600 transition">Architecture</a>
+        <a href="#downloads" class="hover:text-brand-600 transition">Downloads</a>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <a href="#contact" class="hidden sm:inline-flex px-3.5 py-2 text-xs font-semibold text-slate-700 hover:text-brand-600 transition">
+          Book Client Demo
+        </a>
+        <a href="#downloads" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-sm shadow-brand-600/30 hover:shadow-brand-600/50 hover:scale-[1.02] active:scale-[0.98] transition flex items-center gap-2">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>Get Installer</span>
+        </a>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- 2. HERO SECTION -->
+  <section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden hero-glow grid-pattern border-b border-slate-200/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      
+      <!-- Top Release Pill -->
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 text-xs font-semibold mb-8 shadow-xs">
+        <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+        <span>Version 1.1.1 Available</span>
+        <span class="text-brand-300">•</span>
+        <span class="text-slate-600 font-normal">Offline-First Desktop Architecture</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-slate-900 max-w-4xl mx-auto leading-[1.15]">
+        The Modern Desktop ERP for <br>
+        <span class="bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">Forward-Thinking Institutions</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="mt-6 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto font-normal leading-relaxed">
+        Eliminate internet dependency. Manage student admissions, print official verification slips, automate class fee invoicing, and secure sensitive records with local hardware-derived <strong>AES-256-GCM encryption</strong>.
+      </p>
+
+      <!-- Primary CTA Group -->
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+        <a href="#downloads" class="px-6 py-3.5 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-[0.98] transition flex items-center gap-2.5">
+          <i data-lucide="download" class="w-4 h-4 text-brand-400"></i>
+          <span>Download Windows Installer (64-bit)</span>
+        </a>
+        <a href="#showcase" class="px-6 py-3.5 rounded-xl text-sm font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 shadow-xs hover:border-slate-400 transition flex items-center gap-2">
+          <i data-lucide="play-circle" class="w-4 h-4 text-slate-500"></i>
+          <span>Explore Live Capabilities</span>
+        </a>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="mt-12 pt-8 border-t border-slate-200/70 max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-slate-500 text-xs font-medium">
+        <div class="flex items-center justify-center gap-2">
+          <i data-lucide="wifi-off" class="w-4 h-4 text-emerald-600"></i>
+          <span>100% Offline Autonomy</span>
+        </div>
+        <div class="flex items-center justify-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600"></i>
+          <span>AES-256 Bank Encryption</span>
+        </div>
+        <div class="flex items-center justify-center gap-2">
+          <i data-lucide="printer" class="w-4 h-4 text-purple-600"></i>
+          <span>Institutional Print Engine</span>
+        </div>
+        <div class="flex items-center justify-center gap-2">
+          <i data-lucide="refresh-cw" class="w-4 h-4 text-blue-600"></i>
+          <span>Automated App Updates</span>
+        </div>
+      </div>
+
+      <!-- High-Fidelity App Mockup Window -->
+      <div class="mt-14 max-w-5xl mx-auto rounded-2xl p-2 bg-gradient-to-b from-slate-300/60 to-slate-200/40 shadow-2xl border border-slate-300/80">
+        <div class="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-inner">
+          
+          <!-- Mockup Window Bar -->
+          <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between select-none">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+              <span class="ml-3 text-xs font-mono font-medium text-slate-500 flex items-center gap-1.5">
+                <i data-lucide="lock" class="w-3 h-3 text-emerald-600"></i>
+                School Management System — Oakridge International Academy (v1.1.1 Encrypted Vault Active)
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono">SQLite WAL Mode • Single-Writer Safe</div>
+          </div>
+
+          <!-- Mockup UI Body -->
+          <div class="p-6 bg-slate-50/70 grid grid-cols-1 lg:grid-cols-4 gap-5 text-left">
+            
+            <!-- Mini Stat 1 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Active Students</span>
+                <i data-lucide="users" class="w-4 h-4 text-brand-600"></i>
+              </div>
+              <div class="text-2xl font-bold font-display text-slate-900 mt-2">1,248</div>
+              <div class="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
+                <i data-lucide="trending-up" class="w-3 h-3"></i>
+                <span>+42 new admissions this term</span>
+              </div>
+            </div>
+
+            <!-- Mini Stat 2 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Monthly Fee Invoiced</span>
+                <i data-lucide="receipt" class="w-4 h-4 text-indigo-600"></i>
+              </div>
+              <div class="text-2xl font-bold font-display text-slate-900 mt-2">Rs 4,850,000</div>
+              <div class="text-[11px] text-brand-600 font-medium mt-1 flex items-center gap-1">
+                <i data-lucide="check" class="w-3 h-3"></i>
+                <span>Class-wide automated batch run</span>
+              </div>
+            </div>
+
+            <!-- Mini Stat 3 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Collections Realized</span>
+                <i data-lucide="credit-card" class="w-4 h-4 text-emerald-600"></i>
+              </div>
+              <div class="text-2xl font-bold font-display text-emerald-700 mt-2">Rs 4,120,000</div>
+              <div class="text-[11px] text-slate-500 font-medium mt-1 flex items-center gap-1">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                <span>85% collection rate (FIFO applied)</span>
+              </div>
+            </div>
+
+            <!-- Mini Stat 4 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Database Vault Status</span>
+                <i data-lucide="shield" class="w-4 h-4 text-emerald-600"></i>
+              </div>
+              <div class="text-2xl font-bold font-display text-slate-900 mt-2">Encrypted</div>
+              <div class="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
+                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                <span>AES-256 GCM authenticated at rest</span>
+              </div>
+            </div>
+
+            <!-- Mock Table Banner -->
+            <div class="lg:col-span-4 bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="text-xs font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="file-text" class="w-4 h-4 text-brand-600"></i>
+                  <span>Recent Admissions &amp; Official Printed Forms</span>
+                </div>
+                <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">Auto-Sequenced</span>
+              </div>
+              <div class="grid grid-cols-5 text-[11px] font-medium text-slate-500 pt-3 pb-1 border-b border-slate-100">
+                <span>APPLICATION #</span>
+                <span>APPLICANT NAME</span>
+                <span>GRADE / CLASS</span>
+                <span>GUARDIAN</span>
+                <span class="text-right">DOCUMENT PRINT</span>
+              </div>
+              <div class="divide-y divide-slate-100 text-xs">
+                <div class="grid grid-cols-5 py-2.5 items-center">
+                  <span class="font-mono text-slate-800 font-semibold">APP-2026-0041</span>
+                  <span class="font-semibold text-slate-900">Zoya Fatima</span>
+                  <span class="text-slate-600">Grade 5 - Section A</span>
+                  <span class="text-slate-600">Dr. Tariq Mahmood</span>
+                  <div class="text-right">
+                    <span class="px-2 py-1 rounded bg-brand-50 text-brand-700 font-bold text-[11px] border border-brand-200/60 inline-flex items-center gap-1">
+                      <i data-lucide="printer" class="w-3 h-3"></i>
+                      Print Form
+                    </span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-5 py-2.5 items-center">
+                  <span class="font-mono text-slate-800 font-semibold">APP-2026-0042</span>
+                  <span class="font-semibold text-slate-900">Ayan Ahmed</span>
+                  <span class="text-slate-600">Grade 8 - Section B</span>
+                  <span class="text-slate-600">Muhammad Ahmed</span>
+                  <div class="text-right">
+                    <span class="px-2 py-1 rounded bg-brand-50 text-brand-700 font-bold text-[11px] border border-brand-200/60 inline-flex items-center gap-1">
+                      <i data-lucide="printer" class="w-3 h-3"></i>
+                      Print Form
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. CORE VALUE PROPOSITION & CAPABILITIES -->
+  <section id="features" class="py-24 bg-white border-b border-slate-200/70">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-brand-600">Engineered for Academic Operations</h2>
+        <p class="mt-2 text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-slate-900">
+          Everything Your Institution Needs Under One Roof
+        </p>
+        <p class="mt-4 text-slate-600 text-sm sm:text-base">
+          Built with precision to replace sluggish web spreadsheets and unreliable cloud systems with an ultra-responsive native desktop experience.
+        </p>
+      </div>
+
+      <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Feature 1 -->
+        <div class="p-6 rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-500/5 transition duration-200 bg-slate-50/50">
+          <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center mb-5">
+            <i data-lucide="file-check" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 font-display">Dynamic Admissions Engine</h3>
+          <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+            Visual schema designer with draft versions, published forms, and custom institutional fields. Handles candidate biometric uploads, guardian linking, and instant registration.
+          </p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Drag-and-drop form schema builder</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Candidate photo upload &amp; cropping</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Multiple guardian relationships</li>
+          </ul>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="p-6 rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-500/5 transition duration-200 bg-slate-50/50">
+          <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mb-5">
+            <i data-lucide="printer" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 font-display">Executive Print Format</h3>
+          <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+            Generates standardized institutional admission forms with ornate double borders, official stamps, student photo placement, and perforated tear-off slips for parent confirmation.
+          </p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Suppresses browser headers &amp; footers</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Official perforated tear-off slip</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Exact CMYK print color preservation</li>
+          </ul>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="p-6 rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-500/5 transition duration-200 bg-slate-50/50">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-5">
+            <i data-lucide="receipt" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 font-display">Fees Engine &amp; Batch Invoicing</h3>
+          <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+            Eliminates spreadsheet errors. Generates monthly tuition invoices for entire classes in seconds with automated sibling discounts, scholarship merit credits, and staff concessions.
+          </p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Automated multi-child sibling discounts</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Mass idempotent batch invoice creation</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Zero floating-point rounding errors (cents)</li>
+          </ul>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="p-6 rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-500/5 transition duration-200 bg-slate-50/50">
+          <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-5">
+            <i data-lucide="credit-card" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 font-display">FIFO Payments &amp; Credits</h3>
+          <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+            Incoming fee payments are automatically applied against the student's oldest unpaid bills first. Excess payments roll over into an advance balance for subsequent terms.
+          </p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Strict sequential receipt counter</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Advance credit balance tracking</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Auditable reversal &amp; fee waiver audit logs</li>
+          </ul>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="p-6 rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-500/5 transition duration-200 bg-slate-50/50">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-5">
+            <i data-lucide="image" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 font-display">Dynamic Institutional Branding</h3>
+          <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+            Upload your school emblem in School Settings. The application automatically re-synthesizes multi-resolution icon bundles, updating your Windows Taskbar, window title, and print forms.
+          </p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Runtime Windows taskbar icon update</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Dynamic campus &amp; school metadata</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> SHA-256 deduplicated local storage</li>
+          </ul>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="p-6 rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-500/5 transition duration-200 bg-slate-50/50">
+          <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center mb-5">
+            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 font-display">Built-in Auto-Update Hotpatch</h3>
+          <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+            Stay current without technician visits. With a single click, the app queries GitHub Releases, displays changelog notes, downloads updates, and hot-patches running Windows executables.
+          </p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> In-app GitHub release querying</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Safe Windows process hot-replacement</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Multi-platform release delivery</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. MILITARY-GRADE AES-256 ENCRYPTION VAULT SECTION -->
+  <section id="security" class="py-24 bg-slate-900 text-white relative overflow-hidden">
+    
+    <!-- Background Gradient Grids -->
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#818cf8_1px,transparent_1px)] [background-size:24px_24px]"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        
+        <!-- Left Content -->
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-6">
+            <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+            <span>Zero-Leak Architecture</span>
+          </div>
+
+          <h2 class="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-white leading-tight">
+            Bank-Grade AES-256-GCM <br>
+            <span class="text-indigo-400">Encrypted Database at Rest</span>
+          </h2>
+
+          <p class="mt-4 text-slate-300 text-sm sm:text-base leading-relaxed">
+            Student privacy and financial audits cannot be compromised. The local database is stored strictly inside encrypted <code>.db.enc</code> containers using authenticated AES-256-GCM.
+          </p>
+
+          <div class="mt-8 space-y-4">
+            
+            <div class="flex items-start gap-3.5">
+              <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/30 mt-0.5">
+                <i data-lucide="key" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Machine-Derived Cryptographic Keys</h4>
+                <p class="text-xs text-slate-400 mt-1">
+                  Keys are bound to the hardware entropy and DPAPI profile of the school's authorized computer, preventing unauthorized copying of raw databases to flash drives.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30 mt-0.5">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Decrypted Backup &amp; Restore Center</h4>
+                <p class="text-xs text-slate-400 mt-1">
+                  Superadmins can export decrypted standard SQL dumps on-demand for offline archives, tax audits, or backups, secured by password authentication.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+              <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/30 mt-0.5">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Pure Go Embedded SQLite</h4>
+                <p class="text-xs text-slate-400 mt-1">
+                  Powered by ModernC pure Go SQLite engine in WAL mode with a dedicated single-writer pool, eliminating CGO crashes and locked database exceptions.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right Terminal Mockup -->
+        <div class="rounded-2xl dark-glass p-6 border border-slate-700 shadow-2xl">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800 text-xs font-mono text-slate-400">
+            <span class="flex items-center gap-2 text-indigo-400">
+              <i data-lucide="terminal" class="w-4 h-4"></i>
+              vault_inspector.log
+            </span>
+            <span>AES-256-GCM authenticated</span>
+          </div>
+
+          <div class="pt-4 font-mono text-xs space-y-2.5 text-slate-300">
+            <p class="text-emerald-400">[INIT] Initializing School Management SQLite Storage Engine</p>
+            <p class="text-slate-400">> DB Vault Path: C:\Program Files\SchoolManagement\data\school.db.enc</p>
+            <p class="text-slate-400">> Algorithm: AES-256-GCM (100,000 PBKDF2 Iterations, 16B Salt)</p>
+            <p class="text-indigo-300">[AUTH] Generating hardware-bound entropy token (DPAPI)</p>
+            <p class="text-emerald-400">[OK] Vault authenticated successfully. Decrypting working buffer.</p>
+            <div class="p-3 bg-slate-950/80 rounded-lg border border-slate-800 text-[11px] text-slate-400 font-mono">
+              Raw File Content on Disk:<br>
+              <span class="text-rose-400">SMS_VAULT_AES256GCM_V1\n7b82f1...[Encrypted Binary Ciphertext]</span><br>
+              <span class="text-slate-500">Unreadable by Notepad, DB Browser for SQLite, or unauthorized flash drives.</span>
+            </div>
+            <p class="text-emerald-400">[READY] Database listening on thread-safe WAL reader/writer pool.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4.5 TECHNICAL ARCHITECTURE & DOCUMENTATION SPECIFICATIONS -->
+  <section id="specs" class="py-20 bg-slate-100/70 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-brand-600">Technical Specifications</h2>
+        <p class="mt-2 text-3xl font-extrabold font-display tracking-tight text-slate-900">
+          Clean Architecture &amp; System Documentation
+        </p>
+        <p class="mt-3 text-slate-600 text-sm">
+          Exhaustive architectural specifications and engineering standards documented in the repository.
+        </p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        
+        <a href="architecture.md" class="p-5 bg-white rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-md transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold font-mono text-brand-600 uppercase">Core Design</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-brand-600 transition"></i>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 mt-2">System Architecture</h4>
+            <p class="text-xs text-slate-500 mt-1">Hexagonal design, CQRS-lite, transactional outbox pattern, and thread-safe SQLite concurrency.</p>
+          </div>
+          <span class="text-[11px] text-brand-600 font-semibold mt-4 block">Read architecture.md →</span>
+        </a>
+
+        <a href="database.md" class="p-5 bg-white rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-md transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold font-mono text-purple-600 uppercase">Schema &amp; Types</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition"></i>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 mt-2">Database Design</h4>
+            <p class="text-xs text-slate-500 mt-1">Complete relational schema, UUIDv7 primary keys, and integer currency minor units.</p>
+          </div>
+          <span class="text-[11px] text-purple-600 font-semibold mt-4 block">Read database.md →</span>
+        </a>
+
+        <a href="modules/academic_admissions.md" class="p-5 bg-white rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-md transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold font-mono text-emerald-600 uppercase">Modules</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition"></i>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 mt-2">Academic &amp; Admissions</h4>
+            <p class="text-xs text-slate-500 mt-1">Multi-campus sessions, terms, classes, sections, and configurable form schema engine.</p>
+          </div>
+          <span class="text-[11px] text-emerald-600 font-semibold mt-4 block">Read academic_admissions.md →</span>
+        </a>
+
+        <a href="modules/fees_and_billing.md" class="p-5 bg-white rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-md transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold font-mono text-indigo-600 uppercase">Modules</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition"></i>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 mt-2">Fees &amp; Batch Invoicing</h4>
+            <p class="text-xs text-slate-500 mt-1">Versioned fee structures, sibling discount calculation, and class billing runs.</p>
+          </div>
+          <span class="text-[11px] text-indigo-600 font-semibold mt-4 block">Read fees_and_billing.md →</span>
+        </a>
+
+        <a href="modules/payments_and_credits.md" class="p-5 bg-white rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-md transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold font-mono text-blue-600 uppercase">Modules</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition"></i>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 mt-2">Payments &amp; Credits</h4>
+            <p class="text-xs text-slate-500 mt-1">Atomic sequential receipt generation, automated FIFO allocations, and credit ledger.</p>
+          </div>
+          <span class="text-[11px] text-blue-600 font-semibold mt-4 block">Read payments_and_credits.md →</span>
+        </a>
+
+        <a href="guides/deployment.md" class="p-5 bg-white rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-md transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold font-mono text-amber-600 uppercase">Operations</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition"></i>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 mt-2">Deployment &amp; Backups</h4>
+            <p class="text-xs text-slate-500 mt-1">Windows standalone installer packaging, local app data locations, and safety guides.</p>
+          </div>
+          <span class="text-[11px] text-amber-600 font-semibold mt-4 block">Read deployment.md →</span>
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. DOWNLOADS & INSTALLATION SECTION -->
+  <section id="downloads" class="py-24 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-brand-600">Deploy in Minutes</h2>
+        <p class="mt-2 text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-slate-900">
+          Get Started with School Management Desktop
+        </p>
+        <p class="mt-4 text-slate-600 text-sm sm:text-base">
+          No database server to configure, no Apache or IIS web server required. Run the single-file setup installer and begin managing your institution in 60 seconds.
+        </p>
+      </div>
+
+      <!-- Download Cards Grid -->
+      <div class="mt-14 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+        
+        <!-- Primary Windows Setup Installer -->
+        <div class="bg-white rounded-2xl p-8 border-2 border-brand-500 shadow-xl shadow-brand-500/10 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+            Recommended
+          </div>
+
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center mb-4">
+              <i data-lucide="windows" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-lg font-bold font-display text-slate-900">Windows Standalone Installer</h3>
+            <p class="text-xs text-slate-500 mt-1">Single-click setup executable with desktop shortcut &amp; registry registration.</p>
+
+            <div class="mt-6 space-y-2 text-xs text-slate-600">
+              <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Windows 10 &amp; 11 (64-bit)</div>
+              <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Automatically installs in Program Files</div>
+              <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Embedded Goose database auto-migration</div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-slate-100">
+            <a 
+              href="https://github.com/zfhassaan/school-management-system/releases/latest" 
+              target="_blank"
+              class="w-full py-3.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition"
+            >
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Download SchoolManagement-Setup.exe</span>
+            </a>
+            <span class="text-[10px] text-slate-400 block text-center mt-2 font-mono">Release v1.1.1 • Verified Standalone Binary</span>
+          </div>
+        </div>
+
+        <!-- Portable Windows Executable -->
+        <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center mb-4">
+              <i data-lucide="package" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-lg font-bold font-display text-slate-900">Portable Windows Executable</h3>
+            <p class="text-xs text-slate-500 mt-1">Zero-installation portable binary for testing, evaluation, or USB drives.</p>
+
+            <div class="mt-6 space-y-2 text-xs text-slate-600">
+              <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> No administrator installation privileges required</div>
+              <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Stores database in local user profile</div>
+              <div class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Easy migration and USB portability</div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-slate-100">
+            <a 
+              href="https://github.com/zfhassaan/school-management-system/releases/latest" 
+              target="_blank"
+              class="w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition"
+            >
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Download Portable Executable (.exe)</span>
+            </a>
+            <span class="text-[10px] text-slate-400 block text-center mt-2 font-mono">Linux tar.gz &amp; macOS arm64 also available</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 6. CLIENT INQUIRIES & DEMO CONTACT -->
+  <section id="contact" class="py-24 bg-white border-b border-slate-200">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="bg-gradient-to-tr from-brand-900 via-indigo-900 to-slate-950 rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
+        
+        <div class="relative z-10 text-center max-w-2xl mx-auto">
+          <span class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-semibold uppercase tracking-wider border border-brand-400/30">
+            Client Inquiries &amp; Custom Deployments
+          </span>
+          <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-white">
+            Ready to Upgrade Your Institution?
+          </h2>
+          <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+            Need custom admission form fields, automated fee structure migration, or school-specific logo branding? Contact us directly for a customized institutional walkthrough.
+          </p>
+
+          <!-- Contact Buttons -->
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <a 
+              href="https://wa.me/?text=Hello!%20I%20am%20interested%20in%20deploying%20the%20School%20Management%20System%20Desktop%20for%20our%20institution." 
+              target="_blank" 
+              class="px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition"
+            >
+              <i data-lucide="message-circle" class="w-4 h-4"></i>
+              <span>Chat on WhatsApp</span>
+            </a>
+            <a 
+              href="mailto:zfhassaan@gmail.com?subject=School%20Management%20System%20Inquiry" 
+              class="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs flex items-center gap-2 shadow-lg transition"
+            >
+              <i data-lucide="mail" class="w-4 h-4"></i>
+              <span>Email: zfhassaan@gmail.com</span>
+            </a>
+            <a 
+              href="https://zfhassaan.github.io" 
+              target="_blank"
+              class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center gap-2 transition"
+            >
+              <i data-lucide="globe" class="w-4 h-4"></i>
+              <span>Architect Portfolio</span>
+            </a>
+          </div>
+
+          <p class="text-[11px] text-slate-400 mt-6 font-mono">
+            Fast turnaround • Institutional support • Custom fee schedules &amp; printable formats
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 7. FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 py-12 text-xs border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+      
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold">
+          <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <span class="text-white font-bold text-sm block">School Management System</span>
+          <span>Offline-First Enterprise Desktop Institutional Software</span>
+        </div>
+      </div>
+
+      <div class="text-center sm:text-right">
+        <p>Architected &amp; Engineered by <strong class="text-white">Hassaan Ali</strong></p>
+        <div class="flex items-center justify-center sm:justify-end gap-4 mt-2 text-slate-400">
+          <a href="https://github.com/zfhassaan/school-management-system" target="_blank" class="hover:text-white transition">GitHub Repository</a>
+          <span>•</span>
+          <a href="https://zfhassaan.github.io" target="_blank" class="hover:text-white transition">Portfolio</a>
+          <span>•</span>
+          <a href="mailto:zfhassaan@gmail.com" class="hover:text-white transition">Contact</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+  </script>
+
+</body>
+</html>
+
