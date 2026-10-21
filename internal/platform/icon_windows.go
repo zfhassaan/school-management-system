@@ -115,3 +115,4 @@ func findAppWindow() syscall.Handle {
 	procEnumWindows.Call(cb, 0)
 	return targetHWND
 }
+

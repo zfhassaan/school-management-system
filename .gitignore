@@ -12,10 +12,32 @@ frontend/package.json.md5
 # Test artifacts and databases
 *.db
 *.db.enc
+*.sqlite
+*.sqlite3
 *.db-journal
 *.db-wal
 *.db-shm
 *.log
+*.enc
+*.old
+*.tmp
+*.bak
+updates/
+data/
+logs/
+backups/
+documents/
+blobs/
+
+# Security, keys and credentials
+*.key
+*.pem
+*.cert
+*.crt
+*.pfx
+.env
+.env.*
+!.env.example
 
 # Go dependencies and cache
 vendor/

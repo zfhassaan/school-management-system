@@ -324,6 +324,35 @@
 			</div>
 		</div>
 
+		<!-- Section 4: Application Version & GitHub Auto-Update -->
+		<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+			<div class="flex items-center gap-3.5">
+				<div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center border border-indigo-200 shrink-0">
+					<Sparkles class="w-5 h-5" />
+				</div>
+				<div>
+					<div class="flex items-center gap-2">
+						<h2 class="text-sm font-bold text-slate-900">Application Version &amp; Auto-Update</h2>
+						<span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
+							v1.0.0
+						</span>
+					</div>
+					<p class="text-xs text-slate-500 mt-0.5">
+						Check your GitHub repository for newer release versions and apply patches automatically.
+					</p>
+				</div>
+			</div>
+
+			<button
+				type="button"
+				@click="showUpdateModal = true"
+				class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2 transition cursor-pointer shrink-0 self-start sm:self-center"
+			>
+				<RefreshCw class="w-4 h-4" />
+				<span>Check for Updates</span>
+			</button>
+		</div>
+
 		<!-- Developer & System Architecture Showcase -->
 		<div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-md border border-slate-800">
 			<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -493,6 +522,9 @@
 			</div>
 		</div>
 
+		<!-- GitHub Update Modal -->
+		<UpdateModal :isOpen="showUpdateModal" @close="showUpdateModal = false" />
+
 	</div>
 </template>
 
@@ -502,6 +534,7 @@ import { getServices } from '@/services/factory'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
 import DeveloperLogo from '@/components/DeveloperLogo.vue'
+import UpdateModal from '@/components/UpdateModal.vue'
 import { openExternalUrl } from '@/utils/browser'
 import {
 	Building2,
@@ -518,7 +551,8 @@ import {
 	Download,
 	RefreshCw,
 	AlertTriangle,
-	X
+	X,
+	Sparkles
 } from 'lucide-vue-next'
 import type { DatabaseStatusDTO } from '@/services/contracts'
 
@@ -528,6 +562,7 @@ const authStore = useAuthStore()
 const isSaving = ref(false)
 const logoPreview = ref<string | null>(null)
 const logoChanged = ref(false)
+const showUpdateModal = ref(false)
 
 // Database Vault & Backup State
 const dbStatus = ref<DatabaseStatusDTO | null>(null)

@@ -317,6 +317,25 @@ export interface IBackupService {
 	restoreDatabase(input: { adminPassword?: string; backupFilePath: string }): Promise<ResponseEnvelope<boolean>>
 }
 
+export interface UpdateInfoDTO {
+	hasUpdate: boolean
+	currentVersion: string
+	latestVersion: string
+	releaseTitle: string
+	releaseNotes: string
+	publishedAt: string
+	downloadURL: string
+	downloadFileName: string
+	assetSizeBytes: number
+	repository: string
+}
+
+export interface IUpdateService {
+	getVersion(): Promise<ResponseEnvelope<string>>
+	checkForUpdates(customRepo?: string): Promise<ResponseEnvelope<UpdateInfoDTO>>
+	downloadAndApplyUpdate(input: { downloadURL: string; downloadFileName: string }): Promise<ResponseEnvelope<boolean>>
+}
+
 export interface AppServices {
 	auth: IAuthService
 	users: IUserService
@@ -333,5 +352,6 @@ export interface AppServices {
 	invoices: IInvoiceService
 	payments: IPaymentService
 	backup: IBackupService
+	updates: IUpdateService
 }
 

@@ -53,6 +53,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	if exePath, err := os.Executable(); err == nil {
+		_ = os.Remove(exePath + ".old")
+	}
+
 	logger := logging.SetupLogger(cfg.Logging)
 	logger.Info("starting school management desktop application", "env", cfg.App.Environment)
 
@@ -127,6 +131,7 @@ func main() {
 	invoiceSvc := wailsTransport.NewInvoiceService(sessionMgr, feeCmdHandler, feeQueries)
 	paymentSvc := wailsTransport.NewPaymentService(sessionMgr, paymentCmdHandler, paymentQueries)
 	backupSvc := wailsTransport.NewBackupService(sessionMgr, db, uow, hasher)
+	updateSvc := wailsTransport.NewUpdateService()
 
 	err = wails.Run(&options.App{
 		Title:             "School Management System",
@@ -159,6 +164,7 @@ func main() {
 			invoiceSvc,
 			paymentSvc,
 			backupSvc,
+			updateSvc,
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent: false,

@@ -9,3 +9,4 @@ func SetWindowIconFromPNG(pngBytes []byte) error {
 func SetWindowIconFromBase64(base64Data string) error {
 	return nil
 }
+

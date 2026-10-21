@@ -14,6 +14,7 @@ import type {
 	IInvoiceService,
 	IPaymentService,
 	IBackupService,
+	IUpdateService,
 	AppServices
 } from '@/services/contracts'
 
@@ -242,6 +243,12 @@ class HttpBackupService implements IBackupService {
 	async restoreDatabase(input: any) { return fetch('/api/v1/backup/restore', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
 }
 
+class HttpUpdateService implements IUpdateService {
+	async getVersion() { return { success: true, data: '1.0.0' } }
+	async checkForUpdates(customRepo?: string) { return fetch(`/api/v1/updates/check?repo=${customRepo || ''}`).then(r => r.json()) }
+	async downloadAndApplyUpdate(input: any) { return fetch('/api/v1/updates/apply', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
+}
+
 export function createHttpServices(): AppServices {
 	return {
 		auth: new HttpAuthService(),
@@ -258,6 +265,7 @@ export function createHttpServices(): AppServices {
 		fees: new HttpFeeService(),
 		invoices: new HttpInvoiceService(),
 		payments: new HttpPaymentService(),
-		backup: new HttpBackupService()
+		backup: new HttpBackupService(),
+		updates: new HttpUpdateService()
 	}
 }

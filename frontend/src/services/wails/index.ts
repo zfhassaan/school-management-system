@@ -14,6 +14,7 @@ import type {
 	IInvoiceService,
 	IPaymentService,
 	IBackupService,
+	IUpdateService,
 	AppServices
 } from '@/services/contracts'
 
@@ -37,6 +38,7 @@ declare global {
 				InvoiceService?: any
 				PaymentService?: any
 				BackupService?: any
+				UpdateService?: any
 			}
 		}
 	}
@@ -644,6 +646,24 @@ class WailsBackupService implements IBackupService {
 	}
 }
 
+class WailsUpdateService implements IUpdateService {
+	async getVersion() {
+		const svc = getBinding('UpdateService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.GetVersion()
+	}
+	async checkForUpdates(customRepo?: string) {
+		const svc = getBinding('UpdateService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.CheckForUpdates(customRepo || '')
+	}
+	async downloadAndApplyUpdate(input: { downloadURL: string; downloadFileName: string }) {
+		const svc = getBinding('UpdateService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.DownloadAndApplyUpdate(input.downloadURL, input.downloadFileName)
+	}
+}
+
 export function createWailsServices(): AppServices {
 	return {
 		auth: new WailsAuthService(),
@@ -660,7 +680,8 @@ export function createWailsServices(): AppServices {
 		fees: new WailsFeeService(),
 		invoices: new WailsInvoiceService(),
 		payments: new WailsPaymentService(),
-		backup: new WailsBackupService()
+		backup: new WailsBackupService(),
+		updates: new WailsUpdateService()
 	}
 }
 

@@ -22,3 +22,4 @@ export function resetFavicon() {
 		console.warn('Failed to reset favicon', e)
 	}
 }
+

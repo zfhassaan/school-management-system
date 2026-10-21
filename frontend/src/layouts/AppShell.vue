@@ -244,7 +244,17 @@
 				<div class="flex items-center gap-3">
 					<h2 class="text-sm font-semibold text-slate-800 capitalize">{{ currentRouteTitle }}</h2>
 				</div>
-				<div class="flex items-center gap-4">
+				<div class="flex items-center gap-3">
+					<button
+						@click="showUpdateModal = true"
+						class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer border border-slate-200 shadow-2xs"
+						title="Check for newest version on GitHub"
+					>
+						<Sparkles class="w-3.5 h-3.5 text-indigo-600" />
+						<span>v1.0.0</span>
+						<span class="text-[10px] text-slate-400 font-normal hidden md:inline">• Check Update</span>
+					</button>
+
 					<span class="text-xs text-slate-500 font-medium">
 						{{ formattedDate }}
 					</span>
@@ -265,6 +275,9 @@
 
 		<!-- Developer System Info Modal -->
 		<DeveloperAboutModal :isOpen="showDeveloperModal" @close="showDeveloperModal = false" />
+
+		<!-- GitHub Application Update Modal -->
+		<UpdateModal :isOpen="showUpdateModal" @close="showUpdateModal = false" />
 	</div>
 </template>
 
@@ -276,6 +289,7 @@ import ChangePasswordModal from '@/components/ChangePasswordModal.vue'
 import DeveloperAboutModal from '@/components/DeveloperAboutModal.vue'
 import DeveloperBadge from '@/components/DeveloperBadge.vue'
 import DeveloperLogo from '@/components/DeveloperLogo.vue'
+import UpdateModal from '@/components/UpdateModal.vue'
 import {
 	LayoutDashboard,
 	GraduationCap,
@@ -293,7 +307,8 @@ import {
 	Percent,
 	Receipt,
 	CreditCard,
-	Info
+	Info,
+	Sparkles
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -302,6 +317,7 @@ const authStore = useAuthStore()
 
 const isCollapsed = ref(false)
 const showDeveloperModal = ref(false)
+const showUpdateModal = ref(false)
 
 const schoolInitials = computed(() => {
 	const code = authStore.school?.code
