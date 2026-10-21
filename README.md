@@ -2,14 +2,6 @@
 
 > **Enterprise-grade, offline-first desktop school management software with AES-256 encrypted database at rest, executive printable admission forms, automated fee invoicing, and in-app GitHub auto-updater.**
 
-[![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat&logo=go)](https://golang.org)
-[![Wails](https://img.shields.io/badge/Wails-v2.15+-DF0000?style=flat)](https://wails.io)
-[![Vue 3](https://img.shields.io/badge/Vue-3.5+-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4.0-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com)
-[![Encryption: AES-256-GCM](https://img.shields.io/badge/Security-AES--256--GCM-green.svg)](https://en.wikipedia.org/wiki/Galois/Counter_Mode)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-
 ---
 
 ## Overview
@@ -22,27 +14,27 @@ Built using **Go (Golang)**, **Wails v2**, **Vue 3**, and **SQLite (ModernC)** f
 
 ## Core Capabilities
 
-### 🛡️ Security & Zero-Leak Encrypted Vault
+### Security and Zero-Leak Encrypted Vault
 - **AES-256-GCM Encryption at Rest:** The local SQLite database is encrypted on disk into `.db.enc` vaults. Unauthorized users cannot inspect plain SQL tables or extract student records.
 - **Hardware-Entropy Key Generation:** Cryptographic keys are generated deterministically per installation using Windows DPAPI and machine hardware signatures.
 - **Decrypted Backup & Restore Center:** Administrators can export decrypted SQL snapshots on-demand for manual auditing, off-site archiving, or migration, with safe encrypted restore mechanisms.
 
-### 🎓 Dynamic Admissions & Executive Print Engine
+### Dynamic Admissions and Executive Print Engine
 - **Visual Form Builder:** Drag-and-drop form schema builder with real-time field validations, drafts, and versioning.
 - **Executive Institutional Print Format:** Official admission forms formatted with institutional double borders, student photo boxes, dynamic school logos, structured parent/student data tables, and perforated tear-off verification slips.
 - **Silent Print Optimization:** Automatic browser print header/footer suppression and exact CMYK print color preservation.
 
-### 🏫 Dynamic Branding & Windows Integration
+### Dynamic Branding and Windows Integration
 - **Live Taskbar & Window Icon Switching:** Uploading a new school logo dynamically regenerates multi-resolution `.ico` bundles and hot-updates the Windows Taskbar, titlebar, and webview favicon at runtime.
 - **Local Asset Storage:** Logos, student photos, and identity documents are SHA-256 hashed and stored deduplicated inside the secure local installation directory.
 
-### 💰 Fees Engine, Invoicing & FIFO Payments
+### Fees Engine, Invoicing and FIFO Payments
 - **Batch Fee Generation:** Idempotent mass invoice generation for entire academic classes and terms.
 - **Automated FIFO Allocations:** Payments systematically offset oldest overdue balances first before settling current charges.
 - **Strict Sequential Receipt Numbering:** Unbroken receipt audit sequences (e.g., `RCP-2026-000001`) enforced via atomic database sequences.
 - **Advance Credit Ledger:** Automatic overpayment rollover credited to future invoices.
 
-### 🔄 In-App GitHub Releases Auto-Updater
+### In-App GitHub Releases Auto-Updater
 - **One-Click Update Checker:** Queries the GitHub Releases API directly from the app header and settings menu.
 - **In-App Changelog Viewer:** Live Markdown release notes preview.
 - **Safe Windows Hot-Patching:** Renames locked running binaries (`.old`), installs new executables seamlessly, and restarts without requiring administrative command-line operations.
@@ -250,7 +242,7 @@ school-management/
 
 ---
 
-## =Documentation Index
+## Documentation Index
 
 - [System Architecture](docs/architecture.md) — Hexagonal design, layers, outbox pattern, and thread-safe SQLite concurrency.
 - [Database Design](docs/database.md) — Complete relational schema, UUIDv7 indexing, and minor currency units.
@@ -262,16 +254,13 @@ school-management/
 
 ---
 
-## 👨‍💻 Author & Engineering
+## Author & Engineering
 
 Designed, architected, and built with precision by **Hassaan Ali**.
 
 - **GitHub:** [@zfhassaan](https://github.com/zfhassaan) (`https://github.com/zfhassaan`)
 - **Portfolio:** [zfhassaan.github.io](https://zfhassaan.github.io) (`https://zfhassaan.github.io`)
 - **Role:** Full Stack Software Architect & Systems Engineer
-
-[![GitHub Profile](https://img.shields.io/badge/GitHub-zfhassaan-181717?style=flat&logo=github)](https://github.com/zfhassaan)
-[![Portfolio Website](https://img.shields.io/badge/Portfolio-zfhassaan.github.io-4F46E5?style=flat&logo=safari)](https://zfhassaan.github.io)
 
 ---
 
