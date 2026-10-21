@@ -3008,6 +3008,40 @@ export namespace dto {
 		    return a;
 		}
 	}
+	export class Response_school_management_internal_transport_wails_UpdateInfoDTO_ {
+	    success: boolean;
+	    data?: wails.UpdateInfoDTO;
+	    error?: ErrorDTO;
+	
+	    static createFrom(source: any = {}) {
+	        return new Response_school_management_internal_transport_wails_UpdateInfoDTO_(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.data = this.convertValues(source["data"], wails.UpdateInfoDTO);
+	        this.error = this.convertValues(source["error"], ErrorDTO);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Response_string_ {
 	    success: boolean;
 	    data?: string;
@@ -5598,6 +5632,36 @@ export namespace wails {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.adminPassword = source["adminPassword"];
 	        this.backupFilePath = source["backupFilePath"];
+	    }
+	}
+	export class UpdateInfoDTO {
+	    hasUpdate: boolean;
+	    currentVersion: string;
+	    latestVersion: string;
+	    releaseTitle: string;
+	    releaseNotes: string;
+	    publishedAt: string;
+	    downloadURL: string;
+	    downloadFileName: string;
+	    assetSizeBytes: number;
+	    repository: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateInfoDTO(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.hasUpdate = source["hasUpdate"];
+	        this.currentVersion = source["currentVersion"];
+	        this.latestVersion = source["latestVersion"];
+	        this.releaseTitle = source["releaseTitle"];
+	        this.releaseNotes = source["releaseNotes"];
+	        this.publishedAt = source["publishedAt"];
+	        this.downloadURL = source["downloadURL"];
+	        this.downloadFileName = source["downloadFileName"];
+	        this.assetSizeBytes = source["assetSizeBytes"];
+	        this.repository = source["repository"];
 	    }
 	}
 	export class UploadDocumentRequest {

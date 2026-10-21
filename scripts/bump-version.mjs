@@ -40,3 +40,4 @@ if (fs.existsSync(pkgPath)) {
 }
 
 console.log('Version bump complete.');
+

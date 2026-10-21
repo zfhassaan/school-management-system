@@ -133,3 +133,4 @@ if (isJson) {
 } else {
   console.log(`Version decision: ${result.tag} (${result.reason})`);
 }
+
