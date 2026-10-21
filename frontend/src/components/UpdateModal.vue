@@ -8,8 +8,18 @@
 						<Sparkles class="w-5 h-5" />
 					</div>
 					<div>
-						<h3 class="text-sm font-bold text-slate-900">Application Updates</h3>
-						<p class="text-xs text-slate-500">Check GitHub repository for the newest release.</p>
+						<div class="flex items-center gap-2.5">
+							<h3 class="text-sm font-bold text-slate-900">Application Updates</h3>
+							<button
+								@click="checkForUpdates"
+								:disabled="isChecking || isApplying"
+								class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-2xs flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+							>
+								<RefreshCw class="w-3.5 h-3.5" :class="{ 'animate-spin': isChecking }" />
+								<span>{{ isChecking ? 'Checking...' : 'Check' }}</span>
+							</button>
+						</div>
+						<p class="text-xs text-slate-500 mt-0.5">Check for the newest version and patches.</p>
 					</div>
 				</div>
 				<button @click="$emit('close')" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
@@ -17,36 +27,18 @@
 				</button>
 			</div>
 
-			<!-- Repository Target -->
-			<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-				<div class="flex items-center justify-between">
-					<label class="font-bold text-slate-700 text-[11px] uppercase tracking-wider">GitHub Repository</label>
-					<span class="text-[10px] text-slate-400 font-mono">owner/repository</span>
-				</div>
-				<div class="flex items-center gap-2">
-					<input
-						v-model="repoInput"
-						type="text"
-						placeholder="e.g. zfhassaan/school-management-system"
-						class="flex-1 px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
-						:disabled="isChecking || isApplying"
-					/>
-					<button
-						@click="checkForUpdates"
-						:disabled="isChecking || isApplying"
-						class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-2xs flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50 shrink-0"
-					>
-						<RefreshCw class="w-3.5 h-3.5" :class="{ 'animate-spin': isChecking }" />
-						<span>{{ isChecking ? 'Checking...' : 'Check' }}</span>
-					</button>
-				</div>
-			</div>
-
 			<!-- Status: Checking in progress -->
 			<div v-if="isChecking" class="py-8 text-center space-y-2">
 				<RefreshCw class="w-8 h-8 mx-auto text-indigo-600 animate-spin" />
-				<p class="text-xs font-semibold text-slate-700">Querying GitHub API for latest release...</p>
-				<p class="text-[11px] text-slate-400 font-mono">{{ repoInput }}</p>
+				<p class="text-xs font-semibold text-slate-700">Checking for latest release...</p>
+			</div>
+
+			<!-- Status: Idle / Ready to check -->
+			<div v-else-if="!isChecking && !checkResult && !errorMessage" class="p-6 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1.5">
+				<p class="text-xs font-semibold text-slate-700">Ready to check for updates</p>
+				<p class="text-[11px] text-slate-500">
+					Click the <strong>Check</strong> button above to verify if a newer release or patch is available.
+				</p>
 			</div>
 
 			<!-- Status: Up to date -->
@@ -54,7 +46,7 @@
 				<CheckCircle2 class="w-8 h-8 mx-auto text-emerald-600" />
 				<h4 class="text-sm font-bold text-emerald-900">You are on the latest version!</h4>
 				<p class="text-xs text-emerald-700">
-					Current version <strong class="font-mono">v{{ checkResult.currentVersion }}</strong> matches the latest GitHub release.
+					Current version <strong class="font-mono">v{{ checkResult.currentVersion }}</strong> matches the latest release.
 				</p>
 			</div>
 
@@ -139,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
 import { useToast } from '@/composables/useToast'
 import type { UpdateInfoDTO } from '@/services/contracts'
@@ -245,6 +237,16 @@ async function applyUpdate() {
 		isApplying.value = false
 	}
 }
+
+watch(
+	() => props.isOpen,
+	(open) => {
+		if (open) {
+			loadVersion()
+			checkForUpdates()
+		}
+	}
+)
 
 onMounted(() => {
 	loadVersion()

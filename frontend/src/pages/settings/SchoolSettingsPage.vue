@@ -334,7 +334,7 @@
 					<div class="flex items-center gap-2">
 						<h2 class="text-sm font-bold text-slate-900">Application Version &amp; Auto-Update</h2>
 						<span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
-							v1.0.0
+							v{{ appVersion }}
 						</span>
 					</div>
 					<p class="text-xs text-slate-500 mt-0.5">
@@ -536,6 +536,9 @@ import { useAuthStore } from '@/stores/auth'
 import DeveloperLogo from '@/components/DeveloperLogo.vue'
 import UpdateModal from '@/components/UpdateModal.vue'
 import { openExternalUrl } from '@/utils/browser'
+import pkg from '../../../package.json'
+
+const appVersion = pkg.version || '1.0.1'
 import {
 	Building2,
 	Coins,
