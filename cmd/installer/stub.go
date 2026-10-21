@@ -7,3 +7,4 @@ import "fmt"
 func main() {
 	fmt.Println("Installer is only supported on Windows")
 }
+

@@ -39,5 +39,14 @@ if (fs.existsSync(pkgPath)) {
   console.log(`Updated ${pkgPath}`);
 }
 
+// 4. Update website/package.json
+const sitePkgPath = path.resolve('website/package.json');
+if (fs.existsSync(sitePkgPath)) {
+  const sitePkg = JSON.parse(fs.readFileSync(sitePkgPath, 'utf8'));
+  sitePkg.version = cleanVersion;
+  fs.writeFileSync(sitePkgPath, JSON.stringify(sitePkg, null, 2) + '\n', 'utf8');
+  console.log(`Updated ${sitePkgPath}`);
+}
+
 console.log('Version bump complete.');
 
