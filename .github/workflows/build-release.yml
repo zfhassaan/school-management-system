@@ -1,0 +1,347 @@
+name: Build & Release
+
+# SemVer releases from Conventional Commits + cross-platform Wails desktop builds.
+# - push to master: auto patch/minor/major when feat/fix/perf/BREAKING CHANGE exist since last tag
+# - workflow_dispatch: choose auto|patch|minor|major, or rebuild_tag
+# - tag v*: build & publish that version
+# - pull_request: build check only (no release)
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'SemVer bump (auto = Conventional Commits). Ignored when rebuild_tag is set.'
+        required: true
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+        default: auto
+      rebuild_tag:
+        description: 'Rebuild all platforms and upload to this existing tag (e.g. v1.0.0). Leave empty for a normal SemVer release.'
+        required: false
+        type: string
+        default: ''
+  pull_request:
+    paths:
+      - 'cmd/**'
+      - 'main.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'frontend/**'
+      - 'internal/**'
+      - 'wails.json'
+      - 'build/**'
+      - 'scripts/**'
+      - '.github/workflows/build-release.yml'
+
+env:
+  NODE_OPTIONS: '--max-old-space-size=4096'
+  WAILS_VERSION: v2.15.0
+
+concurrency:
+  group: >-
+    build-release-${{ github.ref }}-${{
+      (github.event_name == 'workflow_dispatch' && inputs.rebuild_tag != '')
+      && format('rebuild-{0}', inputs.rebuild_tag)
+      || 'default'
+    }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    name: Decide version
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name != 'push' ||
+      !startsWith(github.event.head_commit.message, 'chore(release):')
+    outputs:
+      release: ${{ steps.decide.outputs.release }}
+      bump: ${{ steps.decide.outputs.bump }}
+      previous: ${{ steps.decide.outputs.previous }}
+      previous_tag: ${{ steps.decide.outputs.previous_tag }}
+      version: ${{ steps.decide.outputs.version }}
+      tag: ${{ steps.decide.outputs.tag }}
+      reason: ${{ steps.decide.outputs.reason }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Decide next SemVer
+        id: decide
+        env:
+          BUMP: ${{ github.event_name == 'workflow_dispatch' && inputs.bump || 'auto' }}
+          REBUILD_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.rebuild_tag || '' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${REBUILD_TAG}" ]]; then
+            TAG="${REBUILD_TAG}"
+            [[ "$TAG" == v* ]] || TAG="v${TAG}"
+            VERSION="${TAG#v}"
+            if ! gh release view "$TAG" >/dev/null 2>&1; then
+              echo "Release $TAG does not exist — create it first or leave rebuild_tag empty." >&2
+              exit 1
+            fi
+            TAG="$TAG" VERSION="$VERSION" node -e "
+              const fs = require('fs');
+              const tag = process.env.TAG;
+              const version = process.env.VERSION;
+              fs.writeFileSync('/tmp/semver.json', JSON.stringify({
+                release: true,
+                bump: 'rebuild',
+                previous: version,
+                previousTag: tag,
+                version,
+                tag,
+                reason: 'Rebuild all platforms and upload assets to existing ' + tag,
+              }));
+            "
+            echo "Rebuild mode for $TAG"
+          else
+            node scripts/semver-release.mjs --bump "$BUMP" --json | tee /tmp/semver.json
+
+            TAG=$(node -pe 'JSON.parse(require("fs").readFileSync("/tmp/semver.json","utf8")).tag')
+            if [[ "${GITHUB_REF}" == refs/tags/* ]] && gh release view "$TAG" >/dev/null 2>&1; then
+              echo "Release $TAG already exists — skipping rebuild (use workflow_dispatch rebuild_tag to backfill)."
+              node -e '
+                const fs=require("fs");
+                const j=JSON.parse(fs.readFileSync("/tmp/semver.json","utf8"));
+                j.release=false;
+                j.reason=`Release ${j.tag} already exists`;
+                fs.writeFileSync("/tmp/semver.json", JSON.stringify(j));
+              '
+            fi
+          fi
+
+          node -e '
+            const fs = require("fs");
+            const j = JSON.parse(fs.readFileSync("/tmp/semver.json","utf8"));
+            const out = process.env.GITHUB_OUTPUT;
+            for (const [k,v] of Object.entries({
+              release: j.release,
+              bump: j.bump,
+              previous: j.previous,
+              previous_tag: j.previousTag,
+              version: j.version,
+              tag: j.tag,
+              reason: j.reason,
+            })) fs.appendFileSync(out, `${k}=${v}\n`);
+          '
+          echo "Decision: $(cat /tmp/semver.json)"
+
+  build:
+    name: ${{ matrix.label }}
+    needs: version
+    if: >
+      always() &&
+      needs.version.result == 'success' &&
+      (
+        needs.version.outputs.release == 'true' ||
+        github.event_name == 'pull_request'
+      )
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: windows-amd64
+            runner: windows-latest
+            platform: windows/amd64
+            goarch: amd64
+          - label: linux-amd64
+            runner: ubuntu-24.04
+            platform: linux/amd64
+            goarch: amd64
+          - label: darwin-arm64
+            runner: macos-14
+            platform: darwin/arm64
+            goarch: arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply release version
+        if: needs.version.outputs.release == 'true'
+        shell: bash
+        run: node scripts/bump-version.mjs "${{ needs.version.outputs.version }}"
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Linux WebKit dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@${{ env.WAILS_VERSION }}
+
+      - name: Build (Windows Portable + Standalone Installer)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          wails build -clean -platform ${{ matrix.platform }}
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item "build/bin/school-management.exe" "dist/SchoolManagement-windows-amd64.exe" -Force
+          # Build Standalone Single-File Windows Installer
+          Copy-Item "build/bin/school-management.exe" "cmd/installer/school-management.exe" -Force
+          $env:CGO_ENABLED = "0"
+          go build -trimpath -ldflags="-s -w" -o "dist/SchoolManagement-windows-amd64-installer.exe" ./cmd/installer
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          wails build -clean -platform ${{ matrix.platform }} -tags webkit2_41
+          mkdir -p dist
+          cp build/bin/school-management "dist/SchoolManagement-linux-amd64"
+          chmod +x "dist/SchoolManagement-linux-amd64"
+          tar -C dist -czf "dist/SchoolManagement-linux-amd64.tar.gz" SchoolManagement-linux-amd64
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          wails build -clean -platform ${{ matrix.platform }}
+          mkdir -p dist
+          APP="build/bin/school-management.app"
+          if [ ! -d "$APP" ]; then
+            echo "Expected school-management.app missing" >&2
+            ls -la build/bin || true
+            exit 1
+          fi
+          ZIP="dist/SchoolManagement-darwin-${{ matrix.goarch }}.zip"
+          DMG="dist/SchoolManagement-darwin-${{ matrix.goarch }}.dmg"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+          hdiutil create -volname "School Management System" -srcfolder "$APP" -ov -format UDZO "$DMG"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SchoolManagement-${{ matrix.label }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub Release
+    needs: [version, build]
+    if: >
+      always() &&
+      needs.version.result == 'success' &&
+      needs.build.result == 'success' &&
+      needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version files on master
+        id: bump
+        if: >
+          (github.event_name != 'workflow_dispatch' || inputs.rebuild_tag == '') &&
+          (github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/v'))
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          node scripts/bump-version.mjs "$VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add internal/platform/version/version.go wails.json frontend/package.json README.md
+          if git diff --cached --quiet; then
+            echo "Version files already at $VERSION"
+          else
+            git commit -m "chore(release): v${VERSION}"
+            git push origin HEAD:master
+          fi
+          echo "target_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: List assets
+        run: find release-assets -type f | sort
+
+      - name: Verify release assets before publish
+        run: |
+          set -euo pipefail
+          missing=0
+          required=(
+            SchoolManagement-windows-amd64.exe
+            SchoolManagement-windows-amd64-installer.exe
+            SchoolManagement-linux-amd64.tar.gz
+            SchoolManagement-darwin-arm64.dmg
+          )
+          for f in "${required[@]}"; do
+            if ! find release-assets -type f -name "$f" | grep -q .; then
+              echo "MISSING required asset: $f"
+              missing=1
+            else
+              echo "OK: $f"
+            fi
+          done
+          if [[ "$missing" -ne 0 ]]; then
+            echo "Refusing to publish an incomplete multi-platform release." >&2
+            exit 1
+          fi
+
+      - name: Create / update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          target_commitish: ${{ steps.bump.outputs.target_sha || github.sha }}
+          name: School Management System ${{ needs.version.outputs.tag }}
+          draft: false
+          generate_release_notes: ${{ github.event_name != 'workflow_dispatch' || inputs.rebuild_tag == '' }}
+          body: |
+            ## Version
+            - Previous: `${{ needs.version.outputs.previous_tag || needs.version.outputs.previous }}`
+            - Bump: **${{ needs.version.outputs.bump }}**
+            - New: `${{ needs.version.outputs.tag }}`
+
+            ${{ needs.version.outputs.reason }}
+
+            ## Downloads
+            - **Windows Installer**: `SchoolManagement-windows-amd64-installer.exe`
+            - **Windows Portable**: `SchoolManagement-windows-amd64.exe`
+            - **Linux Package**: `SchoolManagement-linux-amd64.tar.gz`
+            - **macOS DMG**: `SchoolManagement-darwin-arm64.dmg`
+            - **macOS ZIP**: `SchoolManagement-darwin-arm64.zip`
+          files: release-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
