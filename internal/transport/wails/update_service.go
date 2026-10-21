@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -97,23 +98,44 @@ func (s *UpdateService) CheckForUpdates(customRepo string) dto.Response[UpdateIn
 
 	hasUpdate := version.IsNewerVersion(version.Current, rel.TagName)
 
-	// Pick appropriate binary asset (installer or exe)
+	// Pick appropriate binary asset based on operating system
 	var chosenAsset *githubAsset
-	for i := range rel.Assets {
-		name := strings.ToLower(rel.Assets[i].Name)
-		if strings.HasSuffix(name, "-setup.exe") || strings.HasSuffix(name, "installer.exe") {
-			chosenAsset = &rel.Assets[i]
-			break
-		}
-	}
+	osTarget := runtime.GOOS
 
-	// Fallback to standalone .exe if installer not present
-	if chosenAsset == nil {
+	switch osTarget {
+	case "darwin":
 		for i := range rel.Assets {
 			name := strings.ToLower(rel.Assets[i].Name)
-			if strings.HasSuffix(name, ".exe") {
+			if strings.Contains(name, "darwin") || strings.HasSuffix(name, ".dmg") || strings.HasSuffix(name, ".zip") {
 				chosenAsset = &rel.Assets[i]
 				break
+			}
+		}
+	case "linux":
+		for i := range rel.Assets {
+			name := strings.ToLower(rel.Assets[i].Name)
+			if strings.Contains(name, "linux") {
+				chosenAsset = &rel.Assets[i]
+				break
+			}
+		}
+	default: // Windows and default
+		// First prefer standalone executable for in-place replacement (retains all data safely)
+		for i := range rel.Assets {
+			name := strings.ToLower(rel.Assets[i].Name)
+			if strings.HasSuffix(name, ".exe") && !strings.Contains(name, "setup") && !strings.Contains(name, "installer") {
+				chosenAsset = &rel.Assets[i]
+				break
+			}
+		}
+		// Fallback to installer if standalone binary is not found
+		if chosenAsset == nil {
+			for i := range rel.Assets {
+				name := strings.ToLower(rel.Assets[i].Name)
+				if strings.HasSuffix(name, ".exe") {
+					chosenAsset = &rel.Assets[i]
+					break
+				}
 			}
 		}
 	}
