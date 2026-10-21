@@ -251,7 +251,7 @@
 						title="Check for newest version on GitHub"
 					>
 						<Sparkles class="w-3.5 h-3.5 text-indigo-600" />
-						<span>v1.0.0</span>
+						<span>v{{ appVersion }}</span>
 						<span class="text-[10px] text-slate-400 font-normal hidden md:inline">• Check Update</span>
 					</button>
 
@@ -285,6 +285,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import pkg from '../../package.json'
+
+const appVersion = pkg.version || '1.0.1'
 import ChangePasswordModal from '@/components/ChangePasswordModal.vue'
 import DeveloperAboutModal from '@/components/DeveloperAboutModal.vue'
 import DeveloperBadge from '@/components/DeveloperBadge.vue'
