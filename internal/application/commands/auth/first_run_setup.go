@@ -9,6 +9,7 @@ import (
 
 	"school-management/internal/application/services/auditlog"
 	"school-management/internal/application/services/uow"
+	"school-management/internal/domain/admissions"
 	"school-management/internal/domain/identity"
 	"school-management/internal/domain/school"
 	"school-management/internal/domain/shared"
@@ -163,6 +164,37 @@ func (h *FirstRunSetupHandler) Execute(ctx context.Context, in FirstRunSetupInpu
 		// Store recovery codes
 		if err := r.RecoveryCodes.ReplaceForUser(ctx, adminUserID, recoveryCodeEntities, now); err != nil {
 			return err
+		}
+
+		// Generate default institutional admission form & publish version 1
+		formDefID := h.ids.NewID()
+		formDef := &admissions.FormDefinition{
+			ID:          formDefID,
+			SchoolID:    sch.ID,
+			Code:        "STD",
+			Name:        "General Admission Form",
+			Description: "Standard admission application form",
+			IsActive:    true,
+			CreatedAt:   now,
+			UpdatedAt:   now,
+		}
+		if err := r.Admissions.InsertFormDefinition(ctx, formDef); err == nil {
+			verID := h.ids.NewID()
+			schema := admissions.DefaultFormSchema()
+			hash, _ := admissions.ComputeSchemaHash(schema)
+			ver := &admissions.FormVersion{
+				ID:               verID,
+				FormDefinitionID: formDefID,
+				VersionNo:        1,
+				Status:           admissions.FormDraft,
+				Schema:           schema,
+				SchemaHash:       hash,
+				CreatedAt:        now,
+				UpdatedAt:        now,
+			}
+			if err := r.Admissions.InsertFormVersion(ctx, ver); err == nil {
+				_ = r.Admissions.PublishFormVersion(ctx, verID, adminUserID, now, hash)
+			}
 		}
 
 		// Audit log entry

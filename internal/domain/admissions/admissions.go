@@ -65,6 +65,80 @@ type FormSchema struct {
 	RequiredDocuments []string      `json:"requiredDocuments,omitempty"`
 }
 
+// DefaultFormSchema returns the standard institutional admission form schema.
+func DefaultFormSchema() FormSchema {
+	return FormSchema{
+		Title:       "General Admission Application Form",
+		Description: "Official admission intake form for student registration and enrollment.",
+		Sections: []FormSection{
+			{
+				ID:          "sec_student_background",
+				Title:       "Academic Background",
+				Description: "Previous school background and student personal details",
+				Fields: []FormField{
+					{
+						ID:          "prev_school",
+						Label:       "Previous School Attended",
+						Type:        FieldText,
+						Placeholder: "Name of previous school",
+						Required:    false,
+					},
+					{
+						ID:          "last_grade",
+						Label:       "Last Grade / Class Passed",
+						Type:        FieldText,
+						Placeholder: "e.g. Grade 4",
+						Required:    false,
+					},
+					{
+						ID:          "blood_group",
+						Label:       "Blood Group",
+						Type:        FieldDropdown,
+						Placeholder: "Select Blood Group",
+						Required:    false,
+						Options:     []string{"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"},
+					},
+				},
+			},
+			{
+				ID:          "sec_emergency",
+				Title:       "Emergency & Medical Contact",
+				Description: "Emergency contact numbers and special health requirements",
+				Fields: []FormField{
+					{
+						ID:          "emergency_contact",
+						Label:       "Emergency Contact Person",
+						Type:        FieldText,
+						Placeholder: "Name of emergency contact",
+						Required:    false,
+					},
+					{
+						ID:          "emergency_phone",
+						Label:       "Emergency Phone Number",
+						Type:        FieldPhone,
+						Placeholder: "+92-300-1234567",
+						Required:    false,
+					},
+				},
+			},
+			{
+				ID:          "sec_notes",
+				Title:       "General Notes",
+				Description: "Optional additional notes or remarks",
+				Fields: []FormField{
+					{
+						ID:          "notes",
+						Label:       "Notes / Remarks",
+						Type:        FieldTextarea,
+						Placeholder: "Optional background or remarks...",
+						Required:    false,
+					},
+				},
+			},
+		},
+	}
+}
+
 type FormDefinition struct {
 	ID          shared.ID
 	SchoolID    shared.ID

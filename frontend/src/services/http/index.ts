@@ -155,6 +155,7 @@ export class HttpEnrollmentService implements IEnrollmentService {
 
 export class HttpAdmissionService implements IAdmissionService {
 	async listFormDefinitions() { return fetch('/api/v1/admissions/forms').then(r => r.json()) }
+	async ensureDefaultAdmissionForm() { return fetch('/api/v1/admissions/forms/ensure-default', { method: 'POST' }).then(r => r.json()) }
 	async createFormDefinition(input: any) { return fetch('/api/v1/admissions/forms', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
 	async listFormVersions(formDefId: string) { return fetch(`/api/v1/admissions/forms/${formDefId}/versions`).then(r => r.json()) }
 	async getPublishedFormVersion(formDefId: string) { return fetch(`/api/v1/admissions/forms/${formDefId}/published`).then(r => r.json()) }

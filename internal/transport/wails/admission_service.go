@@ -37,6 +37,16 @@ func (s *AdmissionService) ListFormDefinitions() dto.Response[[]admissions.FormD
 	return dto.Ok(res)
 }
 
+func (s *AdmissionService) EnsureDefaultAdmissionForm() dto.Response[shared.ID] {
+	ctx := s.sessions.Context()
+	id, err := s.cmdHandler.EnsureDefaultAdmissionForm(ctx)
+	if err != nil {
+		code, msg, fields := MapError(err)
+		return dto.Fail[shared.ID](code, msg, fields, reqctx.CorrelationID(ctx))
+	}
+	return dto.Ok(id)
+}
+
 func (s *AdmissionService) CreateFormDefinition(in admCmd.CreateFormDefInput) dto.Response[shared.ID] {
 	ctx := s.sessions.Context()
 	id, err := s.cmdHandler.CreateFormDefinition(ctx, in)

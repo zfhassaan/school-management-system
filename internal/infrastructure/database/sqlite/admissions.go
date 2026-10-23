@@ -223,7 +223,7 @@ func (r *AdmissionsRepository) PublishFormVersion(ctx context.Context, id shared
 	now := at.UTC().Format(time.RFC3339Nano)
 	return r.q.PublishAdmissionFormVersion(ctx, PublishAdmissionFormVersionParams{
 		PublishedAt: sql.NullString{String: now, Valid: true},
-		PublishedBy: sql.NullString{String: publishedBy.String(), Valid: true},
+		PublishedBy: sql.NullString{String: publishedBy.String(), Valid: publishedBy != ""},
 		SchemaHash:  hash,
 		UpdatedAt:   now,
 		ID:          id.String(),

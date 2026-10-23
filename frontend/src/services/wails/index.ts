@@ -390,6 +390,11 @@ export class WailsAdmissionService implements IAdmissionService {
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
 		return await svc.ListFormDefinitions()
 	}
+	async ensureDefaultAdmissionForm() {
+		const svc = getBinding('AdmissionService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.EnsureDefaultAdmissionForm()
+	}
 	async createFormDefinition(input: any) {
 		const svc = getBinding('AdmissionService')
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }

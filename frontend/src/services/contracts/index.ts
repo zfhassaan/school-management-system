@@ -152,6 +152,7 @@ export interface IEnrollmentService {
 
 export interface IAdmissionService {
 	listFormDefinitions(): Promise<ResponseEnvelope<FormDefinitionDTO[]>>
+	ensureDefaultAdmissionForm(): Promise<ResponseEnvelope<string>>
 	createFormDefinition(input: any): Promise<ResponseEnvelope<string>>
 	listFormVersions(formDefId: string): Promise<ResponseEnvelope<FormVersionDTO[]>>
 	getPublishedFormVersion(formDefId: string): Promise<ResponseEnvelope<FormVersionDTO>>

@@ -6,7 +6,7 @@ import (
 )
 
 // Current application semantic version
-const Current = "1.5.1"
+const Current = "1.5.2"
 
 // DefaultGitHubRepo represents the default repository for release queries
 const DefaultGitHubRepo = "zfhassaan/school-management-system"

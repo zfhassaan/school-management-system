@@ -197,6 +197,97 @@ func (h *AdmissionCommandsHandler) PublishFormVersion(ctx context.Context, in Pu
 	})
 }
 
+// EnsureDefaultAdmissionForm verifies that a published admission form exists.
+// If none exists, it automatically creates and publishes the default institutional form.
+func (h *AdmissionCommandsHandler) EnsureDefaultAdmissionForm(ctx context.Context) (shared.ID, error) {
+	var actorID shared.ID
+	if a, err := authz.ActorFrom(ctx); err == nil {
+		actorID = a.UserID
+	}
+	now := h.clock.Now()
+	var publishedVerID shared.ID
+
+	err := h.uow.Write(ctx, func(ctx context.Context, r uow.Repos) error {
+		sch, err := r.School.Get(ctx)
+		if err != nil {
+			return err
+		}
+
+		defs, err := r.Admissions.ListFormDefinitions(ctx, sch.ID)
+		if err == nil {
+			for _, def := range defs {
+				pub, err := r.Admissions.GetPublishedVersion(ctx, def.ID)
+				if err == nil && pub != nil && pub.Status == admissions.FormPublished {
+					publishedVerID = pub.ID
+					return nil
+				}
+			}
+		}
+
+		var targetDefID shared.ID
+		var targetDefName string
+
+		if len(defs) > 0 {
+			targetDefID = defs[0].ID
+			targetDefName = defs[0].Name
+		} else {
+			defID := h.ids.NewID()
+			def := &admissions.FormDefinition{
+				ID:          defID,
+				SchoolID:    sch.ID,
+				Code:        "STD",
+				Name:        "General Admission Form",
+				Description: "Standard admission application form",
+				IsActive:    true,
+				CreatedAt:   now,
+				UpdatedAt:   now,
+			}
+			if err := r.Admissions.InsertFormDefinition(ctx, def); err != nil {
+				return err
+			}
+			targetDefID = defID
+			targetDefName = def.Name
+		}
+
+		versions, _ := r.Admissions.ListFormVersions(ctx, targetDefID)
+		if len(versions) > 0 {
+			latest := versions[len(versions)-1]
+			hash, _ := admissions.ComputeSchemaHash(latest.Schema)
+			_ = r.Admissions.PublishFormVersion(ctx, latest.ID, actorID, now, hash)
+			publishedVerID = latest.ID
+			return nil
+		}
+
+		verID := h.ids.NewID()
+		schema := admissions.DefaultFormSchema()
+		schema.Title = targetDefName
+		hash, _ := admissions.ComputeSchemaHash(schema)
+		ver := &admissions.FormVersion{
+			ID:               verID,
+			FormDefinitionID: targetDefID,
+			VersionNo:        1,
+			Status:           admissions.FormDraft,
+			Schema:           schema,
+			SchemaHash:       hash,
+			CreatedAt:        now,
+			UpdatedAt:        now,
+		}
+		if err := r.Admissions.InsertFormVersion(ctx, ver); err != nil {
+			return err
+		}
+		if err := r.Admissions.PublishFormVersion(ctx, verID, actorID, now, hash); err != nil {
+			return err
+		}
+		publishedVerID = verID
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+	return publishedVerID, nil
+}
+
 func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in SubmitApplicationInput) (shared.ID, error) {
 	actor, err := authz.Require(ctx, identity.PermAdmissionsCreate)
 	if err != nil {
