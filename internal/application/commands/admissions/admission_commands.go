@@ -217,49 +217,71 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 			if err == nil {
 				for _, def := range defs {
 					pub, err := r.Admissions.GetPublishedVersion(ctx, def.ID)
-					if err == nil && pub != nil {
+					if err == nil && pub != nil && pub.Status == admissions.FormPublished {
 						formVerID = pub.ID
 						break
 					}
 				}
 			}
+
 			if formVerID == "" {
-				defID := h.ids.NewID()
-				def := &admissions.FormDefinition{
-					ID:          defID,
-					SchoolID:    sch.ID,
-					Code:        "STD",
-					Name:        "General Admission Form",
-					Description: "Standard admission application form",
-					IsActive:    true,
-					CreatedAt:   now,
-					UpdatedAt:   now,
+				var targetDefID shared.ID
+				var targetDefName string
+
+				if len(defs) > 0 {
+					targetDefID = defs[0].ID
+					targetDefName = defs[0].Name
+				} else {
+					defID := h.ids.NewID()
+					def := &admissions.FormDefinition{
+						ID:          defID,
+						SchoolID:    sch.ID,
+						Code:        "STD",
+						Name:        "General Admission Form",
+						Description: "Standard admission application form",
+						IsActive:    true,
+						CreatedAt:   now,
+						UpdatedAt:   now,
+					}
+					if err := r.Admissions.InsertFormDefinition(ctx, def); err != nil {
+						return err
+					}
+					targetDefID = defID
+					targetDefName = def.Name
 				}
-				if err := r.Admissions.InsertFormDefinition(ctx, def); err != nil {
-					return err
+
+				// Check if there are existing versions for this definition
+				versions, _ := r.Admissions.ListFormVersions(ctx, targetDefID)
+				if len(versions) > 0 {
+					latest := versions[len(versions)-1]
+					hash, _ := admissions.ComputeSchemaHash(latest.Schema)
+					_ = r.Admissions.PublishFormVersion(ctx, latest.ID, actor.UserID, now, hash)
+					formVerID = latest.ID
+				} else {
+					verID := h.ids.NewID()
+					schema := admissions.FormSchema{
+						Title:    targetDefName,
+						Sections: []admissions.FormSection{},
+					}
+					hash, _ := admissions.ComputeSchemaHash(schema)
+					ver := &admissions.FormVersion{
+						ID:               verID,
+						FormDefinitionID: targetDefID,
+						VersionNo:        1,
+						Status:           admissions.FormDraft,
+						Schema:           schema,
+						SchemaHash:       hash,
+						CreatedAt:        now,
+						UpdatedAt:        now,
+					}
+					if err := r.Admissions.InsertFormVersion(ctx, ver); err != nil {
+						return err
+					}
+					if err := r.Admissions.PublishFormVersion(ctx, verID, actor.UserID, now, hash); err != nil {
+						return err
+					}
+					formVerID = verID
 				}
-				verID := h.ids.NewID()
-				schema := admissions.FormSchema{
-					Title:    "General Admission Form",
-					Sections: []admissions.FormSection{},
-				}
-				hash, _ := admissions.ComputeSchemaHash(schema)
-				ver := &admissions.FormVersion{
-					ID:               verID,
-					FormDefinitionID: defID,
-					VersionNo:        1,
-					Status:           admissions.FormPublished,
-					Schema:           schema,
-					SchemaHash:       hash,
-					PublishedAt:      &now,
-					PublishedBy:      &actor.UserID,
-					CreatedAt:        now,
-					UpdatedAt:        now,
-				}
-				if err := r.Admissions.InsertFormVersion(ctx, ver); err != nil {
-					return err
-				}
-				formVerID = verID
 			}
 		}
 
@@ -267,6 +289,12 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 		v, err := r.Admissions.GetFormVersion(ctx, formVerID)
 		if err != nil {
 			return err
+		}
+		if v.Status == admissions.FormDraft {
+			hash, _ := admissions.ComputeSchemaHash(v.Schema)
+			if pubErr := r.Admissions.PublishFormVersion(ctx, formVerID, actor.UserID, now, hash); pubErr == nil {
+				v.Status = admissions.FormPublished
+			}
 		}
 		if v.Status != admissions.FormPublished {
 			return shared.Validation("can only submit against published form versions", nil)
@@ -277,7 +305,11 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 			}
 		}
 
-		appNo := fmt.Sprintf("APP-%d-%04d", now.Year(), now.Unix()%100000)
+		idSuffix := strings.ToUpper(strings.ReplaceAll(id.String(), "-", ""))
+		if len(idSuffix) > 4 {
+			idSuffix = idSuffix[len(idSuffix)-4:]
+		}
+		appNo := fmt.Sprintf("APP-%d-%04d-%s", now.Year(), (now.UnixNano()/1e6)%10000, idSuffix)
 
 		app := &admissions.Application{
 			ID:                      id,

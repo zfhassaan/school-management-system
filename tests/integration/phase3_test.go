@@ -276,8 +276,24 @@ func TestAcademicStudentAdmissionLifecycle(t *testing.T) {
 			"prev_school":     "Wonderland Nursery",
 		},
 	})
+	// Step 4b: Submit Application directly without specifying FormVersionID (Modal flow)
+	appDirectID, err := admCmdHandler.SubmitApplication(authCtx, admCmd.SubmitApplicationInput{
+		FormVersionID:           "",
+		AcademicYearID:          yearID,
+		AppliedClassID:          class1ID,
+		ApplicantFirstName:      "Bob",
+		ApplicantLastName:       "Builder",
+		ApplicantDOB:            &dob,
+		ApplicantGender:         "male",
+		GuardianPhoneNormalized: "+1234567899",
+		GuardianName:            "Wendy Builder",
+		GuardianEmail:           "wendy@builder.org",
+	})
 	if err != nil {
-		t.Fatalf("failed to submit application: %v", err)
+		t.Fatalf("failed to submit direct application without FormVersionID: %v", err)
+	}
+	if appDirectID == "" {
+		t.Fatalf("expected non-empty appDirectID")
 	}
 
 	// Step 5: Review and Approve Application

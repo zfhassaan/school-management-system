@@ -200,6 +200,15 @@ async function loadDefinitions() {
 				description: 'Standard single-school admission intake'
 			})
 			if (created.success && created.data) {
+				const draftRes = await services.admissions.createFormVersion({
+					formDefinitionId: created.data,
+					schema: schema.value
+				})
+				if (draftRes.success && draftRes.data) {
+					await services.admissions.publishFormVersion({
+						versionId: draftRes.data
+					})
+				}
 				await loadDefinitions()
 			}
 		}
