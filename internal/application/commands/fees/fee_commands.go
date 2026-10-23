@@ -11,6 +11,7 @@ import (
 	"school-management/internal/application/services/uow"
 	"school-management/internal/domain/fees"
 	"school-management/internal/domain/identity"
+	"school-management/internal/domain/payments"
 	"school-management/internal/domain/shared"
 	"school-management/internal/domain/students"
 )
@@ -615,7 +616,73 @@ func (h *FeeCommandsHandler) GenerateInvoicesBatch(ctx context.Context, in Gener
 			}
 
 			// Finalize invoice status from draft to issued
-			if err := r.Fees.UpdateInvoiceStatus(ctx, invoiceID, fees.InvoiceIssued, 0, totalMinor); err != nil {
+			paidAmount := int64(0)
+			balance := totalMinor
+			status := fees.InvoiceIssued
+
+			// Check if student has advance credit balance to auto-allocate
+			cb, err := r.Payments.GetCreditBalance(ctx, sch.ID, student.ID)
+			if err == nil && cb != nil && cb.AmountMinor > 0 && totalMinor > 0 {
+				creditToApply := cb.AmountMinor
+				if creditToApply > totalMinor {
+					creditToApply = totalMinor
+				}
+
+				paidAmount = creditToApply
+				balance = totalMinor - creditToApply
+				if balance == 0 {
+					status = fees.InvoicePaid
+				} else {
+					status = fees.InvoicePartiallyPaid
+				}
+
+				// Deduct from student's credit balance
+				cb.AmountMinor -= creditToApply
+				cb.UpdatedAt = now
+				_ = r.Payments.UpsertCreditBalance(ctx, cb)
+
+				// Record credit ledger deduction
+				invRef := invoiceID.String()
+				_ = r.Payments.InsertCreditLedger(ctx, &payments.CreditLedgerEntry{
+					ID:                h.ids.NewID(),
+					CreditBalanceID:   cb.ID,
+					StudentID:         student.ID,
+					AmountMinor:       -creditToApply,
+					BalanceAfterMinor: cb.AmountMinor,
+					ReferenceType:     payments.CreditInvoiceApplication,
+					ReferenceID:       &invRef,
+					Notes:             fmt.Sprintf("Auto-applied advance credit to %s", invoiceNo),
+					CreatedAt:         now,
+				})
+
+				// If there are payments with unallocated funds, create allocation records
+				paymentsList, _ := r.Payments.ListPayments(ctx, payments.PaymentFilter{
+					SchoolID:  sch.ID,
+					StudentID: &student.ID,
+					Limit:     100,
+				})
+				remainingToAllocate := creditToApply
+				for _, p := range paymentsList {
+					if p.UnallocatedAmountMinor > 0 && remainingToAllocate > 0 {
+						thisAlloc := p.UnallocatedAmountMinor
+						if thisAlloc > remainingToAllocate {
+							thisAlloc = remainingToAllocate
+						}
+						_ = r.Payments.InsertAllocation(ctx, &payments.PaymentAllocation{
+							ID:                   h.ids.NewID(),
+							PaymentID:            p.ID,
+							InvoiceID:            invoiceID,
+							AllocatedAmountMinor: thisAlloc,
+							AllocatedAt:          now,
+							AllocatedByID:        actor.UserID,
+						})
+						_ = r.Payments.UpdatePaymentAllocation(ctx, p.ID, p.AllocatedAmountMinor+thisAlloc, p.UnallocatedAmountMinor-thisAlloc)
+						remainingToAllocate -= thisAlloc
+					}
+				}
+			}
+
+			if err := r.Fees.UpdateInvoiceStatus(ctx, invoiceID, status, paidAmount, balance); err != nil {
 				return fmt.Errorf("failed to issue invoice: %w", err)
 			}
 

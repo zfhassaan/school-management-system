@@ -186,13 +186,46 @@
 									{{ getInvoiceBalanceDisplay(alloc.InvoiceID) }}
 								</td>
 							</tr>
-							<tr v-if="detail.allocations.length === 0">
+
+							<!-- Advance Student Credit / Deposit Line Item -->
+							<tr v-if="detail.payment.UnallocatedAmountMinor > 0" class="hover:bg-slate-50/50 bg-indigo-50/20">
+								<td class="py-2.5 px-3.5 font-mono font-bold text-slate-900">
+									<span class="inline-flex items-center gap-1.5">
+										<span class="px-1.5 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-700 font-semibold border border-indigo-200">ADVANCE</span>
+										<span>ADV-CREDIT</span>
+									</span>
+								</td>
+								<td class="py-2.5 px-3.5 font-medium text-slate-700">
+									Student Advance Credit Ledger
+								</td>
+								<td class="py-2.5 px-3.5 text-right font-medium text-slate-600">
+									{{ formatMinor(detail.payment.AmountMinor) }}
+								</td>
+								<td class="py-2.5 px-3.5 text-right font-bold text-indigo-700">
+									{{ formatMinor(detail.payment.UnallocatedAmountMinor) }}
+								</td>
+								<td class="py-2.5 px-3.5 text-right font-mono font-semibold text-emerald-600 font-bold">
+									0.00 (CREDITED)
+								</td>
+							</tr>
+
+							<!-- Empty state only if zero allocations and zero unallocated -->
+							<tr v-if="detail.allocations.length === 0 && detail.payment.UnallocatedAmountMinor === 0">
 								<td colspan="5" class="py-6 text-center text-slate-500 italic">
-									Advance payment deposit. Funds credited directly to the student's credit advance ledger for subsequent tuition billings.
+									No fee allocations recorded for this voucher.
 								</td>
 							</tr>
 						</tbody>
 					</table>
+				</div>
+
+				<!-- Advance Payment Note if advance amount exists -->
+				<div v-if="detail.payment.UnallocatedAmountMinor > 0" class="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl text-xs text-indigo-900 flex items-center justify-between gap-3">
+					<div class="flex items-center gap-2">
+						<span class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+						<span><strong>Advance Payment Deposit:</strong> Funds of {{ formatMinor(detail.payment.UnallocatedAmountMinor) }} credited directly to the student's credit advance ledger for subsequent tuition billings.</span>
+					</div>
+					<span class="font-mono font-bold text-indigo-700 shrink-0">{{ formatMinor(detail.payment.UnallocatedAmountMinor) }}</span>
 				</div>
 
 				<!-- Detailed Itemized Fee Breakdown if linked invoice items loaded -->
@@ -208,6 +241,23 @@
 						>
 							<span class="font-medium text-slate-700 truncate pr-2">{{ item.FeeHeadName }}</span>
 							<span class="font-bold text-slate-900 shrink-0">{{ formatMinor(item.NetAmountMinor) }}</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Standard Class Fee Head Schedule if pure advance payment deposit -->
+				<div v-else-if="classFeeItems.length > 0" class="mt-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+					<div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+						Standard Applicable Fee Heads ({{ studentClassDisplay }})
+					</div>
+					<div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+						<div
+							v-for="(item, idx) in classFeeItems"
+							:key="item.ID || item.id || idx"
+							class="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200"
+						>
+							<span class="font-medium text-slate-700 truncate pr-2">{{ item.FeeHeadName || item.feeHeadName }}</span>
+							<span class="font-bold text-slate-900 shrink-0">{{ formatMinor(item.AmountMinor ?? item.amountMinor ?? 0) }}</span>
 						</div>
 					</div>
 				</div>
@@ -337,6 +387,7 @@ const detail = ref<PaymentDetailDTO | null>(null)
 const schoolProfile = ref<any>(null)
 const studentEnrollment = ref<EnrollmentDTO | null>(null)
 const linkedInvoiceDetail = ref<InvoiceDetailDTO | null>(null)
+const classFeeItems = ref<any[]>([])
 const loading = ref(false)
 
 const showReverseModal = ref(false)
@@ -496,6 +547,30 @@ async function loadPayment() {
 					}
 				} catch (e) {
 					console.error('Failed to load student enrollment details', e)
+				}
+			}
+
+			// 3. If no linked invoice items, fetch applicable class fee structure
+			if (!linkedInvoiceDetail.value?.items?.length && studentEnrollment.value?.AcademicYearID && studentEnrollment.value?.ClassID) {
+				try {
+					const structRes = await services.fees.listFeeStructures(studentEnrollment.value.AcademicYearID)
+					if (structRes.success && structRes.data) {
+						const classStruct = structRes.data.find((s: any) => s.ClassID === studentEnrollment.value?.ClassID)
+						if (classStruct?.ID) {
+							const versRes = await services.fees.listFeeStructureVersions(classStruct.ID)
+							if (versRes.success && versRes.data?.length) {
+								const publishedVer = versRes.data.find((v: any) => (v.Status || v.status) === 'published') || versRes.data[0]
+								if (publishedVer?.ID) {
+									const verRes = await services.fees.getFeeStructureVersionDetail(publishedVer.ID)
+									if (verRes.success && verRes.data?.items) {
+										classFeeItems.value = verRes.data.items
+									}
+								}
+							}
+						}
+					}
+				} catch (e) {
+					console.error('Failed to load class fee schedule', e)
 				}
 			}
 		}
