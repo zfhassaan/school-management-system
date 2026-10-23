@@ -372,6 +372,9 @@ export interface ApplicationDTO {
 	DecisionReason?: string
 	ClassName?: string
 	YearCode?: string
+	GuardianName?: string
+	AdmissionNo?: string
+	RollNo?: string
 }
 
 export interface DocumentDTO {

@@ -1,7 +1,7 @@
 {
   "name": "sms-website",
   "private": true,
-  "version": "1.5.5",
+  "version": "1.5.6",
   "description": "Showcase & Landing Website for School Management System Desktop ERP",
   "scripts": {
     "preview": "npx serve ."
