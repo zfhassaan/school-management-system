@@ -32,4 +32,6 @@ export function ListStudentDiscounts(arg1:shared.ID,arg2:shared.ID):Promise<dto.
 
 export function PublishFeeStructureVersion(arg1:shared.ID):Promise<dto.Response_bool_>;
 
+export function DeleteFeeStructureVersion(arg1:shared.ID):Promise<dto.Response_bool_>;
+
 export function UpdateFeeHead(arg1:fees.UpdateFeeHeadInput):Promise<dto.Response_bool_>;

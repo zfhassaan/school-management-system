@@ -58,6 +58,10 @@ export function PublishFeeStructureVersion(arg1) {
   return window['go']['wails']['FeeService']['PublishFeeStructureVersion'](arg1);
 }
 
+export function DeleteFeeStructureVersion(arg1) {
+  return window['go']['wails']['FeeService']['DeleteFeeStructureVersion'](arg1);
+}
+
 export function UpdateFeeHead(arg1) {
   return window['go']['wails']['FeeService']['UpdateFeeHead'](arg1);
 }

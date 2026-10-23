@@ -519,6 +519,15 @@ export class WailsFeeService implements IFeeService {
 	async deleteFeeStructureVersion(versionId: string) {
 		const svc = getBinding('FeeService')
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		if (typeof svc.DeleteFeeStructureVersion !== 'function') {
+			return {
+				success: false,
+				error: {
+					code: 'restart_required',
+					message: 'DeleteFeeStructureVersion requires the Go backend to be restarted. Please restart Wails dev (stop and run "wails dev" or restart the desktop app).'
+				}
+			}
+		}
 		return await svc.DeleteFeeStructureVersion(versionId)
 	}
 	async listDiscountPolicies() {
