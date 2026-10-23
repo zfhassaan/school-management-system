@@ -262,6 +262,7 @@ type Repository interface {
 	GetPublishedFeeStructureVersion(ctx context.Context, feeStructureID shared.ID) (*FeeStructureVersion, error)
 	InsertFeeStructureVersion(ctx context.Context, v *FeeStructureVersion) error
 	PublishFeeStructureVersion(ctx context.Context, id shared.ID, publishedByID shared.ID, publishedAt time.Time) error
+	DeleteFeeStructureVersion(ctx context.Context, id shared.ID) error
 	ListFeeStructureItems(ctx context.Context, versionID shared.ID) ([]FeeStructureItem, error)
 	InsertFeeStructureItem(ctx context.Context, item *FeeStructureItem) error
 

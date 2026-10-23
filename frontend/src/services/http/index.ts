@@ -189,6 +189,7 @@ export class HttpFeeService implements IFeeService {
 	async getFeeStructureVersionDetail(versionId: string) { return fetch(`/api/v1/fees/versions/${versionId}`).then(r => r.json()) }
 	async createFeeStructureVersion(input: any) { return fetch('/api/v1/fees/versions', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }
 	async publishFeeStructureVersion(versionId: string) { return fetch(`/api/v1/fees/versions/${versionId}/publish`, { method: 'POST' }).then(r => r.json()) }
+	async deleteFeeStructureVersion(versionId: string) { return fetch(`/api/v1/fees/versions/${versionId}`, { method: 'DELETE' }).then(r => r.json()) }
 
 	async listDiscountPolicies() { return fetch('/api/v1/fees/discounts/policies').then(r => r.json()) }
 	async createDiscountPolicy(input: any) { return fetch('/api/v1/fees/discounts/policies', { method: 'POST', body: JSON.stringify(input) }).then(r => r.json()) }

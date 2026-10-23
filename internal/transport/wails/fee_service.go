@@ -121,6 +121,16 @@ func (s *FeeService) PublishFeeStructureVersion(versionID shared.ID) dto.Respons
 	return dto.Ok(true)
 }
 
+func (s *FeeService) DeleteFeeStructureVersion(versionID shared.ID) dto.Response[bool] {
+	ctx := s.sessions.Context()
+	err := s.cmdHandler.DeleteFeeStructureVersion(ctx, versionID)
+	if err != nil {
+		code, msg, fields := MapError(err)
+		return dto.Fail[bool](code, msg, fields, reqctx.CorrelationID(ctx))
+	}
+	return dto.Ok(true)
+}
+
 // --- Discount Policies & Student Discounts ---
 
 func (s *FeeService) ListDiscountPolicies() dto.Response[[]fees.DiscountPolicy] {

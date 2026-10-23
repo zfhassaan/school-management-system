@@ -389,6 +389,16 @@ func (r *FeesRepository) PublishFeeStructureVersion(ctx context.Context, id shar
 	return nil
 }
 
+func (r *FeesRepository) DeleteFeeStructureVersion(ctx context.Context, id shared.ID) error {
+	if err := r.q.DeleteFeeStructureItemsByVersion(ctx, id.String()); err != nil {
+		return shared.Internal(err)
+	}
+	if err := r.q.DeleteFeeStructureVersion(ctx, id.String()); err != nil {
+		return shared.Internal(err)
+	}
+	return nil
+}
+
 func (r *FeesRepository) ListFeeStructureItems(ctx context.Context, versionID shared.ID) ([]fees.FeeStructureItem, error) {
 	rows, err := r.q.ListFeeStructureItems(ctx, versionID.String())
 	if err != nil {

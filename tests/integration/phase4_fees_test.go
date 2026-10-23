@@ -375,3 +375,186 @@ func TestFeeEngineAndInvoicingLifecycle(t *testing.T) {
 		aliceInvoice.Invoice.TotalAmountMinor, bobInvoice.Invoice.TotalAmountMinor, bobInvoice.Invoice.DiscountAmountMinor, len(invoiceIDs))
 }
 
+func TestDeleteFeeStructureVersion(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "sms-fee-del-test-*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	cfg := config.DefaultConfig(tempDir)
+	cfg.Database.Path = filepath.Join(tempDir, "phase4_del_test.db")
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+
+	ctx := context.Background()
+	db, err := sqlite.Open(ctx, &cfg, logger)
+	if err != nil {
+		t.Fatalf("failed to open sqlite database: %v", err)
+	}
+	defer db.Close()
+
+	uow := sqlite.NewUnitOfWork(db)
+	sessionStore := sqlite.NewSessionStore(db)
+	clock := shared.SystemClock{}
+	ids := shared.UUIDv7Generator{}
+	hasher := security.NewArgon2Hasher(security.Argon2Params{
+		Memory:      1024,
+		Iterations:  1,
+		Parallelism: 1,
+		SaltLength:  16,
+		KeyLength:   32,
+	})
+
+	setupHandler := authCmd.NewFirstRunSetupHandler(uow, ids, clock, hasher)
+	loginHandler := authCmd.NewLoginHandler(uow, sessionStore, ids, clock, hasher, db.DeviceID())
+	acadCmdHandler := acadCmd.NewAcademicCommandsHandler(uow, clock, ids)
+	feeCmdHandler := feeCmd.NewFeeCommandsHandler(uow, clock, ids)
+	feeQueries := feeQuery.NewFeeQueriesHandler(uow)
+
+	_, err = setupHandler.Execute(ctx, authCmd.FirstRunSetupInput{
+		SchoolName:         "Oakridge International School",
+		SchoolCode:         "OIS",
+		Timezone:           "UTC",
+		CurrencyCode:       "USD",
+		CurrencyMinorUnits: 2,
+		AdminUsername:      "superadmin",
+		AdminDisplayName:   "System Admin",
+		AdminEmail:         "admin@oakridge.edu",
+		AdminPassword:      "Password123!",
+	})
+	if err != nil {
+		t.Fatalf("first run setup failed: %v", err)
+	}
+
+	loginRes, err := loginHandler.Execute(ctx, authCmd.LoginInput{
+		Username: "superadmin",
+		Password: "Password123!",
+	})
+	if err != nil {
+		t.Fatalf("login failed: %v", err)
+	}
+
+	adminUserID, _ := shared.ParseID(loginRes.User.ID)
+	adminPerms := make([]identity.Permission, len(loginRes.User.Permissions))
+	for i, p := range loginRes.User.Permissions {
+		adminPerms[i] = identity.Permission(p)
+	}
+	authCtx := authz.WithActor(ctx, authz.Actor{
+		UserID:      adminUserID,
+		Username:    loginRes.User.Username,
+		DisplayName: loginRes.User.DisplayName,
+		DeviceID:    db.DeviceID(),
+		SessionID:   loginRes.SessionToken,
+		Roles:       loginRes.User.Roles,
+		Permissions: identity.NewPermissionSet(adminPerms),
+	})
+
+	yearID, err := acadCmdHandler.CreateAcademicYear(authCtx, acadCmd.CreateAcademicYearInput{
+		Name:     "2026-2027",
+		Code:     "2026-27",
+		StartsOn: shared.CivilDate(2026, 9, 1),
+		EndsOn:   shared.CivilDate(2027, 6, 30),
+		Status:   academics.YearActive,
+	})
+	if err != nil {
+		t.Fatalf("failed to create academic year: %v", err)
+	}
+
+	classID, err := acadCmdHandler.CreateClass(authCtx, acadCmd.CreateClassInput{
+		Name: "Grade 1",
+		Code: "G1",
+	})
+	if err != nil {
+		t.Fatalf("failed to create class: %v", err)
+	}
+
+	headID, err := feeCmdHandler.CreateFeeHead(authCtx, feeCmd.CreateFeeHeadInput{
+		Code:               "TUITION",
+		Name:               "Monthly Tuition",
+		IsRecurring:        true,
+		DefaultAmountMinor: 10000,
+	})
+	if err != nil {
+		t.Fatalf("failed to create fee head: %v", err)
+	}
+
+	fsID, err := feeCmdHandler.CreateFeeStructure(authCtx, feeCmd.CreateFeeStructureInput{
+		AcademicYearID: yearID,
+		ClassID:        classID,
+		Code:           "FS-G1",
+		Name:           "Grade 1 Fee Structure",
+	})
+	if err != nil {
+		t.Fatalf("failed to create fee structure: %v", err)
+	}
+
+	// Create draft version 1
+	v1ID, err := feeCmdHandler.CreateFeeStructureVersion(authCtx, feeCmd.CreateFeeStructureVersionInput{
+		FeeStructureID: fsID,
+		Changelog:      "Draft v1",
+		Items: []feeCmd.FeeStructureItemInput{
+			{
+				FeeHeadID:   headID,
+				AmountMinor: 10000,
+				Frequency:   fees.FrequencyMonthly,
+				DueDay:      5,
+				IsOptional:  false,
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("failed to create v1: %v", err)
+	}
+
+	// Verify v1 exists
+	v1Detail, err := feeQueries.GetFeeStructureVersionDetail(authCtx, v1ID)
+	if err != nil || v1Detail == nil {
+		t.Fatalf("expected v1 to exist, got err: %v", err)
+	}
+	if len(v1Detail.Items) != 1 {
+		t.Fatalf("expected 1 item in v1, got %d", len(v1Detail.Items))
+	}
+
+	// Delete draft version 1
+	err = feeCmdHandler.DeleteFeeStructureVersion(authCtx, v1ID)
+	if err != nil {
+		t.Fatalf("failed to delete draft version: %v", err)
+	}
+
+	// Verify v1 detail is now not found
+	_, err = feeQueries.GetFeeStructureVersionDetail(authCtx, v1ID)
+	if err == nil {
+		t.Fatalf("expected v1 to be deleted and return error, but got nil")
+	}
+
+	// Create version 2 and publish it
+	v2ID, err := feeCmdHandler.CreateFeeStructureVersion(authCtx, feeCmd.CreateFeeStructureVersionInput{
+		FeeStructureID: fsID,
+		Changelog:      "Draft v2",
+		Items: []feeCmd.FeeStructureItemInput{
+			{
+				FeeHeadID:   headID,
+				AmountMinor: 12000,
+				Frequency:   fees.FrequencyMonthly,
+				DueDay:      5,
+				IsOptional:  false,
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("failed to create v2: %v", err)
+	}
+
+	err = feeCmdHandler.PublishFeeStructureVersion(authCtx, v2ID)
+	if err != nil {
+		t.Fatalf("failed to publish v2: %v", err)
+	}
+
+	// Attempting to delete published version must fail
+	err = feeCmdHandler.DeleteFeeStructureVersion(authCtx, v2ID)
+	if err == nil {
+		t.Fatalf("expected error when deleting published version, but got nil")
+	}
+	t.Logf("Successfully verified DeleteFeeStructureVersion lifecycle!")
+}
+

@@ -23,6 +23,8 @@ type Querier interface {
 	CountUsers(ctx context.Context) (int64, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
 	DeleteAcademicTermsByYear(ctx context.Context, academicYearID string) error
+	DeleteFeeStructureItemsByVersion(ctx context.Context, feeStructureVersionID string) error
+	DeleteFeeStructureVersion(ctx context.Context, id string) error
 	DeleteRole(ctx context.Context, id string) error
 	DeleteStudentGuardians(ctx context.Context, studentID string) error
 	FindSiblingsByGuardian(ctx context.Context, arg FindSiblingsByGuardianParams) ([]FindSiblingsByGuardianRow, error)

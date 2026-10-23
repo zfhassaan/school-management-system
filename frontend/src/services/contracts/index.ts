@@ -213,6 +213,7 @@ export interface IFeeService {
 		}[]
 	}): Promise<ResponseEnvelope<string>>
 	publishFeeStructureVersion(versionId: string): Promise<ResponseEnvelope<boolean>>
+	deleteFeeStructureVersion(versionId: string): Promise<ResponseEnvelope<boolean>>
 
 	listDiscountPolicies(): Promise<ResponseEnvelope<DiscountPolicyDTO[]>>
 	createDiscountPolicy(input: {

@@ -66,6 +66,14 @@ SET status = 'published', published_by = ?, published_at = ?, updated_at = ?,
     row_version = row_version + 1
 WHERE id = ?;
 
+-- name: DeleteFeeStructureItemsByVersion :exec
+DELETE FROM fee_structure_items
+WHERE fee_structure_version_id = ?;
+
+-- name: DeleteFeeStructureVersion :exec
+DELETE FROM fee_structure_versions
+WHERE id = ?;
+
 -- name: ListFeeStructureItems :many
 SELECT fsi.*, fh.code as fee_head_code, fh.name as fee_head_name
 FROM fee_structure_items fsi

@@ -516,6 +516,11 @@ export class WailsFeeService implements IFeeService {
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
 		return await svc.PublishFeeStructureVersion(versionId)
 	}
+	async deleteFeeStructureVersion(versionId: string) {
+		const svc = getBinding('FeeService')
+		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }
+		return await svc.DeleteFeeStructureVersion(versionId)
+	}
 	async listDiscountPolicies() {
 		const svc = getBinding('FeeService')
 		if (!svc) return { success: false, error: { code: 'unavailable', message: 'Wails runtime unavailable' } }

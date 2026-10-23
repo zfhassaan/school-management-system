@@ -1181,6 +1181,26 @@ func (q *Queries) PublishFeeStructureVersion(ctx context.Context, arg PublishFee
 	return err
 }
 
+const deleteFeeStructureItemsByVersion = `-- name: DeleteFeeStructureItemsByVersion :exec
+DELETE FROM fee_structure_items
+WHERE fee_structure_version_id = ?
+`
+
+func (q *Queries) DeleteFeeStructureItemsByVersion(ctx context.Context, feeStructureVersionID string) error {
+	_, err := q.db.ExecContext(ctx, deleteFeeStructureItemsByVersion, feeStructureVersionID)
+	return err
+}
+
+const deleteFeeStructureVersion = `-- name: DeleteFeeStructureVersion :exec
+DELETE FROM fee_structure_versions
+WHERE id = ?
+`
+
+func (q *Queries) DeleteFeeStructureVersion(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, deleteFeeStructureVersion, id)
+	return err
+}
+
 const updateDiscountPolicy = `-- name: UpdateDiscountPolicy :exec
 UPDATE discount_policies
 SET name = ?, description = ?, discount_type = ?, rate_basis_points = ?,

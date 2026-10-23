@@ -163,21 +163,36 @@
 							<!-- Version selector tabs -->
 							<div class="flex gap-2 items-center flex-wrap">
 								<span class="text-xs font-semibold text-slate-600 mr-1">Versions:</span>
-								<button
+								<div
 									v-for="v in versions"
 									:key="v.ID"
-									@click="selectVersion(v.ID)"
-									class="px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition flex items-center gap-1.5"
-									:class="selectedVersion?.ID === v.ID ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'"
+									class="inline-flex items-center rounded-lg overflow-hidden border transition"
+									:class="selectedVersion?.ID === v.ID ? 'border-indigo-600 bg-indigo-600 text-white shadow-xs' : 'border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700'"
 								>
-									<span>v{{ v.VersionNo }}</span>
-									<span
-										class="px-1.5 py-0.2 rounded-full text-[9px] uppercase tracking-wide font-bold"
-										:class="v.Status === 'published' ? 'bg-emerald-100 text-emerald-800' : v.Status === 'draft' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'"
+									<button
+										@click="selectVersion(v.ID)"
+										class="px-2.5 py-1 text-xs font-medium cursor-pointer flex items-center gap-1.5"
 									>
-										{{ v.Status }}
-									</span>
-								</button>
+										<span>v{{ v.VersionNo }}</span>
+										<span
+											class="px-1.5 py-0.2 rounded-full text-[9px] uppercase tracking-wide font-bold"
+											:class="selectedVersion?.ID === v.ID
+												? (v.Status === 'published' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white')
+												: (v.Status === 'published' ? 'bg-emerald-100 text-emerald-800' : v.Status === 'draft' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600')"
+										>
+											{{ v.Status }}
+										</span>
+									</button>
+									<button
+										v-if="v.Status === 'draft'"
+										@click.stop="confirmDeleteVersion(v)"
+										class="px-1.5 py-1 transition cursor-pointer hover:bg-rose-500 hover:text-white"
+										:class="selectedVersion?.ID === v.ID ? 'text-white/70 hover:text-white' : 'text-slate-400'"
+										title="Delete draft version"
+									>
+										<Trash2 class="w-3 h-3" />
+									</button>
+								</div>
 								<span v-if="versions.length === 0" class="text-xs text-slate-400 italic">No versions created yet</span>
 							</div>
 
@@ -199,7 +214,15 @@
 										</div>
 									</div>
 
-									<div v-if="selectedVersionDetail.version.Status === 'draft'">
+									<div v-if="selectedVersionDetail.version.Status === 'draft'" class="flex items-center gap-2">
+										<button
+											@click="confirmDeleteVersion(selectedVersionDetail.version)"
+											class="py-1.5 px-3 border border-rose-200 hover:bg-rose-50 text-rose-600 font-medium rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer"
+											title="Delete this draft version"
+										>
+											<Trash2 class="w-3.5 h-3.5 text-rose-500" />
+											<span>Delete Version</span>
+										</button>
 										<button
 											@click="publishVersion(selectedVersionDetail.version.ID)"
 											class="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-xs transition flex items-center gap-1 cursor-pointer"
@@ -551,6 +574,47 @@
 				</form>
 			</div>
 		</div>
+
+		<!-- MODAL: Confirm Delete Fee Structure Version -->
+		<div v-if="showDeleteModal && versionToDelete" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+			<div class="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full overflow-hidden">
+				<div class="p-4 border-b border-slate-100 flex items-center justify-between">
+					<div class="flex items-center gap-2 text-rose-600">
+						<AlertTriangle class="w-4 h-4" />
+						<h3 class="font-bold text-sm text-slate-900">Delete Fee Structure Version</h3>
+					</div>
+					<button @click="showDeleteModal = false" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">&times;</button>
+				</div>
+				<div class="p-5 space-y-3">
+					<p class="text-xs text-slate-600 leading-relaxed">
+						Are you sure you want to permanently delete <strong>Version {{ versionToDelete.VersionNo }}</strong>?
+						All fee heads and billing amounts configured in this draft version will be removed.
+					</p>
+					<div class="p-3 bg-rose-50 rounded-lg border border-rose-200 text-[11px] text-rose-700">
+						This action cannot be undone. Only draft versions can be safely deleted.
+					</div>
+				</div>
+				<div class="p-3.5 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+					<button
+						type="button"
+						@click="showDeleteModal = false"
+						:disabled="deletingVersion"
+						class="px-3.5 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs hover:bg-slate-100 cursor-pointer"
+					>
+						Cancel
+					</button>
+					<button
+						type="button"
+						@click="deleteVersionConfirmed"
+						:disabled="deletingVersion"
+						class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
+					>
+						<Trash2 class="w-3.5 h-3.5" />
+						<span>{{ deletingVersion ? 'Deleting...' : 'Delete Version' }}</span>
+					</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -568,7 +632,7 @@ import type {
 	ClassDTO
 } from '@/types/common'
 import { formatMinor, formatCivilDate } from '@/utils/format'
-import { Plus, RefreshCw, Lock, CheckCircle2 } from 'lucide-vue-next'
+import { Plus, RefreshCw, Lock, CheckCircle2, Trash2, AlertTriangle } from 'lucide-vue-next'
 
 const services = getServices()
 const toast = useToast()
@@ -586,6 +650,11 @@ const selectedStructure = ref<FeeStructureDTO | null>(null)
 const versions = ref<FeeStructureVersionDTO[]>([])
 const selectedVersion = ref<FeeStructureVersionDTO | null>(null)
 const selectedVersionDetail = ref<FeeStructureVersionDetailDTO | null>(null)
+
+// Delete Version Modal
+const showDeleteModal = ref(false)
+const versionToDelete = ref<FeeStructureVersionDTO | null>(null)
+const deletingVersion = ref(false)
 
 // Fee Head Modal
 const showHeadModal = ref(false)
@@ -890,6 +959,34 @@ async function publishVersion(versionId: string) {
 		}
 	} catch (e: any) {
 		toast.error(e.message || 'An error occurred while publishing version')
+	}
+}
+
+function confirmDeleteVersion(v: FeeStructureVersionDTO) {
+	versionToDelete.value = v
+	showDeleteModal.value = true
+}
+
+async function deleteVersionConfirmed() {
+	if (!versionToDelete.value) return
+	deletingVersion.value = true
+	try {
+		const vNo = versionToDelete.value.VersionNo
+		const res = await services.fees.deleteFeeStructureVersion(versionToDelete.value.ID)
+		if (res.success) {
+			toast.success(`Fee structure version v${vNo} deleted successfully.`)
+			showDeleteModal.value = false
+			versionToDelete.value = null
+			if (selectedStructure.value) {
+				await selectStructure(selectedStructure.value)
+			}
+		} else {
+			toast.error(res.error?.message || 'Failed to delete fee structure version')
+		}
+	} catch (e: any) {
+		toast.error(e.message || 'An error occurred while deleting version')
+	} finally {
+		deletingVersion.value = false
 	}
 }
 

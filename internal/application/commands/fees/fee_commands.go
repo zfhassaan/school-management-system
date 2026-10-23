@@ -328,6 +328,35 @@ func (h *FeeCommandsHandler) PublishFeeStructureVersion(ctx context.Context, ver
 	})
 }
 
+func (h *FeeCommandsHandler) DeleteFeeStructureVersion(ctx context.Context, versionID shared.ID) error {
+	_, err := authz.Require(ctx, identity.PermFeesEdit)
+	if err != nil {
+		return err
+	}
+
+	return h.uow.Write(ctx, func(ctx context.Context, r uow.Repos) error {
+		v, err := r.Fees.GetFeeStructureVersion(ctx, versionID)
+		if err != nil {
+			return err
+		}
+		if v.Status != fees.VersionDraft {
+			return shared.Validation("only draft fee structure versions can be deleted", map[string]string{"status": "version is not in draft status"})
+		}
+
+		if err := r.Fees.DeleteFeeStructureVersion(ctx, versionID); err != nil {
+			return err
+		}
+
+		return h.recorder.Record(ctx, r.Audit, auditlog.Change{
+			Action:     "fee_structure_version.deleted",
+			EntityType: "fee_structure_version",
+			EntityID:   versionID.String(),
+			Reason:     "fee structure draft version deleted",
+			Before:     map[string]any{"versionNo": v.VersionNo, "feeStructureId": v.FeeStructureID.String()},
+		})
+	})
+}
+
 // --- Discount Policies & Student Discounts ---
 
 func (h *FeeCommandsHandler) CreateDiscountPolicy(ctx context.Context, in CreateDiscountPolicyInput) (shared.ID, error) {
