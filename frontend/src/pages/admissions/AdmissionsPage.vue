@@ -175,11 +175,11 @@
 
 		<!-- Direct Application Submission Modal -->
 		<div v-if="showDirectSubmitModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
-			<div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
+			<div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 border border-slate-200 max-h-[92vh] overflow-y-auto">
 				<div class="flex items-start justify-between mb-4 border-b border-slate-100 pb-3">
 					<div>
 						<h3 class="text-base font-bold text-slate-900">Direct Admission Application</h3>
-						<p class="text-xs text-slate-500 mt-0.5">Submit an applicant for admissions review and enrollment.</p>
+						<p class="text-xs text-slate-500 mt-0.5">Submit complete institutional particulars, fee schedule, and parents details for official admission.</p>
 					</div>
 					<button @click="showDirectSubmitModal = false" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
 						<X class="w-4 h-4" />
@@ -187,231 +187,275 @@
 				</div>
 
 				<form @submit.prevent="submitDirectApplication" class="space-y-4 text-xs">
-					<!-- Academic Year & Applied Class -->
-					<div class="grid grid-cols-2 gap-3">
-						<div>
-							<label class="block font-medium text-slate-700 mb-1">Academic Year *</label>
-							<select v-model="newAppForm.academicYearId" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
-								<option value="" disabled>Select Year</option>
-								<option v-for="y in academicYears" :key="y.ID" :value="y.ID">{{ y.Name }} ({{ y.Code }})</option>
-							</select>
+					
+					<!-- SECTION 1: ENROLLMENT & OFFICE FINANCIALS -->
+					<div class="space-y-3 p-3.5 bg-slate-50/70 border border-slate-200 rounded-xl">
+						<div class="flex items-center justify-between border-b border-slate-200 pb-1.5">
+							<span class="text-[11px] font-black uppercase tracking-wider text-slate-800">
+								SECTION 1: ENROLLMENT &amp; OFFICE FINANCIALS
+							</span>
+							<span class="text-[10px] text-slate-500 font-medium">Class &amp; Institutional Fees</span>
 						</div>
-						<div>
-							<label class="block font-medium text-slate-700 mb-1">Applied Class *</label>
-							<select v-model="newAppForm.appliedClassId" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
-								<option value="" disabled>Select Class</option>
-								<option v-for="c in classes" :key="c.ID" :value="c.ID">{{ c.Name }} ({{ c.Code }})</option>
-							</select>
-						</div>
-					</div>
 
-					<!-- Applicant Names -->
-					<div class="grid grid-cols-2 gap-3">
-						<div>
-							<label class="block font-medium text-slate-700 mb-1">Applicant First Name *</label>
-							<input v-model="newAppForm.applicantFirstName" required placeholder="e.g. Zain" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
-						</div>
-						<div>
-							<label class="block font-medium text-slate-700 mb-1">Applicant Last Name *</label>
-							<input v-model="newAppForm.applicantLastName" required placeholder="e.g. Abbas" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
-						</div>
-					</div>
-
-					<!-- Candidate Photo Upload -->
-					<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3">
-						<div class="flex items-center gap-3">
-							<div class="w-12 h-14 border border-slate-300 rounded-md bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
-								<img v-if="newAppCandidatePhoto" :src="newAppCandidatePhoto" alt="Candidate" class="w-full h-full object-cover" />
-								<User v-else class="w-6 h-6 text-slate-300" />
-							</div>
-							<div>
-								<span class="text-xs font-bold text-slate-800">Candidate Photo</span>
-								<p class="text-[10px] text-slate-500">Attach passport photograph for official admission form.</p>
-							</div>
-						</div>
-						<div class="flex items-center gap-2">
-							<label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium cursor-pointer shadow-2xs">
-								<span>{{ newAppCandidatePhoto ? 'Change' : 'Upload' }}</span>
-								<input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onDirectAppPhotoSelected" />
-							</label>
-							<button v-if="newAppCandidatePhoto" type="button" @click="newAppCandidatePhoto = null" class="text-rose-600 text-xs hover:underline cursor-pointer">
-								Remove
-							</button>
-						</div>
-					</div>
-
-					<!-- DOB & Gender -->
-					<div class="grid grid-cols-2 gap-3">
-						<div>
-							<label class="block font-medium text-slate-700 mb-1">Date of Birth</label>
-							<input v-model="newAppForm.applicantDob" type="date" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
-						</div>
-						<div>
-							<label class="block font-medium text-slate-700 mb-1">Gender *</label>
-							<select v-model="newAppForm.applicantGender" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
-								<option value="male">Male</option>
-								<option value="female">Female</option>
-								<option value="other">Other</option>
-							</select>
-						</div>
-					</div>
-
-					<!-- Guardian Info -->
-					<div class="border-t border-slate-100 pt-3">
-						<h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Guardian Information</h4>
+						<!-- Academic Year & Applied Class -->
 						<div class="grid grid-cols-2 gap-3">
 							<div>
-								<label class="block font-medium text-slate-700 mb-1">Guardian Name *</label>
-								<input v-model="newAppForm.guardianName" required placeholder="e.g. Tariq Abbas" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+								<label class="block font-medium text-slate-700 mb-1">Academic Year *</label>
+								<select v-model="newAppForm.academicYearId" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
+									<option value="" disabled>Select Year</option>
+									<option v-for="y in academicYears" :key="y.ID" :value="y.ID">{{ y.Name }} ({{ y.Code }})</option>
+								</select>
 							</div>
 							<div>
-								<label class="block font-medium text-slate-700 mb-1">Guardian Phone *</label>
-								<input v-model="newAppForm.guardianPhone" required placeholder="e.g. +92-300-1234567" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+								<label class="block font-medium text-slate-700 mb-1">Applied Class *</label>
+								<select v-model="newAppForm.appliedClassId" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
+									<option value="" disabled>Select Class</option>
+									<option v-for="c in classes" :key="c.ID" :value="c.ID">{{ c.Name }} ({{ c.Code }})</option>
+								</select>
 							</div>
 						</div>
-						<div class="mt-3">
-							<label class="block font-medium text-slate-700 mb-1">Guardian Email</label>
-							<input v-model="newAppForm.guardianEmail" type="email" placeholder="e.g. guardian@example.com" class="w-full border border-slate-300 rounded-lg p-2 text-xs" />
+
+						<!-- B-Form & Adm Fee -->
+						<div class="grid grid-cols-2 gap-3">
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">B-Form / CNIC No.</label>
+								<input v-model="newAppForm.b_form_cnic" placeholder="e.g. 34101-1234567-1" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Admission Fee (PKR)</label>
+								<input v-model="newAppForm.adm_fee" type="number" placeholder="e.g. 2000" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+						</div>
+
+						<!-- Other Financials Strip -->
+						<div class="grid grid-cols-4 gap-2">
+							<div>
+								<label class="block text-[10px] font-medium text-slate-600 mb-1">Monthly Tuition</label>
+								<input v-model="newAppForm.monthly_fee" type="number" placeholder="2500" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+							<div>
+								<label class="block text-[10px] font-medium text-slate-600 mb-1">Annual Charges</label>
+								<input v-model="newAppForm.annual_fee" type="number" placeholder="3500" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+							<div>
+								<label class="block text-[10px] font-medium text-slate-600 mb-1">Paper Fund</label>
+								<input v-model="newAppForm.paper_fund" type="number" placeholder="1000" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+							<div>
+								<label class="block text-[10px] font-medium text-slate-600 mb-1">ID Card Fee</label>
+								<input v-model="newAppForm.id_card_fee" type="number" placeholder="500" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
 						</div>
 					</div>
 
-					<!-- Notes -->
-					<div>
-						<label class="block font-medium text-slate-700 mb-1">Notes / Previous School</label>
-						<textarea v-model="newAppForm.notes" rows="2" placeholder="Optional background or previous schooling..." class="w-full border border-slate-300 rounded-lg p-2 text-xs"></textarea>
-					</div>
-
-					<!-- Expandable Standard Form & Financial Fields -->
-					<div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
-						<button
-							type="button"
-							@click="showExtendedFields = !showExtendedFields"
-							class="w-full p-3 flex items-center justify-between text-left hover:bg-slate-100 transition cursor-pointer"
-						>
-							<div class="flex items-center gap-2">
-								<span class="text-xs font-bold text-slate-800">Standard Form Fields &amp; Financials</span>
-								<span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-medium">B-Form, Fees, Parents</span>
-							</div>
-							<span class="text-xs font-semibold text-indigo-600">
-								{{ showExtendedFields ? 'Hide ▲' : 'Show & Fill ▼' }}
+					<!-- SECTION 2: STUDENT PERSONAL INFORMATION -->
+					<div class="space-y-3 p-3.5 bg-slate-50/70 border border-slate-200 rounded-xl">
+						<div class="flex items-center justify-between border-b border-slate-200 pb-1.5">
+							<span class="text-[11px] font-black uppercase tracking-wider text-slate-800">
+								SECTION 2: STUDENT PERSONAL INFO
 							</span>
-						</button>
+							<span class="text-[10px] text-slate-500 font-medium">Candidate Profile</span>
+						</div>
 
-						<div v-if="showExtendedFields" class="p-3 border-t border-slate-200 bg-white space-y-3">
-							<!-- Section 1: Office Use & Financials -->
+						<!-- Applicant Names -->
+						<div class="grid grid-cols-2 gap-3">
 							<div>
-								<span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1.5">Section 1: Office &amp; Financials</span>
-								<div class="grid grid-cols-2 gap-2 mb-2">
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">B-Form / CNIC No.</label>
-										<input v-model="newAppForm.b_form_cnic" placeholder="e.g. 34101-1234567-1" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs font-mono" />
-									</div>
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Admission Fee (PKR)</label>
-										<input v-model="newAppForm.adm_fee" type="number" placeholder="2000" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs font-mono" />
-									</div>
+								<label class="block font-medium text-slate-700 mb-1">Applicant First Name *</label>
+								<input v-model="newAppForm.applicantFirstName" required placeholder="e.g. Zain" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Applicant Last Name *</label>
+								<input v-model="newAppForm.applicantLastName" required placeholder="e.g. Abbas" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+						</div>
+
+						<!-- Candidate Photo Upload -->
+						<div class="p-2.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-3">
+							<div class="flex items-center gap-3">
+								<div class="w-12 h-14 border border-slate-300 rounded-md bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+									<img v-if="newAppCandidatePhoto" :src="newAppCandidatePhoto" alt="Candidate" class="w-full h-full object-cover" />
+									<User v-else class="w-6 h-6 text-slate-300" />
 								</div>
-								<div class="grid grid-cols-4 gap-2">
-									<div>
-										<label class="block text-[10px] font-medium text-slate-600 mb-0.5">Monthly Fee</label>
-										<input v-model="newAppForm.monthly_fee" type="number" placeholder="2500" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs font-mono" />
-									</div>
-									<div>
-										<label class="block text-[10px] font-medium text-slate-600 mb-0.5">Annual Charges</label>
-										<input v-model="newAppForm.annual_fee" type="number" placeholder="3500" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs font-mono" />
-									</div>
-									<div>
-										<label class="block text-[10px] font-medium text-slate-600 mb-0.5">Paper Fund</label>
-										<input v-model="newAppForm.paper_fund" type="number" placeholder="1000" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs font-mono" />
-									</div>
-									<div>
-										<label class="block text-[10px] font-medium text-slate-600 mb-0.5">ID Card Fee</label>
-										<input v-model="newAppForm.id_card_fee" type="number" placeholder="500" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs font-mono" />
-									</div>
+								<div>
+									<span class="text-xs font-bold text-slate-800">Candidate Photo</span>
+									<p class="text-[10px] text-slate-500">Attach passport photograph for official printed admission form.</p>
 								</div>
 							</div>
-
-							<!-- Section 2: Personal Details -->
-							<div class="border-t border-slate-100 pt-2.5">
-								<span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1.5">Section 2: Personal &amp; Medical</span>
-								<div class="mb-2">
-									<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Home / Residential Address</label>
-									<input v-model="newAppForm.home_address" placeholder="House #, Street #, City" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-								</div>
-								<div class="grid grid-cols-2 gap-2">
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Medical History</label>
-										<input v-model="newAppForm.medical_history" placeholder="e.g. None / Asthma" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Last Grade / Result</label>
-										<input v-model="newAppForm.last_grade_result" placeholder="e.g. Passed Class 1" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-								</div>
+							<div class="flex items-center gap-2">
+								<label class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium cursor-pointer shadow-2xs">
+									<span>{{ newAppCandidatePhoto ? 'Change' : 'Upload' }}</span>
+									<input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onDirectAppPhotoSelected" />
+								</label>
+								<button v-if="newAppCandidatePhoto" type="button" @click="newAppCandidatePhoto = null" class="text-rose-600 text-xs hover:underline cursor-pointer">
+									Remove
+								</button>
 							</div>
+						</div>
 
-							<!-- Section 3: Parents Details -->
-							<div class="border-t border-slate-100 pt-2.5">
-								<span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1.5">Section 3: Parents Details</span>
-								<div class="grid grid-cols-2 gap-2 mb-2">
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Father Qualification</label>
-										<input v-model="newAppForm.father_qualification" placeholder="e.g. Graduate" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Father Occupation</label>
-										<input v-model="newAppForm.father_occupation" placeholder="e.g. Business" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-								</div>
-								<div class="grid grid-cols-2 gap-2 mb-2">
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Mother's Name</label>
-										<input v-model="newAppForm.mother_name" placeholder="Mother full name" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Mother Mobile Number</label>
-										<input v-model="newAppForm.mother_phone" placeholder="0320-1234567" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs font-mono" />
-									</div>
-								</div>
-								<div class="grid grid-cols-2 gap-2">
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Mother Qualification</label>
-										<input v-model="newAppForm.mother_qualification" placeholder="e.g. Matric" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Mother Occupation</label>
-										<input v-model="newAppForm.mother_occupation" placeholder="e.g. Housewife" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-								</div>
+						<!-- DOB, Gender, Blood Group & Religion -->
+						<div class="grid grid-cols-4 gap-2">
+							<div class="col-span-2">
+								<label class="block font-medium text-slate-700 mb-1">Date of Birth</label>
+								<input v-model="newAppForm.applicantDob" type="date" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
 							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Gender *</label>
+								<select v-model="newAppForm.applicantGender" required class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
+									<option value="male">Male</option>
+									<option value="female">Female</option>
+									<option value="other">Other</option>
+								</select>
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Blood Group</label>
+								<select v-model="newAppForm.blood_group" class="w-full border border-slate-300 rounded-lg p-2 bg-white text-xs">
+									<option value="">Select...</option>
+									<option value="A+">A+</option>
+									<option value="A-">A-</option>
+									<option value="B+">B+</option>
+									<option value="B-">B-</option>
+									<option value="O+">O+</option>
+									<option value="O-">O-</option>
+									<option value="AB+">AB+</option>
+									<option value="AB-">AB-</option>
+								</select>
+							</div>
+						</div>
 
-							<!-- Section 4: Siblings & Reference -->
-							<div class="border-t border-slate-100 pt-2.5">
-								<span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1.5">Section 4: Siblings &amp; Reference</span>
-								<div class="grid grid-cols-2 gap-2 mb-2">
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Reference Name</label>
-										<input v-model="newAppForm.reference_name" placeholder="Reference person" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-									<div>
-										<label class="block text-[11px] font-medium text-slate-600 mb-0.5">Reference Phone</label>
-										<input v-model="newAppForm.reference_phone" placeholder="0300-1234567" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs font-mono" />
-									</div>
-								</div>
-								<div class="grid grid-cols-3 gap-2">
-									<div>
-										<label class="block text-[10px] font-medium text-slate-600 mb-0.5">Sibling in School</label>
-										<input v-model="newAppForm.sibling_in_school" placeholder="Yes / No" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-									<div>
-										<label class="block text-[10px] font-medium text-slate-600 mb-0.5">Sibling Class</label>
-										<input v-model="newAppForm.sibling_class" placeholder="Grade 3" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-									<div>
-										<label class="block text-[10px] font-medium text-slate-600 mb-0.5">Enrolled Since</label>
-										<input v-model="newAppForm.sibling_since" placeholder="2024" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs" />
-									</div>
-								</div>
+						<!-- Residential Address -->
+						<div>
+							<label class="block font-medium text-slate-700 mb-1">Residential / Home Address</label>
+							<input v-model="newAppForm.home_address" placeholder="House #, Street #, City / Area" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+						</div>
+
+						<!-- Previous School & Medical History -->
+						<div class="grid grid-cols-3 gap-2">
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Previous School</label>
+								<input v-model="newAppForm.notes" placeholder="Previous school attended..." class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Last Grade / Result</label>
+								<input v-model="newAppForm.last_grade_result" placeholder="e.g. Grade 1 - Passed" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Medical History / Special</label>
+								<input v-model="newAppForm.medical_history" placeholder="e.g. None / Asthma" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+						</div>
+					</div>
+
+					<!-- SECTION 3: PARENTS & GUARDIAN DETAILS -->
+					<div class="space-y-3 p-3.5 bg-slate-50/70 border border-slate-200 rounded-xl">
+						<div class="flex items-center justify-between border-b border-slate-200 pb-1.5">
+							<span class="text-[11px] font-black uppercase tracking-wider text-slate-800">
+								SECTION 3: PARENTS &amp; GUARDIAN DETAILS
+							</span>
+							<span class="text-[10px] text-slate-500 font-medium">Family Contacts</span>
+						</div>
+
+						<!-- Father / Primary Guardian -->
+						<div class="grid grid-cols-2 gap-3">
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Father / Guardian Name *</label>
+								<input v-model="newAppForm.guardianName" required placeholder="e.g. Tariq Abbas" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Father Mobile (WhatsApp) *</label>
+								<input v-model="newAppForm.guardianPhone" required placeholder="e.g. +92-300-1234567" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+						</div>
+
+						<!-- Father Details: CNIC, Qualification, Occupation -->
+						<div class="grid grid-cols-3 gap-2">
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Father CNIC</label>
+								<input v-model="newAppForm.father_cnic" placeholder="34101-1234567-1" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Qualification</label>
+								<input v-model="newAppForm.father_qualification" placeholder="e.g. Graduate" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Occupation</label>
+								<input v-model="newAppForm.father_occupation" placeholder="e.g. Business" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+						</div>
+
+						<!-- Father Office Details -->
+						<div class="grid grid-cols-2 gap-3">
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Father Office Address</label>
+								<input v-model="newAppForm.father_office_address" placeholder="Office address..." class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Father Office Phone</label>
+								<input v-model="newAppForm.father_office_phone" placeholder="e.g. 042-1234567" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+						</div>
+
+						<!-- Mother Details -->
+						<div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-200">
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Mother's Name</label>
+								<input v-model="newAppForm.mother_name" placeholder="Mother full name" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Mother Mobile Number</label>
+								<input v-model="newAppForm.mother_phone" placeholder="e.g. +92-320-1234567" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+						</div>
+
+						<div class="grid grid-cols-3 gap-2">
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Mother Qualification</label>
+								<input v-model="newAppForm.mother_qualification" placeholder="e.g. Matric" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Mother Occupation</label>
+								<input v-model="newAppForm.mother_occupation" placeholder="e.g. Housewife" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Guardian Email</label>
+								<input v-model="newAppForm.guardianEmail" type="email" placeholder="email@example.com" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+						</div>
+					</div>
+
+					<!-- SECTION 4: SIBLINGS & EMERGENCY REFERENCE -->
+					<div class="space-y-3 p-3.5 bg-slate-50/70 border border-slate-200 rounded-xl">
+						<div class="flex items-center justify-between border-b border-slate-200 pb-1.5">
+							<span class="text-[11px] font-black uppercase tracking-wider text-slate-800">
+								SECTION 4: SIBLINGS &amp; REFERENCE
+							</span>
+							<span class="text-[10px] text-slate-500 font-medium">References &amp; Relatives</span>
+						</div>
+
+						<!-- Reference Person -->
+						<div class="grid grid-cols-2 gap-3">
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Emergency Reference Name</label>
+								<input v-model="newAppForm.reference_name" placeholder="Name of reference" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block font-medium text-slate-700 mb-1">Reference Phone</label>
+								<input v-model="newAppForm.reference_phone" placeholder="0300-1234567" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono bg-white" />
+							</div>
+						</div>
+
+						<!-- Sibling Information -->
+						<div class="grid grid-cols-3 gap-2">
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Sibling in School?</label>
+								<input v-model="newAppForm.sibling_in_school" placeholder="Yes / No" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Sibling Class / Roll No</label>
+								<input v-model="newAppForm.sibling_class" placeholder="e.g. Class 2" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
+							</div>
+							<div>
+								<label class="block text-[11px] font-medium text-slate-600 mb-1">Enrolled Since</label>
+								<input v-model="newAppForm.sibling_since" placeholder="e.g. 2024" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white" />
 							</div>
 						</div>
 					</div>
@@ -700,7 +744,6 @@ const academicYears = ref<AcademicYearDTO[]>([])
 const classes = ref<ClassDTO[]>([])
 const isSubmitting = ref(false)
 const submitError = ref('')
-const showExtendedFields = ref(false)
 
 const newAppForm = reactive({
 	academicYearId: '',
@@ -709,6 +752,7 @@ const newAppForm = reactive({
 	applicantLastName: '',
 	applicantDob: '',
 	applicantGender: 'male',
+	blood_group: '',
 	guardianName: '',
 	guardianPhone: '',
 	guardianEmail: '',
@@ -723,8 +767,11 @@ const newAppForm = reactive({
 	home_address: '',
 	medical_history: '',
 	last_grade_result: '',
+	father_cnic: '',
 	father_qualification: '',
 	father_occupation: '',
+	father_office_address: '',
+	father_office_phone: '',
 	mother_name: '',
 	mother_phone: '',
 	mother_qualification: '',
@@ -828,8 +875,12 @@ async function submitDirectApplication() {
 		if (newAppForm.home_address) responseData.home_address = newAppForm.home_address
 		if (newAppForm.medical_history) responseData.medical_history = newAppForm.medical_history
 		if (newAppForm.last_grade_result) responseData.last_grade_result = newAppForm.last_grade_result
+		if (newAppForm.blood_group) responseData.blood_group = newAppForm.blood_group
+		if (newAppForm.father_cnic) responseData.father_cnic = newAppForm.father_cnic
 		if (newAppForm.father_qualification) responseData.father_qualification = newAppForm.father_qualification
 		if (newAppForm.father_occupation) responseData.father_occupation = newAppForm.father_occupation
+		if (newAppForm.father_office_address) responseData.father_office_address = newAppForm.father_office_address
+		if (newAppForm.father_office_phone) responseData.father_office_phone = newAppForm.father_office_phone
 		if (newAppForm.mother_name) responseData.mother_name = newAppForm.mother_name
 		if (newAppForm.mother_phone) responseData.mother_phone = newAppForm.mother_phone
 		if (newAppForm.mother_qualification) responseData.mother_qualification = newAppForm.mother_qualification
@@ -877,8 +928,12 @@ async function submitDirectApplication() {
 			newAppForm.home_address = ''
 			newAppForm.medical_history = ''
 			newAppForm.last_grade_result = ''
+			newAppForm.blood_group = ''
+			newAppForm.father_cnic = ''
 			newAppForm.father_qualification = ''
 			newAppForm.father_occupation = ''
+			newAppForm.father_office_address = ''
+			newAppForm.father_office_phone = ''
 			newAppForm.mother_name = ''
 			newAppForm.mother_phone = ''
 			newAppForm.mother_qualification = ''
