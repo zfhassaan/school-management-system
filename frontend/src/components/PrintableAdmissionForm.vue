@@ -1,8 +1,13 @@
 <template>
-	<div v-if="isOpen && application" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto animate-in fade-in duration-150 print:static print:bg-transparent print:p-0 print:overflow-visible print:block">
-		<div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-200 my-6 max-h-[95vh] overflow-y-auto print:max-h-none print:overflow-visible print:p-0 print:border-none print:shadow-none print:my-0 print:w-full print:max-w-none">
-			<!-- Top Control Bar (Hidden on print) -->
-			<div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 no-print">
+	<Teleport to="body">
+		<div
+			v-if="isOpen && application"
+			id="admission-printable-modal"
+			class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto animate-in fade-in duration-150"
+		>
+			<div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-200 my-6 max-h-[95vh] overflow-y-auto">
+				<!-- Top Control Bar (Hidden on print) -->
+				<div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 no-print">
 				<div class="flex items-center gap-2">
 					<span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
 						Official Admission Form
@@ -287,10 +292,11 @@
 			</div>
 		</div>
 	</div>
+	</Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import type { ApplicationDTO } from '@/types/common'
 import { formatCivilDate } from '@/utils/format'
@@ -469,16 +475,28 @@ function removeCandidatePhoto() {
 }
 
 function printForm() {
+	document.body.classList.add('is-printing-admission')
 	const originalTitle = document.title
 	document.title = ''
-	window.print()
-	window.addEventListener('afterprint', () => {
+
+	const cleanup = () => {
+		document.body.classList.remove('is-printing-admission')
 		document.title = originalTitle
-	}, { once: true })
-	setTimeout(() => {
-		document.title = originalTitle
-	}, 1500)
+		window.removeEventListener('afterprint', cleanup)
+	}
+
+	window.addEventListener('afterprint', cleanup, { once: true })
+
+	requestAnimationFrame(() => {
+		window.print()
+	})
+
+	setTimeout(cleanup, 2000)
 }
+
+onBeforeUnmount(() => {
+	document.body.classList.remove('is-printing-admission')
+})
 
 onMounted(async () => {
 	if (!authStore.school?.name) {
@@ -503,33 +521,79 @@ onMounted(async () => {
 		display: none !important;
 	}
 
-	/* Hide everything on the page */
-	body * {
-		visibility: hidden !important;
+	/* Completely remove the main application tree from the print layout */
+	body.is-printing-admission #app,
+	body:has(#admission-printable-modal) #app {
+		display: none !important;
 	}
 
-	/* Exclusively reveal and position the admission paper container */
-	#admission-printable-area,
-	#admission-printable-area * {
-		visibility: visible !important;
+	/* Clean root styles for the printed document */
+	body.is-printing-admission,
+	body:has(#admission-printable-modal) {
+		background: #ffffff !important;
+		color: #0f172a !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		width: 100% !important;
+		height: auto !important;
+		min-height: 100% !important;
+		overflow: visible !important;
 	}
 
-	#admission-printable-area {
-		position: fixed !important;
-		left: 0 !important;
-		top: 0 !important;
-		right: 0 !important;
+	/* Unset modal overlay constraints so content flows naturally */
+	body.is-printing-admission #admission-printable-modal,
+	body:has(#admission-printable-modal) #admission-printable-modal {
+		position: static !important;
+		inset: auto !important;
+		background: transparent !important;
+		padding: 0 !important;
+		margin: 0 !important;
 		width: 100% !important;
 		max-width: 100% !important;
+		overflow: visible !important;
+		display: block !important;
+	}
+
+	body.is-printing-admission #admission-printable-modal > div,
+	body:has(#admission-printable-modal) #admission-printable-modal > div {
+		position: static !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		padding: 0 !important;
 		margin: 0 !important;
-		padding: 6mm 8mm !important;
-		background: #ffffff !important;
-		box-sizing: border-box !important;
 		border: none !important;
 		box-shadow: none !important;
-		z-index: 999999 !important;
+		max-height: none !important;
+		overflow: visible !important;
+		background: transparent !important;
+	}
+
+	/* Admission paper: high contrast, natural flow, crisp layout */
+	body.is-printing-admission #admission-printable-area,
+	body:has(#admission-printable-modal) #admission-printable-area {
+		display: block !important;
+		position: static !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0 auto !important;
+		padding: 4mm 6mm !important;
+		border: none !important;
+		box-shadow: none !important;
+		background: #ffffff !important;
+		box-sizing: border-box !important;
 		page-break-after: avoid !important;
 		page-break-inside: avoid !important;
+		break-inside: avoid !important;
+	}
+
+	/* Table and section borders guarantee */
+	table, tr, td, th {
+		border-color: #000000 !important;
+	}
+
+	.bg-\[\#002060\] {
+		background-color: #002060 !important;
+		color: #ffffff !important;
 	}
 }
 </style>
