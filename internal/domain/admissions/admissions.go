@@ -140,29 +140,29 @@ func DefaultFormSchema() FormSchema {
 }
 
 type FormDefinition struct {
-	ID          shared.ID
-	SchoolID    shared.ID
-	Code        string
-	Name        string
-	Description string
-	IsActive    bool
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Revision    int64
+	ID          shared.ID `json:"id"`
+	SchoolID    shared.ID `json:"schoolId"`
+	Code        string    `json:"code"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	IsActive    bool      `json:"isActive"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	Revision    int64     `json:"revision"`
 }
 
 type FormVersion struct {
-	ID               shared.ID
-	FormDefinitionID shared.ID
-	VersionNo        int
-	Status           FormStatus
-	Schema           FormSchema
-	SchemaHash       string
-	PublishedAt      *time.Time
-	PublishedBy      *shared.ID
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	Revision         int64
+	ID               shared.ID   `json:"id"`
+	FormDefinitionID shared.ID   `json:"formDefinitionId"`
+	VersionNo        int         `json:"versionNo"`
+	Status           FormStatus  `json:"status"`
+	Schema           FormSchema  `json:"schema"`
+	SchemaHash       string      `json:"schemaHash"`
+	PublishedAt      *time.Time  `json:"publishedAt,omitempty"`
+	PublishedBy      *shared.ID  `json:"publishedBy,omitempty"`
+	CreatedAt        time.Time   `json:"createdAt"`
+	UpdatedAt        time.Time   `json:"updatedAt"`
+	Revision         int64       `json:"revision"`
 }
 
 type ApplicationStatus string

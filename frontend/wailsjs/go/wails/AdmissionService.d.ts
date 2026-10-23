@@ -10,6 +10,8 @@ export function CreateFormVersion(arg1:admissions.CreateFormVersionInput):Promis
 
 export function EnrollApplication(arg1:admissions.EnrollApplicationInput):Promise<dto.Response_school_management_internal_domain_shared_ID_>;
 
+export function EnsureDefaultAdmissionForm():Promise<dto.Response_school_management_internal_domain_shared_ID_>;
+
 export function GetApplication(arg1:shared.ID):Promise<dto.Response_school_management_internal_domain_admissions_Application_>;
 
 export function GetPublishedFormVersion(arg1:shared.ID):Promise<dto.Response_school_management_internal_domain_admissions_FormVersion_>;

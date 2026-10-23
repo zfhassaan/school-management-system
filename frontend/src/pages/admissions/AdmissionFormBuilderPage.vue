@@ -37,17 +37,17 @@
 			<div class="flex items-center gap-4 text-xs">
 				<span class="font-medium text-slate-700">Form Definition:</span>
 				<select v-model="selectedFormDefId" @change="onFormDefChange" class="border border-slate-300 rounded-lg py-1 px-3 bg-white font-medium">
-					<option v-for="d in definitions" :key="d.ID" :value="d.ID">{{ d.Name }} ({{ d.Code }})</option>
+					<option v-for="d in definitions" :key="d.ID || d.id" :value="d.ID || d.id">{{ d.Name || d.name }} ({{ d.Code || d.code }})</option>
 				</select>
 			</div>
 
 			<div v-if="currentVersion" class="flex items-center gap-3 text-xs">
-				<span class="text-slate-500">Version: <strong class="text-slate-900">v{{ currentVersion.VersionNo }}</strong></span>
+				<span class="text-slate-500">Version: <strong class="text-slate-900">v{{ currentVersion.VersionNo ?? currentVersion.versionNo }}</strong></span>
 				<span
 					class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase"
-					:class="currentVersion.Status === 'published' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'"
+					:class="(currentVersion.Status || currentVersion.status) === 'published' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'"
 				>
-					{{ currentVersion.Status }}
+					{{ currentVersion.Status || currentVersion.status }}
 				</span>
 			</div>
 		</div>
@@ -187,41 +187,39 @@ const schema = ref<FormSchemaDTO>({
 
 async function loadDefinitions() {
 	const res = await services.admissions.listFormDefinitions()
-	if (res.success && res.data) {
-		definitions.value = res.data
-		if (definitions.value.length > 0) {
-			selectedFormDefId.value = definitions.value[0].ID
-			await loadPublishedVersion(selectedFormDefId.value)
-		} else {
-			// Create a default form definition if none exists
-			const created = await services.admissions.createFormDefinition({
-				code: 'STD-ADMISSION',
-				name: 'General Admission Form',
-				description: 'Standard single-school admission intake'
-			})
-			if (created.success && created.data) {
-				const draftRes = await services.admissions.createFormVersion({
-					formDefinitionId: created.data,
-					schema: schema.value
-				})
-				if (draftRes.success && draftRes.data) {
-					await services.admissions.publishFormVersion({
-						versionId: draftRes.data
-					})
-				}
-				await loadDefinitions()
-			}
+	let defs: any[] = []
+	if (res && res.success && Array.isArray(res.data)) {
+		defs = res.data
+	}
+
+	// Auto-provision default institutional admission form if none exists
+	if (defs.length === 0) {
+		await services.admissions.ensureDefaultAdmissionForm()
+		const reloadRes = await services.admissions.listFormDefinitions()
+		if (reloadRes && reloadRes.success && Array.isArray(reloadRes.data)) {
+			defs = reloadRes.data
 		}
+	}
+
+	definitions.value = defs
+	if (defs.length > 0) {
+		const first = defs[0]
+		selectedFormDefId.value = first.ID || first.id
+		await loadPublishedVersion(selectedFormDefId.value)
 	}
 }
 
 async function loadPublishedVersion(defId: string) {
+	if (!defId) return
 	const res = await services.admissions.getPublishedFormVersion(defId)
-	if (res.success && res.data) {
+	if (res && res.success && res.data) {
 		currentVersion.value = res.data
-		if (res.data.Schema && res.data.Schema.sections) {
-			schema.value = res.data.Schema
+		const sc = res.data.Schema || res.data.schema
+		if (sc && sc.sections) {
+			schema.value = sc
 		}
+	} else {
+		currentVersion.value = null
 	}
 }
 

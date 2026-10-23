@@ -329,6 +329,12 @@ export interface FormDefinitionDTO {
 	Name: string
 	Description: string
 	IsActive: boolean
+	id?: string
+	schoolId?: string
+	code?: string
+	name?: string
+	description?: string
+	isActive?: boolean
 }
 
 export interface FormVersionDTO {
@@ -339,6 +345,11 @@ export interface FormVersionDTO {
 	Schema: FormSchemaDTO
 	SchemaHash: string
 	PublishedAt?: string
+	id?: string
+	formDefinitionId?: string
+	versionNo?: number
+	status?: 'draft' | 'published' | 'retired' | string
+	schema?: FormSchemaDTO
 }
 
 export interface ApplicationDTO {

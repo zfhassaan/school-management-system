@@ -784,17 +784,17 @@ export namespace admissions {
 		}
 	}
 	export class FormDefinition {
-	    ID: string;
-	    SchoolID: string;
-	    Code: string;
-	    Name: string;
-	    Description: string;
-	    IsActive: boolean;
+	    id: string;
+	    schoolId: string;
+	    code: string;
+	    name: string;
+	    description: string;
+	    isActive: boolean;
 	    // Go type: time
-	    CreatedAt: any;
+	    createdAt: any;
 	    // Go type: time
-	    UpdatedAt: any;
-	    Revision: number;
+	    updatedAt: any;
+	    revision: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new FormDefinition(source);
@@ -802,15 +802,15 @@ export namespace admissions {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.ID = source["ID"];
-	        this.SchoolID = source["SchoolID"];
-	        this.Code = source["Code"];
-	        this.Name = source["Name"];
-	        this.Description = source["Description"];
-	        this.IsActive = source["IsActive"];
-	        this.CreatedAt = this.convertValues(source["CreatedAt"], null);
-	        this.UpdatedAt = this.convertValues(source["UpdatedAt"], null);
-	        this.Revision = source["Revision"];
+	        this.id = source["id"];
+	        this.schoolId = source["schoolId"];
+	        this.code = source["code"];
+	        this.name = source["name"];
+	        this.description = source["description"];
+	        this.isActive = source["isActive"];
+	        this.createdAt = this.convertValues(source["createdAt"], null);
+	        this.updatedAt = this.convertValues(source["updatedAt"], null);
+	        this.revision = source["revision"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -835,20 +835,20 @@ export namespace admissions {
 	
 	
 	export class FormVersion {
-	    ID: string;
-	    FormDefinitionID: string;
-	    VersionNo: number;
-	    Status: string;
-	    Schema: FormSchema;
-	    SchemaHash: string;
+	    id: string;
+	    formDefinitionId: string;
+	    versionNo: number;
+	    status: string;
+	    schema: FormSchema;
+	    schemaHash: string;
 	    // Go type: time
-	    PublishedAt?: any;
-	    PublishedBy?: string;
+	    publishedAt?: any;
+	    publishedBy?: string;
 	    // Go type: time
-	    CreatedAt: any;
+	    createdAt: any;
 	    // Go type: time
-	    UpdatedAt: any;
-	    Revision: number;
+	    updatedAt: any;
+	    revision: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new FormVersion(source);
@@ -856,17 +856,17 @@ export namespace admissions {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.ID = source["ID"];
-	        this.FormDefinitionID = source["FormDefinitionID"];
-	        this.VersionNo = source["VersionNo"];
-	        this.Status = source["Status"];
-	        this.Schema = this.convertValues(source["Schema"], FormSchema);
-	        this.SchemaHash = source["SchemaHash"];
-	        this.PublishedAt = this.convertValues(source["PublishedAt"], null);
-	        this.PublishedBy = source["PublishedBy"];
-	        this.CreatedAt = this.convertValues(source["CreatedAt"], null);
-	        this.UpdatedAt = this.convertValues(source["UpdatedAt"], null);
-	        this.Revision = source["Revision"];
+	        this.id = source["id"];
+	        this.formDefinitionId = source["formDefinitionId"];
+	        this.versionNo = source["versionNo"];
+	        this.status = source["status"];
+	        this.schema = this.convertValues(source["schema"], FormSchema);
+	        this.schemaHash = source["schemaHash"];
+	        this.publishedAt = this.convertValues(source["publishedAt"], null);
+	        this.publishedBy = source["publishedBy"];
+	        this.createdAt = this.convertValues(source["createdAt"], null);
+	        this.updatedAt = this.convertValues(source["updatedAt"], null);
+	        this.revision = source["revision"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

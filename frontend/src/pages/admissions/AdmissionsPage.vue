@@ -595,7 +595,7 @@ async function loadApplications() {
 
 async function loadFormMetadata() {
 	try {
-		services.admissions.ensureDefaultAdmissionForm().catch(() => {})
+		await services.admissions.ensureDefaultAdmissionForm().catch(() => {})
 
 		const [yearsRes, classesRes] = await Promise.all([
 			services.academics.listAcademicYears(),

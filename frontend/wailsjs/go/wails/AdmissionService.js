@@ -14,6 +14,10 @@ export function EnrollApplication(arg1) {
   return window['go']['wails']['AdmissionService']['EnrollApplication'](arg1);
 }
 
+export function EnsureDefaultAdmissionForm() {
+  return window['go']['wails']['AdmissionService']['EnsureDefaultAdmissionForm']();
+}
+
 export function GetApplication(arg1) {
   return window['go']['wails']['AdmissionService']['GetApplication'](arg1);
 }

@@ -250,8 +250,14 @@ func (h *AdmissionCommandsHandler) EnsureDefaultAdmissionForm(ctx context.Contex
 		}
 
 		versions, _ := r.Admissions.ListFormVersions(ctx, targetDefID)
+		for _, v := range versions {
+			if v.Status == admissions.FormPublished {
+				publishedVerID = v.ID
+				return nil
+			}
+		}
 		if len(versions) > 0 {
-			latest := versions[len(versions)-1]
+			latest := versions[0]
 			hash, _ := admissions.ComputeSchemaHash(latest.Schema)
 			_ = r.Admissions.PublishFormVersion(ctx, latest.ID, actorID, now, hash)
 			publishedVerID = latest.ID
@@ -343,17 +349,21 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 
 				// Check if there are existing versions for this definition
 				versions, _ := r.Admissions.ListFormVersions(ctx, targetDefID)
-				if len(versions) > 0 {
-					latest := versions[len(versions)-1]
+				for _, v := range versions {
+					if v.Status == admissions.FormPublished {
+						formVerID = v.ID
+						break
+					}
+				}
+				if formVerID == "" && len(versions) > 0 {
+					latest := versions[0]
 					hash, _ := admissions.ComputeSchemaHash(latest.Schema)
 					_ = r.Admissions.PublishFormVersion(ctx, latest.ID, actor.UserID, now, hash)
 					formVerID = latest.ID
-				} else {
+				} else if formVerID == "" {
 					verID := h.ids.NewID()
-					schema := admissions.FormSchema{
-						Title:    targetDefName,
-						Sections: []admissions.FormSection{},
-					}
+					schema := admissions.DefaultFormSchema()
+					schema.Title = targetDefName
 					hash, _ := admissions.ComputeSchemaHash(schema)
 					ver := &admissions.FormVersion{
 						ID:               verID,
@@ -388,7 +398,13 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 			}
 		}
 		if v.Status != admissions.FormPublished {
-			return shared.Validation("can only submit against published form versions", nil)
+			// Fallback: check if any published version exists for this definition
+			if pub, pErr := r.Admissions.GetPublishedVersion(ctx, v.FormDefinitionID); pErr == nil && pub != nil && pub.Status == admissions.FormPublished {
+				v = pub
+				formVerID = pub.ID
+			} else {
+				return shared.Validation("can only submit against published form versions", nil)
+			}
 		}
 		if in.Response != nil {
 			if err := admissions.ValidateResponse(v.Schema, in.Response); err != nil {
