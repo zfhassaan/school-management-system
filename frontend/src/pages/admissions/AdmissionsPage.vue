@@ -1,5 +1,5 @@
 <template>
-	<div class="space-y-6 max-w-6xl mx-auto">
+	<div class="space-y-6 max-w-6xl mx-auto" :class="{ 'no-print': showPrintFormModal }">
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-xl font-bold text-slate-900">Admission Applications</h1>

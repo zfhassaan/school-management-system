@@ -44,7 +44,7 @@
 			</div>
 
 			<!-- Printable Paper Form -->
-			<div class="admission-paper bg-white text-slate-900 border border-slate-200 shadow-xs print:border-none print:shadow-none p-6 md:p-8 space-y-3 relative">
+			<div id="admission-printable-area" class="admission-paper bg-white text-slate-900 border border-slate-200 shadow-xs print:border-none print:shadow-none p-6 md:p-8 space-y-3 relative">
 				
 				<!-- 1. FORMAL INSTITUTIONAL HEADER -->
 				<div class="flex items-center justify-between gap-4 border-b-2 border-slate-900 pb-2.5">
@@ -375,38 +375,38 @@ const admissionOrRollNo = computed(() => {
 })
 
 // Financials
-const admFee = computed(() => resp.value.adm_fee ? `Rs ${resp.value.adm_fee}` : '—')
-const monthlyFee = computed(() => resp.value.monthly_fee ? `Rs ${resp.value.monthly_fee}` : '—')
-const annualFee = computed(() => resp.value.annual_fee ? `Rs ${resp.value.annual_fee}` : '—')
-const paperFund = computed(() => resp.value.paper_fund ? `Rs ${resp.value.paper_fund}` : '—')
+const admFee = computed(() => resp.value.adm_fee ? `Rs ${resp.value.adm_fee}` : (resp.value.admission_fee ? `Rs ${resp.value.admission_fee}` : '—'))
+const monthlyFee = computed(() => resp.value.monthly_fee ? `Rs ${resp.value.monthly_fee}` : (resp.value.monthly_tuition_fee ? `Rs ${resp.value.monthly_tuition_fee}` : '—'))
+const annualFee = computed(() => resp.value.annual_fee ? `Rs ${resp.value.annual_fee}` : (resp.value.annual_charges ? `Rs ${resp.value.annual_charges}` : '—'))
+const paperFund = computed(() => resp.value.paper_fund ? `Rs ${resp.value.paper_fund}` : (resp.value.paper_exam_fund ? `Rs ${resp.value.paper_exam_fund}` : '—'))
 const idCardFee = computed(() => resp.value.id_card_fee ? `Rs ${resp.value.id_card_fee}` : '—')
 
 // Personal Info
-const bFormCnic = computed(() => resp.value.b_form_cnic || resp.value.bFormNo || resp.value.cnic || '—')
-const medicalHistory = computed(() => resp.value.medical_history || resp.value.medicalHistory || 'NO')
-const homeAddress = computed(() => resp.value.home_address || resp.value.homeAddress || resp.value.address || '—')
-const previousSchool = computed(() => resp.value.previous_school || resp.value.previousSchool || resp.value.notes || '—')
-const lastGradeResult = computed(() => resp.value.last_grade_result || resp.value.lastGradeResult || '—')
+const bFormCnic = computed(() => resp.value.b_form_cnic || resp.value.b_form || resp.value.bFormNo || resp.value.cnic || '—')
+const medicalHistory = computed(() => resp.value.medical_history || resp.value.medicalHistory || resp.value.medical_special_needs || 'NO')
+const homeAddress = computed(() => resp.value.home_address || resp.value.homeAddress || resp.value.residential_address || resp.value.address || '—')
+const previousSchool = computed(() => resp.value.previous_school || resp.value.previousSchool || resp.value.prev_school || resp.value.notes || '—')
+const lastGradeResult = computed(() => resp.value.last_grade_result || resp.value.lastGradeResult || resp.value.last_grade || '—')
 
 // Parents Details
-const fatherName = computed(() => resp.value.father_name || props.application?.GuardianName || resp.value.guardianName || '—')
-const fatherWhatsApp = computed(() => resp.value.father_whatsapp || props.application?.GuardianPhoneNormalized || resp.value.guardianPhone || '—')
-const fatherQualification = computed(() => resp.value.father_qualification || resp.value.guardianQualification || '—')
-const fatherOccupation = computed(() => resp.value.father_occupation || resp.value.guardianOccupation || '—')
-const fatherOfficeAddress = computed(() => resp.value.father_office_address || '—')
-const fatherOfficePhone = computed(() => resp.value.father_office_phone || '—')
+const fatherName = computed(() => resp.value.father_name || resp.value.fatherName || props.application?.GuardianName || resp.value.guardianName || (props.application?.ApplicantLastName ? `${props.application.ApplicantLastName} Guardian` : '—'))
+const fatherWhatsApp = computed(() => resp.value.father_whatsapp || resp.value.fatherWhatsApp || props.application?.GuardianPhoneNormalized || resp.value.guardianPhone || '—')
+const fatherQualification = computed(() => resp.value.father_qualification || resp.value.fatherQualification || resp.value.guardianQualification || '—')
+const fatherOccupation = computed(() => resp.value.father_occupation || resp.value.fatherOccupation || resp.value.guardianOccupation || '—')
+const fatherOfficeAddress = computed(() => resp.value.father_office_address || resp.value.fatherOfficeAddress || '—')
+const fatherOfficePhone = computed(() => resp.value.father_office_phone || resp.value.fatherOfficePhone || '—')
 
 const motherName = computed(() => resp.value.mother_name || resp.value.motherName || '—')
-const motherPhone = computed(() => resp.value.mother_phone || resp.value.motherPhone || '—')
-const motherQualification = computed(() => resp.value.mother_qualification || '—')
-const motherOccupation = computed(() => resp.value.mother_occupation || '—')
+const motherPhone = computed(() => resp.value.mother_phone || resp.value.motherPhone || resp.value.emergencyPhone || '—')
+const motherQualification = computed(() => resp.value.mother_qualification || resp.value.motherQualification || '—')
+const motherOccupation = computed(() => resp.value.mother_occupation || resp.value.motherOccupation || '—')
 
 // Siblings & Reference
-const referenceName = computed(() => resp.value.reference_name || resp.value.referenceContact || 'NO')
-const referencePhone = computed(() => resp.value.reference_phone || 'NO')
+const referenceName = computed(() => resp.value.reference_name || resp.value.referenceName || resp.value.referenceContact || 'NO')
+const referencePhone = computed(() => resp.value.reference_phone || resp.value.referencePhone || 'NO')
 const siblingInSchool = computed(() => resp.value.sibling_in_school || resp.value.siblingInSchool || 'NO')
 const siblingClass = computed(() => resp.value.sibling_class || resp.value.siblingClass || '—')
-const siblingSince = computed(() => resp.value.sibling_since || '—')
+const siblingSince = computed(() => resp.value.sibling_since || resp.value.siblingSince || '—')
 
 const formattedAdmissionDate = computed(() => {
 	if (props.application?.SubmittedAt) {
@@ -487,7 +487,7 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
+<style>
 @media print {
 	* {
 		-webkit-print-color-adjust: exact !important;
@@ -503,16 +503,33 @@ onMounted(async () => {
 		display: none !important;
 	}
 
-	.admission-paper {
+	/* Hide everything on the page */
+	body * {
+		visibility: hidden !important;
+	}
+
+	/* Exclusively reveal and position the admission paper container */
+	#admission-printable-area,
+	#admission-printable-area * {
+		visibility: visible !important;
+	}
+
+	#admission-printable-area {
+		position: fixed !important;
+		left: 0 !important;
+		top: 0 !important;
+		right: 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0 !important;
+		padding: 6mm 8mm !important;
+		background: #ffffff !important;
+		box-sizing: border-box !important;
 		border: none !important;
 		box-shadow: none !important;
-		padding: 8mm 10mm !important;
-		margin: 0 auto !important;
-		max-width: 100% !important;
-		width: 100% !important;
-		box-sizing: border-box !important;
-		page-break-after: avoid;
-		page-break-inside: avoid;
+		z-index: 999999 !important;
+		page-break-after: avoid !important;
+		page-break-inside: avoid !important;
 	}
 }
 </style>

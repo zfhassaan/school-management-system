@@ -426,6 +426,22 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 		}
 		appNo := fmt.Sprintf("APP-%d-%04d-%s", now.Year(), (now.UnixNano()/1e6)%10000, idSuffix)
 
+		respData := in.Response
+		if respData == nil {
+			respData = make(map[string]any)
+		}
+		if in.GuardianName != "" {
+			if respData["guardianName"] == nil {
+				respData["guardianName"] = strings.TrimSpace(in.GuardianName)
+			}
+			if respData["father_name"] == nil {
+				respData["father_name"] = strings.TrimSpace(in.GuardianName)
+			}
+		}
+		if in.GuardianEmail != "" && respData["guardianEmail"] == nil {
+			respData["guardianEmail"] = strings.TrimSpace(in.GuardianEmail)
+		}
+
 		app := &admissions.Application{
 			ID:                      id,
 			SchoolID:                sch.ID,
@@ -439,7 +455,7 @@ func (h *AdmissionCommandsHandler) SubmitApplication(ctx context.Context, in Sub
 			ApplicantDOB:            in.ApplicantDOB,
 			ApplicantGender:         strings.TrimSpace(in.ApplicantGender),
 			GuardianPhoneNormalized: guardians.NormalizePhone(in.GuardianPhoneNormalized),
-			Response:                in.Response,
+			Response:                respData,
 			SubmittedAt:             &now,
 			CreatedBy:               actor.UserID,
 			CreatedAt:               now,
