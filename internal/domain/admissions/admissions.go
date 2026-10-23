@@ -161,6 +161,13 @@ func DefaultFormSchema() FormSchema {
 						Required:    false,
 						Options:     []string{"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"},
 					},
+					{
+						ID:          "religion",
+						Label:       "Religion",
+						Type:        FieldText,
+						Placeholder: "e.g. Islam / Christianity",
+						Required:    false,
+					},
 				},
 			},
 			{
@@ -180,6 +187,13 @@ func DefaultFormSchema() FormSchema {
 						Label:       "Mobile (WhatsApp)",
 						Type:        FieldPhone,
 						Placeholder: "0321 7404703",
+						Required:    false,
+					},
+					{
+						ID:          "father_cnic",
+						Label:       "Father / Guardian CNIC",
+						Type:        FieldText,
+						Placeholder: "e.g. 34101-1234567-1",
 						Required:    false,
 					},
 					{

@@ -14,6 +14,15 @@
 				</div>
 				<div class="flex items-center gap-2">
 					<button
+						@click="loadInstitutionalTemplate"
+						type="button"
+						class="px-3 py-1.5 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium rounded-lg text-xs transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+						title="Load complete standard institutional form template (4 sections, 28 fields)"
+					>
+						<RotateCcw class="w-3.5 h-3.5" />
+						<span>Load Standard Template</span>
+					</button>
+					<button
 						@click="saveDraftVersion"
 						:disabled="saving"
 						class="px-3.5 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg text-xs transition cursor-pointer"
@@ -145,10 +154,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getServices } from '@/services/factory'
+import { useToast } from '@/composables/useToast'
 import type { FormDefinitionDTO, FormVersionDTO, FormSchemaDTO, FormSectionDTO } from '@/types/common'
-import { ArrowLeft, CheckCircle2, Plus, Trash2, X } from 'lucide-vue-next'
+import { ArrowLeft, CheckCircle2, Plus, Trash2, X, RotateCcw } from 'lucide-vue-next'
 
 const services = getServices()
+const toast = useToast()
 
 const definitions = ref<FormDefinitionDTO[]>([])
 const selectedFormDefId = ref('')
@@ -157,223 +168,246 @@ const currentVersion = ref<FormVersionDTO | null>(null)
 const saving = ref(false)
 const publishing = ref(false)
 
-const schema = ref<FormSchemaDTO>({
-	title: 'Official Admission Application Form',
-	description: 'Official admission intake form for student registration, parents details and institutional financials.',
-	sections: [
-		{
-			id: 'sec_office_financials',
-			title: 'SECTION 1: OFFICE USE & FINANCIALS',
-			description: 'Institutional enrollment details, student identification and fee schedule',
-			fields: [
-				{
-					id: 'b_form_cnic',
-					label: 'B-Form / CNIC No.',
-					type: 'text',
-					placeholder: 'e.g. 34101-1234567-1',
-					required: false
-				},
-				{
-					id: 'adm_fee',
-					label: 'Admission Fee (PKR)',
-					type: 'number',
-					placeholder: 'e.g. 2000',
-					required: false
-				},
-				{
-					id: 'monthly_fee',
-					label: 'Monthly Tuition Fee (PKR)',
-					type: 'number',
-					placeholder: 'e.g. 2500',
-					required: false
-				},
-				{
-					id: 'annual_fee',
-					label: 'Annual Charges (PKR)',
-					type: 'number',
-					placeholder: 'e.g. 3500',
-					required: false
-				},
-				{
-					id: 'paper_fund',
-					label: 'Paper / Exam Fund (PKR)',
-					type: 'number',
-					placeholder: 'e.g. 1000',
-					required: false
-				},
-				{
-					id: 'id_card_fee',
-					label: 'ID Card Fee (PKR)',
-					type: 'number',
-					placeholder: 'e.g. 500',
-					required: false
-				}
-			]
-		},
-		{
-			id: 'sec_student_personal',
-			title: 'SECTION 2: STUDENT PERSONAL INFO',
-			description: 'Student personal particulars, medical history and previous academic record',
-			fields: [
-				{
-					id: 'medical_history',
-					label: 'Medical History / Special Needs',
-					type: 'text',
-					placeholder: 'e.g. None / Asthma / Allergies',
-					required: false
-				},
-				{
-					id: 'home_address',
-					label: 'Home / Residential Address',
-					type: 'text',
-					placeholder: 'House #, Street #, Area / City',
-					required: false
-				},
-				{
-					id: 'previous_school',
-					label: 'Previous School Attended',
-					type: 'text',
-					placeholder: 'Name of previous school',
-					required: false
-				},
-				{
-					id: 'last_grade_result',
-					label: 'Last Grade / Result',
-					type: 'text',
-					placeholder: 'e.g. Grade 1 - Passed',
-					required: false
-				},
-				{
-					id: 'blood_group',
-					label: 'Blood Group',
-					type: 'dropdown',
-					placeholder: 'Select Blood Group',
-					required: false,
-					options: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
-				}
-			]
-		},
-		{
-			id: 'sec_parents_details',
-			title: 'SECTION 3: PARENTS DETAILS',
-			description: 'Father and mother contact details, occupations and qualifications',
-			fields: [
-				{
-					id: 'father_name',
-					label: "Father's Name",
-					type: 'text',
-					placeholder: "Father's full name",
-					required: false
-				},
-				{
-					id: 'father_whatsapp',
-					label: 'Mobile (WhatsApp)',
-					type: 'phone',
-					placeholder: '0321 7404703',
-					required: false
-				},
-				{
-					id: 'father_qualification',
-					label: 'Father Qualification',
-					type: 'text',
-					placeholder: 'e.g. Matric / Graduate / Master',
-					required: false
-				},
-				{
-					id: 'father_occupation',
-					label: 'Father Occupation',
-					type: 'text',
-					placeholder: 'e.g. Business / Government / Private',
-					required: false
-				},
-				{
-					id: 'father_office_address',
-					label: 'Office Address',
-					type: 'text',
-					placeholder: 'Office or business address',
-					required: false
-				},
-				{
-					id: 'father_office_phone',
-					label: 'Office Phone',
-					type: 'phone',
-					placeholder: 'e.g. 042-1234567',
-					required: false
-				},
-				{
-					id: 'mother_name',
-					label: "Mother's Name",
-					type: 'text',
-					placeholder: "Mother's full name",
-					required: false
-				},
-				{
-					id: 'mother_phone',
-					label: 'Mother Mobile Number',
-					type: 'phone',
-					placeholder: '0320 7721922',
-					required: false
-				},
-				{
-					id: 'mother_qualification',
-					label: 'Mother Qualification',
-					type: 'text',
-					placeholder: 'e.g. Matric / Graduate',
-					required: false
-				},
-				{
-					id: 'mother_occupation',
-					label: 'Mother Occupation',
-					type: 'text',
-					placeholder: 'e.g. Housewife / Teacher',
-					required: false
-				}
-			]
-		},
-		{
-			id: 'sec_siblings_reference',
-			title: 'SECTION 4: SIBLINGS & REFERENCE',
-			description: 'Siblings currently enrolled and emergency contact reference',
-			fields: [
-				{
-					id: 'reference_name',
-					label: 'Reference Name',
-					type: 'text',
-					placeholder: 'Name of emergency reference',
-					required: false
-				},
-				{
-					id: 'reference_phone',
-					label: 'Reference Phone',
-					type: 'phone',
-					placeholder: '0300 1234567',
-					required: false
-				},
-				{
-					id: 'sibling_in_school',
-					label: 'Sibling in School?',
-					type: 'text',
-					placeholder: 'Yes / No',
-					required: false
-				},
-				{
-					id: 'sibling_class',
-					label: 'Sibling Class',
-					type: 'text',
-					placeholder: 'e.g. Class 2',
-					required: false
-				},
-				{
-					id: 'sibling_since',
-					label: 'Enrolled Since',
-					type: 'text',
-					placeholder: 'e.g. 2024',
-					required: false
-				}
-			]
-		}
-	]
-})
+function getStandardInstitutionalSchema(): FormSchemaDTO {
+	return {
+		title: 'Official Admission Application Form',
+		description: 'Official admission intake form for student registration, parents details and institutional financials.',
+		sections: [
+			{
+				id: 'sec_office_financials',
+				title: 'SECTION 1: OFFICE USE & FINANCIALS',
+				description: 'Institutional enrollment details, student identification and fee schedule',
+				fields: [
+					{
+						id: 'b_form_cnic',
+						label: 'B-Form / CNIC No.',
+						type: 'text',
+						placeholder: 'e.g. 34101-1234567-1',
+						required: false
+					},
+					{
+						id: 'adm_fee',
+						label: 'Admission Fee (PKR)',
+						type: 'number',
+						placeholder: 'e.g. 2000',
+						required: false
+					},
+					{
+						id: 'monthly_fee',
+						label: 'Monthly Tuition Fee (PKR)',
+						type: 'number',
+						placeholder: 'e.g. 2500',
+						required: false
+					},
+					{
+						id: 'annual_fee',
+						label: 'Annual Charges (PKR)',
+						type: 'number',
+						placeholder: 'e.g. 3500',
+						required: false
+					},
+					{
+						id: 'paper_fund',
+						label: 'Paper / Exam Fund (PKR)',
+						type: 'number',
+						placeholder: 'e.g. 1000',
+						required: false
+					},
+					{
+						id: 'id_card_fee',
+						label: 'ID Card Fee (PKR)',
+						type: 'number',
+						placeholder: 'e.g. 500',
+						required: false
+					}
+				]
+			},
+			{
+				id: 'sec_student_personal',
+				title: 'SECTION 2: STUDENT PERSONAL INFO',
+				description: 'Student personal particulars, medical history and previous academic record',
+				fields: [
+					{
+						id: 'medical_history',
+						label: 'Medical History / Special Needs',
+						type: 'text',
+						placeholder: 'e.g. None / Asthma / Allergies',
+						required: false
+					},
+					{
+						id: 'home_address',
+						label: 'Home / Residential Address',
+						type: 'text',
+						placeholder: 'House #, Street #, Area / City',
+						required: false
+					},
+					{
+						id: 'previous_school',
+						label: 'Previous School Attended',
+						type: 'text',
+						placeholder: 'Name of previous school',
+						required: false
+					},
+					{
+						id: 'last_grade_result',
+						label: 'Last Grade / Result',
+						type: 'text',
+						placeholder: 'e.g. Grade 1 - Passed',
+						required: false
+					},
+					{
+						id: 'blood_group',
+						label: 'Blood Group',
+						type: 'dropdown',
+						placeholder: 'Select Blood Group',
+						required: false,
+						options: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
+					},
+					{
+						id: 'religion',
+						label: 'Religion',
+						type: 'text',
+						placeholder: 'e.g. Islam / Christianity',
+						required: false
+					}
+				]
+			},
+			{
+				id: 'sec_parents_details',
+				title: 'SECTION 3: PARENTS DETAILS',
+				description: 'Father and mother contact details, occupations and qualifications',
+				fields: [
+					{
+						id: 'father_name',
+						label: "Father's Name",
+						type: 'text',
+						placeholder: "Father's full name",
+						required: false
+					},
+					{
+						id: 'father_whatsapp',
+						label: 'Mobile (WhatsApp)',
+						type: 'phone',
+						placeholder: '0321 7404703',
+						required: false
+					},
+					{
+						id: 'father_cnic',
+						label: 'Father / Guardian CNIC',
+						type: 'text',
+						placeholder: 'e.g. 34101-1234567-1',
+						required: false
+					},
+					{
+						id: 'father_qualification',
+						label: 'Father Qualification',
+						type: 'text',
+						placeholder: 'e.g. Matric / Graduate / Master',
+						required: false
+					},
+					{
+						id: 'father_occupation',
+						label: 'Father Occupation',
+						type: 'text',
+						placeholder: 'e.g. Business / Government / Private',
+						required: false
+					},
+					{
+						id: 'father_office_address',
+						label: 'Office Address',
+						type: 'text',
+						placeholder: 'Office or business address',
+						required: false
+					},
+					{
+						id: 'father_office_phone',
+						label: 'Office Phone',
+						type: 'phone',
+						placeholder: 'e.g. 042-1234567',
+						required: false
+					},
+					{
+						id: 'mother_name',
+						label: "Mother's Name",
+						type: 'text',
+						placeholder: "Mother's full name",
+						required: false
+					},
+					{
+						id: 'mother_phone',
+						label: 'Mother Mobile Number',
+						type: 'phone',
+						placeholder: '0320 7721922',
+						required: false
+					},
+					{
+						id: 'mother_qualification',
+						label: 'Mother Qualification',
+						type: 'text',
+						placeholder: 'e.g. Matric / Graduate',
+						required: false
+					},
+					{
+						id: 'mother_occupation',
+						label: 'Mother Occupation',
+						type: 'text',
+						placeholder: 'e.g. Housewife / Teacher',
+						required: false
+					}
+				]
+			},
+			{
+				id: 'sec_siblings_reference',
+				title: 'SECTION 4: SIBLINGS & REFERENCE',
+				description: 'Siblings currently enrolled and emergency contact reference',
+				fields: [
+					{
+						id: 'reference_name',
+						label: 'Reference Name',
+						type: 'text',
+						placeholder: 'Name of emergency reference',
+						required: false
+					},
+					{
+						id: 'reference_phone',
+						label: 'Reference Phone',
+						type: 'phone',
+						placeholder: '0300 1234567',
+						required: false
+					},
+					{
+						id: 'sibling_in_school',
+						label: 'Sibling in School?',
+						type: 'text',
+						placeholder: 'Yes / No',
+						required: false
+					},
+					{
+						id: 'sibling_class',
+						label: 'Sibling Class',
+						type: 'text',
+						placeholder: 'e.g. Class 2',
+						required: false
+					},
+					{
+						id: 'sibling_since',
+						label: 'Enrolled Since',
+						type: 'text',
+						placeholder: 'e.g. 2024',
+						required: false
+					}
+				]
+			}
+		]
+	}
+}
+
+const schema = ref<FormSchemaDTO>(getStandardInstitutionalSchema())
+
+function loadInstitutionalTemplate() {
+	schema.value = getStandardInstitutionalSchema()
+	toast.success('Loaded complete institutional template (4 sections, 28 fields). Click "Publish Version" to activate.')
+}
 
 async function loadDefinitions() {
 	const res = await services.admissions.listFormDefinitions()
@@ -405,11 +439,16 @@ async function loadPublishedVersion(defId: string) {
 	if (res && res.success && res.data) {
 		currentVersion.value = res.data
 		const sc = res.data.Schema || res.data.schema
-		if (sc && sc.sections) {
+		if (sc && sc.sections && sc.sections.length >= 4) {
 			schema.value = sc
+		} else {
+			// Legacy or incomplete schema detected (< 4 sections) - automatically upgrade to full template
+			schema.value = getStandardInstitutionalSchema()
+			toast.info('Standard institutional admission template loaded with complete fieldset.')
 		}
 	} else {
 		currentVersion.value = null
+		schema.value = getStandardInstitutionalSchema()
 	}
 }
 
@@ -457,8 +496,13 @@ async function saveDraftVersion() {
 			schema: schema.value
 		})
 		if (res.success) {
+			toast.success('Form draft saved successfully!')
 			await loadPublishedVersion(selectedFormDefId.value)
+		} else {
+			toast.error(res.error?.message || 'Failed to save draft')
 		}
+	} catch (e: any) {
+		toast.error(e.message || 'Error saving draft')
 	} finally {
 		saving.value = false
 	}
@@ -478,9 +522,16 @@ async function publishCurrentVersion() {
 				versionId: draftRes.data
 			})
 			if (pubRes.success) {
+				toast.success('Admission form version published successfully!')
 				await loadPublishedVersion(selectedFormDefId.value)
+			} else {
+				toast.error(pubRes.error?.message || 'Failed to publish form version')
 			}
+		} else {
+			toast.error(draftRes.error?.message || 'Failed to create form version')
 		}
+	} catch (e: any) {
+		toast.error(e.message || 'Error publishing version')
 	} finally {
 		publishing.value = false
 	}

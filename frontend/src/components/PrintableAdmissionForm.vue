@@ -44,7 +44,7 @@
 			</div>
 
 			<!-- Printable Paper Form -->
-			<div class="admission-paper bg-white text-slate-900 border-2 border-slate-900 p-6 md:p-8 space-y-3 relative">
+			<div class="admission-paper bg-white text-slate-900 border border-slate-200 shadow-xs print:border-none print:shadow-none p-6 md:p-8 space-y-3 relative">
 				
 				<!-- 1. FORMAL INSTITUTIONAL HEADER -->
 				<div class="flex items-center justify-between gap-4 border-b-2 border-slate-900 pb-2.5">
@@ -504,7 +504,7 @@ onMounted(async () => {
 	}
 
 	.admission-paper {
-		border: 2px solid #0f172a !important;
+		border: none !important;
 		box-shadow: none !important;
 		padding: 8mm 10mm !important;
 		margin: 0 auto !important;

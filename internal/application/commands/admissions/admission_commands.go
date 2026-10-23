@@ -213,55 +213,63 @@ func (h *AdmissionCommandsHandler) EnsureDefaultAdmissionForm(ctx context.Contex
 			return err
 		}
 
+		var targetDefID shared.ID
+		var targetDefName string
+		var needsUpgrade bool
+
 		defs, err := r.Admissions.ListFormDefinitions(ctx, sch.ID)
 		if err == nil {
 			for _, def := range defs {
 				pub, err := r.Admissions.GetPublishedVersion(ctx, def.ID)
 				if err == nil && pub != nil && pub.Status == admissions.FormPublished {
-					publishedVerID = pub.ID
-					return nil
+					// Check if this published version has the complete institutional schema (>= 4 sections)
+					if len(pub.Schema.Sections) >= 4 {
+						publishedVerID = pub.ID
+						return nil
+					}
+					// Legacy version detected (< 4 sections). Upgrade it to the complete default schema.
+					targetDefID = def.ID
+					targetDefName = def.Name
+					needsUpgrade = true
+					break
 				}
 			}
 		}
 
-		var targetDefID shared.ID
-		var targetDefName string
-
-		if len(defs) > 0 {
-			targetDefID = defs[0].ID
-			targetDefName = defs[0].Name
-		} else {
-			defID := h.ids.NewID()
-			def := &admissions.FormDefinition{
-				ID:          defID,
-				SchoolID:    sch.ID,
-				Code:        "STD",
-				Name:        "General Admission Form",
-				Description: "Standard admission application form",
-				IsActive:    true,
-				CreatedAt:   now,
-				UpdatedAt:   now,
+		if targetDefID.IsZero() {
+			if len(defs) > 0 {
+				targetDefID = defs[0].ID
+				targetDefName = defs[0].Name
+			} else {
+				defID := h.ids.NewID()
+				def := &admissions.FormDefinition{
+					ID:          defID,
+					SchoolID:    sch.ID,
+					Code:        "STD",
+					Name:        "General Admission Form",
+					Description: "Standard admission application form",
+					IsActive:    true,
+					CreatedAt:   now,
+					UpdatedAt:   now,
+				}
+				if err := r.Admissions.InsertFormDefinition(ctx, def); err != nil {
+					return err
+				}
+				targetDefID = defID
+				targetDefName = def.Name
 			}
-			if err := r.Admissions.InsertFormDefinition(ctx, def); err != nil {
-				return err
-			}
-			targetDefID = defID
-			targetDefName = def.Name
 		}
 
+		nextVerNo := 1
 		versions, _ := r.Admissions.ListFormVersions(ctx, targetDefID)
 		for _, v := range versions {
-			if v.Status == admissions.FormPublished {
+			if v.VersionNo >= nextVerNo {
+				nextVerNo = v.VersionNo + 1
+			}
+			if !needsUpgrade && v.Status == admissions.FormPublished && len(v.Schema.Sections) >= 4 {
 				publishedVerID = v.ID
 				return nil
 			}
-		}
-		if len(versions) > 0 {
-			latest := versions[0]
-			hash, _ := admissions.ComputeSchemaHash(latest.Schema)
-			_ = r.Admissions.PublishFormVersion(ctx, latest.ID, actorID, now, hash)
-			publishedVerID = latest.ID
-			return nil
 		}
 
 		verID := h.ids.NewID()
@@ -271,7 +279,7 @@ func (h *AdmissionCommandsHandler) EnsureDefaultAdmissionForm(ctx context.Contex
 		ver := &admissions.FormVersion{
 			ID:               verID,
 			FormDefinitionID: targetDefID,
-			VersionNo:        1,
+			VersionNo:        nextVerNo,
 			Status:           admissions.FormDraft,
 			Schema:           schema,
 			SchemaHash:       hash,
